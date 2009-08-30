@@ -28,10 +28,17 @@ int main(){
   int shapeType;
   double padfMinBound[4];
   double padfMaxBound[4];
+  int i;
   SHPHandle handle = SHPOpen("/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp", "rb");
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
-
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
-    
+  
+  printf("Allocating %d bytes of memory", entityCount*sizeof(SHPObject));
+  SHPObject *shapeList = malloc(entityCount*sizeof(SHPObject));
+  
+  for(i=0; i<entityCount; i++){
+    shapeList[i] = SHPReadObject(handle,i);
+  }
+
   SHPClose(handle);
 }
