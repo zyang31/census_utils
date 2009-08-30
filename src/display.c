@@ -34,8 +34,8 @@ int main(){
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
   
-  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject));
-  SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject));
+  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
+  SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
   
   for(i=0; i<5; i++){
     shapeList[i] = SHPReadObject(handle,i);
