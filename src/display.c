@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+        The Shapelib library is licensed under the GNU Lesser General Public License.
+        A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
+        For information on Shapelib, see http://shapelib.maptools.org/ .
  */
 int main(){
   printf("This is a test of display.c.\n");

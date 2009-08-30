@@ -23,8 +23,7 @@ import com.linuxense.javadbf.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	The JavaDBF library is licensed under the GNU Lesser General Public License.
- *	A copy of the GNU LGPL should be included in the merge-xbase folder.
- *	If it is not, it can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
+ *	A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
  *	For details regarding JavaDBF, see http://javadbf.sarovar.org/
  *	
  *
