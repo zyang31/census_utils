@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "shapefil.h"
 
 /*
@@ -33,12 +34,18 @@ int main(){
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
   
-  printf("Allocating %d bytes of memory", entityCount*sizeof(SHPObject));
-  SHPObject *shapeList = malloc(entityCount*sizeof(SHPObject));
+  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject));
+  SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject));
   
-  for(i=0; i<entityCount; i++){
+  for(i=0; i<5; i++){
     shapeList[i] = SHPReadObject(handle,i);
+    printf("Shape %d has the following attributes:\n",i);
+    printf("\tVertex count: %d\n", shapeList[i]->nVertices);
   }
+  for(i=0; i<5; i++){
+    SHPDestroyObject(shapeList[i]);
+  }
+
 
   SHPClose(handle);
 }
