@@ -40,6 +40,7 @@ int main(){
   for(i=0; i<5; i++){
     shapeList[i] = SHPReadObject(handle,i);
     printf("Shape %d has the following attributes:\n",i);
+    printf("\tID Number: %d\n", shapeList[i]->nShapeId);
     printf("\tVertex count: %d\n", shapeList[i]->nVertices);
   }
   for(i=0; i<5; i++){
