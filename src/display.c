@@ -24,6 +24,14 @@
         For information on Shapelib, see http://shapelib.maptools.org/ .
  */
 int main(){
-  printf("This is a test of display.c.\n");
-  return 0;
+  int entityCount;
+  int shapeType;
+  double padfMinBound[4];
+  double padfMaxBound[4];
+  SHPHandle handle = SHPOpen("/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp", "rb");
+  SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
+
+  printf("There are %d entities, of type %d\n", entityCount, shapeType);
+    
+  SHPClose(handle);
 }
