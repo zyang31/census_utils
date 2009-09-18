@@ -31,11 +31,14 @@ bool CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, do
 	ma=delYa/delXa;
 	mb=delYb/delXb;
 	overlap=
-	if(abs(ma-mb)<=DBL_TOLERANCE){
-		if(
-		//check for overlap, if they overlap
-		return true;
-		//else return false
+	if(abs(ma-mb)<=DBL_TOLERANCE){ // slopes are equal enough
+		if(){ // both x and y values are outside the values for the other block
+			return false;
+		}else if (){ // y=mx+b within tolerance
+			return true;
+		}else{
+			return false;
+		}
 	}
 	else{
 		return false;
