@@ -1,14 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include "shapefil.h"
-#include "uthash.h"
-
-#define TRUNCATE_UPTO 	100000
-#define TOLERANCE 	0.0005
-
-#define TRUNCATE(var, convert)  { int temp = var*TRUNCATE_UPTO; convert = (double)temp/TRUNCATE_UPTO; }  
-
 /*
  *     Contiguity list generator for Census shapefiles
  *     Copyright (C) <2009>  <Joshua Justice, Sumanth Narendra>
@@ -32,6 +21,45 @@
  *     For information on Shapelib, see http://shapelib.maptools.org/ .
  *                                                                              */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include "shapefil.h"
+#include "uthash.h"
+
+#define TRUNCATE_UPTO 	100000
+#define TOLERANCE 	0.0005
+
+#define TRUNCATE(var, convert)  {                                                    \
+     int temp = var*TRUNCATE_UPTO;                                                   \
+     convert = (double)temp/TRUNCATE_UPTO;                                           \
+}  
+
+#define ADD_TO_BUCKET_LIST(present, traverse, new_entry, object) {                   \
+     new_entry = malloc(sizeof(bucket_list));			                     \
+     memset(new_entry, 0, sizeof(bucket_list));			                     \
+     new_entry->block = object;					                     \
+     traverse = (bucket_list *)present->head_of_list.next_block;                     \
+     if( traverse == NULL)					                     \
+        present->head_of_list.next_block = (struct bucket_list *)new_entry;          \
+     else							                     \
+     {								                     \
+       while( traverse->next_block != NULL)			                     \
+         traverse = (bucket_list *)traverse->next_block;	                     \
+       traverse->next_block = (struct bucket_list *)new_entry;	                     \
+     }								                     \
+}
+
+#define ADD_TO_HASH_TABLE(new_block, padfX, padfY, object, x_inc, y_inc) {           \
+     new_block = malloc(sizeof(HT_Struct_For_Block));                                \
+     memset(new_block, 0, sizeof(HT_Struct_For_Block));                              \
+     new_block->head_of_list.block = object;                                         \
+     new_block->head_of_list.next_block = NULL;                                      \
+     new_block->padfX = padfX + x_inc;                                               \
+     new_block->padfY = padfY + y_inc;                                               \
+     HASH_ADD(hh, HT_Blocks, padfX, keylen, new_block);                              \
+}     
+
 /*     The key for the hash table for blocks is the product of the x and y coordinates of the first vertix of the outermost ring of
  *     the block. This is done so that all the blocks with a common point would be in the common bucket */
 
@@ -51,8 +79,7 @@ typedef struct
 {
     double padfX;  /*padfX and padfY comprise the key. Both are passed onto the hash ADD */
     double padfY;
-    //SHPObject *block_bucket; // make this a UTList of SHPObject *
-    bucket_list list;
+    bucket_list head_of_list;
     UT_hash_handle hh;
 } HT_Struct_For_Block;
 
@@ -60,27 +87,22 @@ HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
 
-/* We do not require ShapeType, padfMinBound and padfMaxBound as of now. Hence passing NULL to SHPGetInfo. */
-//int ShapeType;
-////double padfMinBound[4], padfMaxBound[4]; 
-
 void Add_block_to_HT();
 
 void Add_Blocks_to_HT(SHPHandle handle)
 {
   int i;
   SHPGetInfo(handle, &block_count, NULL, NULL, NULL);
-  /* SHPObject **block_list = malloc(block_count*sizeof(SHPObject *));*/
   printf("\nTotal number of blocks identified from SHPGetInfo = %d", block_count);
   block_list = malloc(block_count*sizeof(SHPObject *));
   for(i=0; i<block_count; i++)
   {
   block_list[i] = SHPReadObject(handle, i);
   Add_block_to_HT(block_list[i]);
-  printf("\n added %f %f", block_list[i]->padfX[0], block_list[i]->padfY[0]);
+  //printf("\n added %f %f", block_list[i]->padfX[0], block_list[i]->padfY[0]);
   }
 
-  /* testing
+  /* This code was used for testing. Believe it is better to have this for debugging purposes in the future. 
   for(i=0; i<block_count; i++)
   {
       HT_Struct_For_Block *test2 = NULL;
@@ -111,48 +133,71 @@ void Add_Blocks_to_HT(SHPHandle handle)
   }*/ 
 }
 
+/* check_for_entry_in_HT checks if there is an entry already present in the HT with the same key. (hash collision).
+ * If there is a hash collision we add it to the bucket_list */
+
+HT_Struct_For_Block * check_for_entry_in_HT(double padfX, double padfY)
+{
+  HT_Struct_For_Block *present = NULL;
+  int keylen = offsetof(HT_Struct_For_Block, padfY) + sizeof(double) - offsetof(HT_Struct_For_Block, padfX);
+
+  lookup_key *key = malloc(sizeof(lookup_key));
+  memset(key, 0, sizeof(*key));
+  key->padfX = padfX;
+  key->padfY = padfY;
+
+  HASH_FIND(hh, HT_Blocks, &key->padfX, keylen, present);
+  free(key);
+  if(present != NULL)
+      return present;
+
+  return NULL;
+}
+
 void Add_block_to_HT(SHPObject *object)
 {
-  HT_Struct_For_Block *new_block1, *new_block2, *new_block3, *new_block4;
+  HT_Struct_For_Block *new_block1, *new_block2, *new_block3, *new_block4, *present;
   double padfX, padfY;
-  int keylen = offsetof(HT_Struct_For_Block, padfX) + sizeof(double) - offsetof(HT_Struct_For_Block, padfY);
+  int keylen = offsetof(HT_Struct_For_Block, padfY) + sizeof(double) - offsetof(HT_Struct_For_Block, padfX);
   TRUNCATE(object->padfX[0], padfX);
   TRUNCATE(object->padfY[0], padfY);
+  bucket_list *traverse, *new_entry;
 
-  new_block1 = malloc(sizeof(HT_Struct_For_Block));
-  memset(new_block1, 0, sizeof(HT_Struct_For_Block));
-  new_block1->list.block = object;
-  new_block1->padfX = padfX;
-  new_block1->padfY = padfY;
-  HASH_ADD(hh, HT_Blocks, padfX, keylen, new_block1);
+  if ((present = check_for_entry_in_HT(padfX, padfY)) != NULL) { //add to the bucket_list
+     ADD_TO_BUCKET_LIST(present, traverse, new_entry, object); }
+  else
+     ADD_TO_HASH_TABLE(new_block1, padfX, padfY, object, 0, 0);
   
-  new_block2 = malloc(sizeof(HT_Struct_For_Block));
-  memset(new_block2, 0, sizeof(HT_Struct_For_Block));
-  new_block2->list.block = object;
-  new_block2->padfX = padfX + TOLERANCE;
-  new_block2->padfY = padfY;
-  HASH_ADD(hh, HT_Blocks, padfX, keylen, new_block2);
+  if ((present = check_for_entry_in_HT(padfX + TOLERANCE, padfY)) != NULL) { //add to the bucket_list
+     ADD_TO_BUCKET_LIST(present, traverse, new_entry, object); }
+  else
+     ADD_TO_HASH_TABLE(new_block2, padfX, padfY, object, TOLERANCE, 0);
   
-  new_block3 = malloc(sizeof(HT_Struct_For_Block));
-  memset(new_block3, 0, sizeof(HT_Struct_For_Block));
-  new_block3->list.block = object;
-  new_block3->padfX = padfX;
-  new_block3->padfY = padfY + TOLERANCE;
-  HASH_ADD(hh, HT_Blocks, padfX, keylen, new_block3);
+  if ((present = check_for_entry_in_HT(padfX, padfY + TOLERANCE)) != NULL) { //add to the bucket_list
+     ADD_TO_BUCKET_LIST(present, traverse, new_entry, object); }
+  else
+     ADD_TO_HASH_TABLE(new_block3, padfX, padfY, object, 0, TOLERANCE);
   
-  new_block4 = malloc(sizeof(HT_Struct_For_Block));
-  memset(new_block4, 0, sizeof(HT_Struct_For_Block));
-  new_block4->list.block = object;
-  new_block4->padfX = padfX + TOLERANCE;
-  new_block4->padfY = padfY + TOLERANCE;
-  HASH_ADD(hh, HT_Blocks, padfX, keylen, new_block4);
+  if ((present = check_for_entry_in_HT(padfX + TOLERANCE, padfY + TOLERANCE)) != NULL) { //add to the bucket_list
+     ADD_TO_BUCKET_LIST(present, traverse, new_entry, object); }
+  else
+     ADD_TO_HASH_TABLE(new_block4, padfX, padfY, object, TOLERANCE, TOLERANCE);
 }
   
 void print_table()
 {
   HT_Struct_For_Block *s;
+  bucket_list *temp = NULL;
   for(s=HT_Blocks; s != NULL; s=s->hh.next)
+  {
+    temp = (bucket_list *)s->head_of_list.next_block;
     printf("\npadfX = %f, padfY = %f \n", s->padfX, s->padfY); 
+    while(temp != NULL)
+    {
+       printf("\nin the bucket_list");
+       temp = (bucket_list *)temp->next_block;
+    }
+  }
 }
  
 //This function can be called to test on the hash table
@@ -168,18 +213,20 @@ void test_hashing()
   test1->padfX = padfX1;
   test1->padfY = padfY1;
   HASH_ADD(hh, HT_Blocks, padfX, keylen, test1);
-  //print_table();
+  print_table();
 
   lookup_key *key1 = malloc(sizeof(lookup_key));
   memset(key1, 0, sizeof(*key1));
-  key1->padfX = 47.45;
-  key1->padfY = 234.54;
+  TRUNCATE(-84.383048, key1->padfX);
+  TRUNCATE(33.786532, key1->padfY);
+  printf("\n trying to find %f %f\n", key1->padfX, key1->padfY);
   HASH_FIND(hh, HT_Blocks, &key1->padfX, keylen, test2); 
   
   if(test2 != NULL)
      printf("\n found!! %f %f\n", test2->padfX, test2->padfY);
   else
      printf("\n not found!!\n");
+  free(test1);
   free(key1);
 }
  
@@ -188,17 +235,23 @@ int main(){
   SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
   Add_Blocks_to_HT(handle);
 
-  printf("\nTotal number of blocks in the block HT = %d\n", HASH_COUNT(HT_Blocks));
-  test_hashing();
+  printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
+  //test_hashing();
 
-
-  //TODO: Free the mallocs done for HT
-  
   //free all the items in the HT
   HT_Struct_For_Block *current;
+  bucket_list *temp = NULL, *temp_next = NULL;
   while (HT_Blocks)
   {
      current = HT_Blocks;
+     temp = (bucket_list *)current->head_of_list.next_block;
+     /* delete the bucket_list too if present */
+     while(temp != NULL)
+     {
+         temp_next = (bucket_list *)temp->next_block;
+         free(temp);
+         temp = temp_next;
+     }
      HASH_DEL(HT_Blocks, current);
      free(current);
   }  
