@@ -232,6 +232,7 @@ void test_hashing()
  
 int main(){
   int i;
+  /* handle has to be pointed to the right location */
   SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
   Add_Blocks_to_HT(handle);
 
