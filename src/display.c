@@ -55,8 +55,8 @@ void svg_polygon(SHPObject block, FILE *svg){
       }else{
         fputs("L ",svg); //no \n is also deliberate here
       }
-      x=(block.padfX[j]+180)*1000;
-      y=(block.padfY[j]-90)*-1000; //SVG has y-down
+      x=(block.padfX[j]+180)*10000;
+      y=(block.padfY[j]-90)*-10000; //SVG has y-down
       fprintf(svg, "%f %f ",x,y);
     }
   }
