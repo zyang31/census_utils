@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "shapefil.h"
-#include "blockcont.h";
+#include "blockcont.h"
 #define DBL_TOLERANCE 0.000000000001 //TODO: get this exact value
 #define TRUE 1
 #define FALSE 0
@@ -21,7 +21,8 @@ int CheckCont(SHPObject *a, SHPObject *b)
 {
 	int jLim;
 	int hLim;
-   for(int i=0;i<a->nParts;i++) //accounts for multiple polygons
+	int i,j,k,h;
+   for(i=0;i<a->nParts;i++) //accounts for multiple polygons
    {
 	if(i==a->nParts-1){
 		jLim=a->nVertices-1;
@@ -30,16 +31,16 @@ int CheckCont(SHPObject *a, SHPObject *b)
 		jLim=a->panPartStart[i+1]-2;
 	}
 		
-      for(int j=a->panPartStart[i];j<jLim;j++)
+      for(j=a->panPartStart[i];j<jLim;j++)
       {
-	for(int k=0;k<b->nParts;k++){
+	for(k=0;k<b->nParts;k++){
 		if(j==b->nParts-1){
 			hLim=b->nVertices-1;
 		}
 		else{
 			hLim=b->panPartStart[k+1]-2;
 		}
-		for(int h=b->panPartStart[k];h<hLim;h++){
+		for(h=b->panPartStart[k];h<hLim;h++){
     			if( CheckOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
 				return TRUE;
 			}
