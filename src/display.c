@@ -61,7 +61,7 @@ void svg_polygon(SHPObject block, FILE *svg){
     }
   }
   fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
-  fputs("\t\t\tstyle=\"fill:#none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>",svg);
+  fputs("\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>",svg);
 }
 
 void svg_footer(FILE *svg){
