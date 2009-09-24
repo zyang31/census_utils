@@ -52,10 +52,10 @@ int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
 	double delXb=(xb2-xb1);
 	double delYb=(yb2-yb1);
 
-//	if(delYa==0||delYb==0)
-//	{
-		
-//	}
+	if(delYa==0&&delYb==0)
+	{
+			
+	}
 
 	double ma=delYa/delXa;
 	double mb=delYb/delXb;
