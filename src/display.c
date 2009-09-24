@@ -40,18 +40,28 @@ void svg_header(FILE *svg){
 
 void svg_polygon(SHPObject block, FILE *svg){
   int i,j,jLim;
+  double x,y;
+  fputs("\t\t<path\n\t\t\td=\"", svg);  
   for(i=0;i<block.nParts;i++){
     if(i==block.nParts-1){
       jLim=block.nVertices-1;
     }else{
       jLim=block.panPartStart[i+1]-2;
     }
-
-    
-
+    for(j=block.panPartStart[i];j<jLim;j++){
+      //draw coordinates at padfX[j] etc.
+      if(j==block.panPartStart[i]){
+        fputs("M ",svg); //not having the \n is deliberate
+      }else{
+        fputs("L ",svg); //no \n is also deliberate here
+      }
+      x=block.padfX[j]+180;
+      y=(block.padfY[j]-90)*-1; //SVG has y-down
+      fprintf(svg, "%f %f ",x,y);
+    }
   }
-
-
+  fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
+  fputs("\t\t\tstyle=\"fill:#ff0000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>",svg);
 }
 
 void svg_footer(FILE *svg){
