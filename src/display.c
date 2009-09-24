@@ -31,8 +31,8 @@ void svg_header(FILE *svg){
   fputs("<svg\n\txmlns:svg=\"http://www.w3.org/2000/svg\"\n", svg);
   fputs("\txmlns=\"http://www.w3.org/2000/svg\"\n", svg);
   fputs("\tversion=\"1.0\"\n", svg);
-  fputs("\twidth=\"3600\"\n", svg);
-  fputs("\theight=\"1800\"\n", svg);
+  fputs("\twidth=\"360000\"\n", svg);
+  fputs("\theight=\"180000\"\n", svg);
   fputs("\tid=\"svg2\">\n", svg);
   fputs("\t<defs\n\t\tid=\"defs1\" />\n", svg);
   fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
@@ -55,8 +55,8 @@ void svg_polygon(SHPObject block, FILE *svg){
       }else{
         fputs("L ",svg); //no \n is also deliberate here
       }
-      x=(block.padfX[j]+180)*10;
-      y=(block.padfY[j]-90)*-10; //SVG has y-down
+      x=(block.padfX[j]+180)*1000;
+      y=(block.padfY[j]-90)*-1000; //SVG has y-down
       fprintf(svg, "%f %f ",x,y);
     }
   }
