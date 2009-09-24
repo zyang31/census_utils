@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "shapefil.h"
 
 /*
@@ -24,6 +25,35 @@
         For information on Shapelib, see http://shapelib.maptools.org/ .
  */
 int main(){
-  printf("This is a test of display.c.\n");
-  return 0;
+  int entityCount;
+  int shapeType;
+  double padfMinBound[4];
+  double padfMaxBound[4];
+  int i;
+  //For now, we'll use this. Later on, this will change.
+  char[] fulton = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  SHPHandle handle = SHPOpen(fulton, "rb");
+  
+  char[] svg_filename = fulton;
+  int fn_len = strlen(svg_filename);
+  svg_filename[fn_len-2] = 'v';
+  svg_filename[fn_len-1] = 'g';
+
+  SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
+  printf("There are %d entities, of type %d\n", entityCount, shapeType);
+  
+  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
+  SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
+  
+  //populate the shapeList
+  for(i=0; i<entityCount; i++){
+    shapeList[i] = SHPReadObject(handle,i);
+  }
+
+  
+
+  for(i=0; i<entityCount; i++){
+    SHPDestroyObject(shapeList[i]);
+  }
+  SHPClose(handle);
 }
