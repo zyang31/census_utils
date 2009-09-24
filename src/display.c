@@ -28,12 +28,12 @@
 
 void svg_header(FILE *svg){
   fprintf(svg, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
-  fprintf(svg, "<svg\n
-    xmlns:svg=\"http://www.w3.org/2000/svg\"\n
-    xmlns=\"http://www.w3.org/2000/svg\"\n
-    version=\"1.0\"\n
-    width=\"360\"\n
-    height=\"180\"\n
+  fprintf(svg, "<svg\n\
+    xmlns:svg=\"http://www.w3.org/2000/svg\"\n\
+    xmlns=\"http://www.w3.org/2000/svg\"\n\
+    version=\"1.0\"\n\
+    width=\"360\"\n\
+    height=\"180\"\n\
     id=\"svg2\">\n");
 }
 
