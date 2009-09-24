@@ -45,61 +45,47 @@ bool CheckCont(SHPObject *a, SHPObject *b)
    }
 } */
 
-bool CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
+int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
 {
-	double delXa=(xa2-xa1);
+	double delXa=(xa2-xa1);          //TODO: ACCOUNT FOR VERTICAL LINES
 	double delYa=(ya2-ya1);
 	double delXb=(xb2-xb1);
 	double delYb=(yb2-yb1);
+
+//	if(delYa==0||delYb==0)
+//	{
+		
+//	}
+
 	double ma=delYa/delXa;
 	double mb=delYb/delXb;
-	double xAmin;
-	double xBmin;
-	double xAmax;
-	double xBmax;
-	double yAmin;
-	double yBmin;
-	double yBmax;
-	double yAmax;
+	double xAmin=xa1;
+	double xBmin=xb1;
+	double xAmax=xa2;
+	double xBmax=xb2;
+	double yAmin=ya1;
+	double yBmin=yb1;
+	double yBmax=yb2;
+	double yAmax=ya2;
 	if(xa1>xa2)
 	{
 		xAmax=xa1;
 		xAmin=xa2;
-	}
-	else
-	{
-		xAmax=xa2;
-		xAmin=xa1;
 	}
 	if(ya1>ya2)
 	{
 		yAmax=ya1;
 		yAmin=ya2;
 	}
-	else
-	{
-		yAmax=ya2;
-		yAmin=ya1;
-	}
 	if(yb1>yb2)
 	{
 		yBmax=yb1;
 		yBmin=yb2;
 	}
-	else
-	{
-		yBmax=yb2;
-		yBmin=yb1;
-	}
 	if(xb1>xb2)
 	{
 		xBmax=xb1;
 		xBmin=xb2;
-	}
-	else
-	{
-		xBmax=xb2;
-		xBmin=xb1;
 	}
 
 	double ytest1=yb1-ya1;
@@ -107,43 +93,45 @@ bool CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, do
 	double ytest3=yb1-ya2;
 	double mx1=ma*(xb1-xa1);
 	double mx2=ma*(xb2-xa1);
-	double mx3=ma*(xb1-ya2);
+	double mx3=ma*(xb1-xa2);
 
 	if(abs(ma-mb)<=DBL_TOLERANCE){ // slopes are equal enough
 		if((xAmax<xBmin)||(yAmax<yBmin)){ // both x and y values are outside the values for the other block
-			return false;
-		}else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
-			return true;
+			return 0;
+		}		
+		else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
+			return 1;
+		}
 		else{
-			return false;
+			return 0;
 		}
 	}
 	else{
-		return false;
+		return 0;
 	}
 }
 
-	
+/*	
 int findVerticesLim(SHPObject * a)
 {
-	if !(a->nParts)
+	if (!(a->nParts))
 		return (a->nVertices-1);
 	else 
 	{
 		int count=1;
-		while(a->padfX[count]!=NULL)&&(a->padfY[count]!=NULL)
+		while((a->padfX[count]!=NULL)&&(a->padfY[count]!=NULL))
 		{
 			if(a->padfX[count]==a->padfX[0])&&(a->padfY[count]==a->padfY[0])
 				return(count-1);
 			count++;
 		}
 	}
-}
+}*/
 
 
 void callTestCode()
 {
-	int test1, test2, test3;	
+	int test1, test2, test3, test4;	
 
 
 	test1 = CheckOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
@@ -152,16 +140,20 @@ void callTestCode()
 
         test3 = CheckOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
 
-	printf("test1 should be true: %i",test1);
-	printf("test2 should be false: %i",test2);
-	printf("test3 should be true: %i",test3);
+	test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return tru
+
+	printf("test1 should be true: %i\n",test1);
+	printf("test2 should be false: %i\n",test2);
+	printf("test3 should be true: %i\n",test3);
+	printf("test4 should be true: %i\n",test4);
 
 
 
 }
 
-void main()
+int main()
 {
 	callTestCode();
 	//TODO: later on, change to a real main method
+	return 0;
 }
