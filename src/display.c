@@ -42,7 +42,9 @@ void svg_polygon(SHPObject block, FILE *svg){
   int i,j,jLim;
   for(i=0;i<a->nParts;i++){
     if(i==a->nParts-1){
-      jLim=
+     
+    }
+  }
 
 
 }
