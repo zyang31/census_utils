@@ -40,10 +40,15 @@ void svg_header(FILE *svg){
 
 void svg_polygon(SHPObject block, FILE *svg){
   int i,j,jLim;
-  for(i=0;i<a->nParts;i++){
-    if(i==a->nParts-1){
-     
+  for(i=0;i<block.nParts;i++){
+    if(i==block.nParts-1){
+      jLim=block.nVertices-1;
+    }else{
+      jLim=block.panPartStart[i+1]-2;
     }
+
+    
+
   }
 
 
@@ -76,7 +81,7 @@ int main(){
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
   printf("Filename is: %s \n", svg_filename);
   
-  printf("Allocating %d bytes of memory\n", entityCount*sizeof(SHPObject *));
+  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
   
   //populate the shapeList
