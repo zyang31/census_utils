@@ -1,9 +1,12 @@
-#include "blockcont.h";
+#include <stdio.h>
+#include <stdlib.h>
+#include "shapefil.h"
+//#include "blockcont.h";
 #define DBL_TOLERANCE 0.000000000001 //TODO: get this exact value
 
 //UTList * neighbors; //TODO: malloc an array of x pointers to linked lists where x = block count
 //TODO: the above should be in the main code not in a lower level function (make it global)
-
+/*
 typedef struct {
 	SHPObject *block;
 	struct neighbor *prev, *next;
@@ -40,7 +43,7 @@ bool CheckCont(SHPObject *a, SHPObject *b)
 		
       }
    }
-}
+} */
 
 bool CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
 {
@@ -111,6 +114,9 @@ bool CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, do
 			return false;
 		}else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
 			return true;
+		else{
+			return false;
+		}
 	}
 	else{
 		return false;
@@ -132,4 +138,30 @@ int findVerticesLim(SHPObject * a)
 			count++;
 		}
 	}
+}
+
+
+void callTestCode()
+{
+	int test1, test2, test3;	
+
+
+	test1 = CheckOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
+
+	test2 = CheckOverlap(1, 2.5, 2, 3, 3, 3.5, 4, 4);  //should return false
+
+        test3 = CheckOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
+
+	printf("test1 should be true: %i",test1);
+	printf("test2 should be false: %i",test2);
+	printf("test3 should be true: %i",test3);
+
+
+
+}
+
+void main()
+{
+	callTestCode();
+	//TODO: later on, change to a real main method
 }
