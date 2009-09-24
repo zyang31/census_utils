@@ -1,64 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "shapefil.h"
-//#include "blockcont.h";
+#include "blockcont.h"
 #define DBL_TOLERANCE 0.000000000001 //TODO: get this exact value
+#define TRUE 1
+#define FALSE 0
 
 //UTList * neighbors; //TODO: malloc an array of x pointers to linked lists where x = block count
 //TODO: the above should be in the main code not in a lower level function (make it global)
 /*
 typedef struct {
-	SHPObject *block;
+	int ID;
 	struct neighbor *prev, *next;
-}neighbor;
+}neighborlist;
 
-struct neighbor * neighborlist=(neighbor*) malloc (sizeof(SHPObject*)*block_count);
+neighborlist * neighbors=(neighbor*) malloc (sizeof(neighborlist)*block_count);
+*/
 
-bool CheckCont(SHPObject *a, SHPObject *b)
+int CheckCont(SHPObject *a, SHPObject *b)
 {
-	neightbor h1 = neightborlist[0];
-	int count=0;
-	while(h1->next != null)
-	{
-		if (h1->block==a)
-		{
-			if (h1->next->block==b)||(h1->prev->block==b)
-				return true;
-		}
-		count++;
-	}
-
-	int verticesLimA=findVerticesLim(a);
-	int verticesLimB=findVerticesLim(b);
-
-   for(int i=0;i<verticesLimA;i++) //accounts for multiple polygons
+	int jLim;
+	int hLim;
+	int i,j,k,h;
+   for(i=0;i<a->nParts;i++) //accounts for multiple polygons
    {
-      for(int j=0;j<verticesLimB;j++)
-      {
-    	if (CheckOverlap(a->panPartStart[i], a->panPartStart[i+1], b->panPartStart[j], b->panPartStart[j+1]))
-		{
-   			neighborlist[count]->block=a;
-			neighborlist[count]->next=b;
-		}
+	if(i==a->nParts-1){
+		jLim=a->nVertices-1;
+	}
+	else{
+		jLim=a->panPartStart[i+1]-2;
+	}
 		
+      for(j=a->panPartStart[i];j<jLim;j++)
+      {
+	for(k=0;k<b->nParts;k++){
+		if(j==b->nParts-1){
+			hLim=b->nVertices-1;
+		}
+		else{
+			hLim=b->panPartStart[k+1]-2;
+		}
+		for(h=b->panPartStart[k];h<hLim;h++){
+    			if( CheckOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
+				return TRUE;
+			}
+		}
       }
    }
-} */
+	return FALSE;
+}
 
 int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
 {
-	double delXa=(xa2-xa1);          //TODO: ACCOUNT FOR VERTICAL LINES
+	double delXa=(xa2-xa1);          
 	double delYa=(ya2-ya1);
 	double delXb=(xb2-xb1);
 	double delYb=(yb2-yb1);
-
-	if(delYa==0&&delYb==0)
-	{
-			
-	}
-
 	double ma=delYa/delXa;
 	double mb=delYb/delXb;
+
+	if((abs(ma-mb)>DBL_TOLERANCE)||(delXa==0&&delXb!=0)||(delXa!=0&&delXb==0)){
+		return FALSE;
+	}
+
 	double xAmin=xa1;
 	double xBmin=xb1;
 	double xAmax=xa2;
@@ -95,43 +99,26 @@ int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
 	double mx2=ma*(xb2-xa1);
 	double mx3=ma*(xb1-xa2);
 
-	if(abs(ma-mb)<=DBL_TOLERANCE){ // slopes are equal enough
-		if((xAmax<xBmin)||(yAmax<yBmin)){ // both x and y values are outside the values for the other block
-			return 0;
-		}		
-		else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
-			return 1;
-		}
-		else{
-			return 0;
+	if((xAmax<xBmin)||(yAmax<yBmin)){ // both x and y values are outside the values for the other block
+		return FALSE;
+	}		
+	else if(delXa==0&&delXb==0)
+	{
+		if(xa1==xb1){
+			return TRUE;
 		}
 	}
+	else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
+		return TRUE;
+	}
 	else{
-		return 0;
+		return FALSE;
 	}
 }
 
-/*	
-int findVerticesLim(SHPObject * a)
-{
-	if (!(a->nParts))
-		return (a->nVertices-1);
-	else 
-	{
-		int count=1;
-		while((a->padfX[count]!=NULL)&&(a->padfY[count]!=NULL))
-		{
-			if(a->padfX[count]==a->padfX[0])&&(a->padfY[count]==a->padfY[0])
-				return(count-1);
-			count++;
-		}
-	}
-}*/
-
-
 void callTestCode()
 {
-	int test1, test2, test3, test4;	
+	int test1, test2, test3, test4, test5, test6;	
 
 
 	test1 = CheckOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
@@ -140,12 +127,18 @@ void callTestCode()
 
         test3 = CheckOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
 
-	test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return tru
+	test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return true
+
+	test5 = CheckOverlap(0,4,0,10,0,5,0,11);	//should return true
+
+	test6 = CheckOverlap(1,1,-1,-1,-1,1,1,-1);	//should return false
 
 	printf("test1 should be true: %i\n",test1);
 	printf("test2 should be false: %i\n",test2);
 	printf("test3 should be true: %i\n",test3);
 	printf("test4 should be true: %i\n",test4);
+	printf("test5 should be true: %i\n",test5);
+	printf("test6 should be false: %i\n",test6);
 
 
 
@@ -155,5 +148,5 @@ int main()
 {
 	callTestCode();
 	//TODO: later on, change to a real main method
-	return 0;
+	return FALSE;
 }
