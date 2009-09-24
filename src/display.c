@@ -25,6 +25,22 @@
   A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
   For information on Shapelib, see http://shapelib.maptools.org/ .
 */
+
+void svg_header(FILE *svg){
+  fprintf(svg, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
+  fprintf(svg, "<svg\n
+    xmlns:svg=\"http://www.w3.org/2000/svg\"\n
+    xmlns=\"http://www.w3.org/2000/svg\"\n
+    version=\"1.0\"\n
+    width=\"360\"\n
+    height=\"180\"\n
+    id=\"svg2\">\n");
+}
+
+void svg_footer(FILE *svg){
+  fprintf(svg, "</svg>");
+}
+
 int main(){
   int entityCount;
   int shapeType;
@@ -54,16 +70,23 @@ int main(){
   for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
   }
-
+  //set up the SVG file
   svg = fopen(svg_filename, "rw");
-  
 
+  //fprintf header
+  svg_header(svg);
 
-  
+  for(i=0; i<entityCount; i++){
+    //fprintf individual blocks
+  }
+ 
+  //fprintf footer
+  svg_footer(svg);
 
   for(i=0; i<entityCount; i++){
     SHPDestroyObject(shapeList[i]);
   }
   SHPClose(handle);
+  fclose(svg);
 }
 
