@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "shapefil.h"
 
 /*
@@ -31,16 +32,19 @@ int main(){
   double padfMaxBound[4];
   int i;
   //For now, we'll use this. Later on, this will change.
-  char[] fulton = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
-  SHPHandle handle = SHPOpen(fulton, "rb");
-  
-  char[] svg_filename = fulton;
-  int fn_len = strlen(svg_filename);
+  char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  SHPHandle handle = SHPOpen(sf_name, "rb");
+
+
+  int fn_len = strlen(sf_name);
+  char svg_filename[fn_len];
+  strcpy(svg_filename, sf_name);
   svg_filename[fn_len-2] = 'v';
   svg_filename[fn_len-1] = 'g';
 
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
+  printf("Filename is: %s \n", svg_filename);
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
@@ -57,3 +61,4 @@ int main(){
   }
   SHPClose(handle);
 }
+
