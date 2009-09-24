@@ -30,23 +30,30 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  SHPHandle handle = SHPOpen("/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp", "rb");
+  //For now, we'll use this. Later on, this will change.
+  char[] fulton = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  SHPHandle handle = SHPOpen(fulton, "rb");
+  
+  char[] svg_filename = fulton;
+  int fn_len = strlen(svg_filename);
+  svg_filename[fn_len-2] = 'v';
+  svg_filename[fn_len-1] = 'g';
+
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
   
-  for(i=0; i<5; i++){
+  //populate the shapeList
+  for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
-    printf("Shape %d has the following attributes:\n",i);
-    printf("\tID Number: %d\n", shapeList[i]->nShapeId);
-    printf("\tVertex count: %d\n", shapeList[i]->nVertices);
   }
-  for(i=0; i<5; i++){
+
+  
+
+  for(i=0; i<entityCount; i++){
     SHPDestroyObject(shapeList[i]);
   }
-
-
   SHPClose(handle);
 }
