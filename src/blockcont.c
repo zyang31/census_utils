@@ -51,14 +51,13 @@ int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
 	double delYa=(ya2-ya1);
 	double delXb=(xb2-xb1);
 	double delYb=(yb2-yb1);
-
-	if(delYa==0&&delYb==0)
-	{
-			
-	}
-
 	double ma=delYa/delXa;
 	double mb=delYb/delXb;
+
+	if((abs(ma-mb)>DBL_TOLERANCE)||(delXa==0&&delXb!=0)||(delXa!=0&&delXb==0)){
+		return 0;
+	}
+
 	double xAmin=xa1;
 	double xBmin=xb1;
 	double xAmax=xa2;
@@ -95,16 +94,17 @@ int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
 	double mx2=ma*(xb2-xa1);
 	double mx3=ma*(xb1-xa2);
 
-	if(abs(ma-mb)<=DBL_TOLERANCE){ // slopes are equal enough
-		if((xAmax<xBmin)||(yAmax<yBmin)){ // both x and y values are outside the values for the other block
-			return 0;
-		}		
-		else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
+	if((xAmax<xBmin)||(yAmax<yBmin)){ // both x and y values are outside the values for the other block
+		return 0;
+	}		
+	else if(delXa==0&&delXb==0)
+	{
+		if(xa1==xb1){
 			return 1;
 		}
-		else{
-			return 0;
-		}
+	}
+	else if ((ytest1-mx1)<=DBL_TOLERANCE&&(ytest2-mx2)<=DBL_TOLERANCE&&(ytest3-mx3)<=DBL_TOLERANCE){ // y=mx+b within tolerance
+		return 1;
 	}
 	else{
 		return 0;
@@ -131,7 +131,7 @@ int findVerticesLim(SHPObject * a)
 
 void callTestCode()
 {
-	int test1, test2, test3, test4;	
+	int test1, test2, test3, test4, test5, test6;	
 
 
 	test1 = CheckOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
@@ -140,12 +140,18 @@ void callTestCode()
 
         test3 = CheckOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
 
-	test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return tru
+	test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return true
+
+	test5 = CheckOverlap(0,4,0,10,0,5,0,11);	//should return true
+
+	test6 = CheckOverlap(1,1,-1,-1,-1,1,1,-1);	//should return false
 
 	printf("test1 should be true: %i\n",test1);
 	printf("test2 should be false: %i\n",test2);
 	printf("test3 should be true: %i\n",test3);
 	printf("test4 should be true: %i\n",test4);
+	printf("test5 should be true: %i\n",test5);
+	printf("test6 should be false: %i\n",test6);
 
 
 
