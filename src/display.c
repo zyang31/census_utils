@@ -27,18 +27,18 @@
 */
 
 void svg_header(FILE *svg){
-  fprintf(svg, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
-  fprintf(svg, "<svg\n\
-    xmlns:svg=\"http://www.w3.org/2000/svg\"\n\
-    xmlns=\"http://www.w3.org/2000/svg\"\n\
-    version=\"1.0\"\n\
-    width=\"360\"\n\
-    height=\"180\"\n\
-    id=\"svg2\">\n");
+  fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
+  /*  fputs("<svg\n                      \
+      xmlns:svg=\"http://www.w3.org/2000/svg\"\n        \
+      xmlns=\"http://www.w3.org/2000/svg\"\n            \
+      version=\"1.0\"\n                                 \
+      width=\"360\"\n                                   \
+      height=\"180\"\n                                  \
+      id=\"svg2\">\n", svg);*/
 }
 
 void svg_footer(FILE *svg){
-  fprintf(svg, "</svg>");
+  fputs("</svg>", svg);
 }
 
 int main(){
@@ -70,19 +70,22 @@ int main(){
   for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
   }
+  printf("Shapelist populated.\n");
   //set up the SVG file
-  svg = fopen(svg_filename, "rw");
-
-  //fprintf header
+  svg = fopen(svg_filename, "rw+");
+  printf("SVG file opened for reading and writing.\n");
+  //write header
   svg_header(svg);
 
-  for(i=0; i<entityCount; i++){
-    //fprintf individual blocks
-  }
- 
-  //fprintf footer
-  svg_footer(svg);
+  printf("SVG header printed.\n");
 
+  for(i=0; i<entityCount; i++){
+    //write individual blocks
+  }
+  
+  //write footer
+  svg_footer(svg);
+  printf("SVG footer printed.\n");
   for(i=0; i<entityCount; i++){
     SHPDestroyObject(shapeList[i]);
   }
