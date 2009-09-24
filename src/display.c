@@ -39,7 +39,11 @@ void svg_header(FILE *svg){
 }
 
 void svg_polygon(SHPObject block, FILE *svg){
+  int i,j,jLim;
   
+
+
+
 }
 
 void svg_footer(FILE *svg){
