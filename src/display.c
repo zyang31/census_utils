@@ -43,6 +43,7 @@ void svg_polygon(SHPObject block, FILE *svg){
 }
 
 void svg_footer(FILE *svg){
+  fputs("\t</g>\n", svg);
   fputs("</svg>", svg);
 }
 
