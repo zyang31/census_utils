@@ -24,4 +24,4 @@ blockcont.o: blockcont.c
 	$(CC) $(CFLAGS) blockcont.c -o blockcont.o
 
 clean: 
-	rm -f contig contig.o display display.o blockcont blockcont.o centroid.o
+	rm -f contig contig.o display display.o blockcont blockcont.o

@@ -140,9 +140,9 @@ int main(){
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-  double *xCentList = malloc(entityCount*sizeof(double));
-  double *yCentList = malloc(entityCount*sizeof(double));
-  double *areaList = malloc(entityCount*sizeof(double));
+  double xCentList[entityCount];
+  double yCentList[entityCount];
+  double areaList[entityCount];
   //populate the shapeList
   for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
