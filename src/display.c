@@ -56,21 +56,20 @@ int polyCentroid(double x[], double y[], int n,
      register int i, j;
      double ai, atmp = 0, xtmp = 0, ytmp = 0;
      if (n < 3) return 1;
-     printf("Segfault test 1\n");
      for (i = n-1, j = 0; j < n; i = j, j++){
 	  ai = x[i] * y[j] - x[j] * y[i];
 	  atmp += ai;
 	  xtmp += (x[j] + x[i]) * ai;
 	  ytmp += (y[j] + y[i]) * ai;
      }
-     printf("Segfault test 2\n");
      *area = atmp / 2;
+     printf("Segfault test 2\n");
      if (atmp != 0){
 	  *xCentroid =	xtmp / (3 * atmp);
 	  *yCentroid =	ytmp / (3 * atmp);
 	  return 0;
      }
-     printf("Segfault test 3\n");
+     printf("Segfault test 4\n");
      return 2;
 } //end Graphics Gems code
 
