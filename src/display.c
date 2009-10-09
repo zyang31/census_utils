@@ -176,9 +176,11 @@ int main(){
        }else{
             lastPoint = block.nVertices;
        }
-       printf("%d\n",lastPoint); //try to find the segfault
+       printf("%d\n",lastPoint); //try to find the segfault reason
+       for(j=0; j<lastPoint; j++){
+            printf("X: %f\n", block.padfX[j];
+       }
        status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
-       printf("%d\n",status); //Why do I think it'll be here?
        xCentList[i] = *xCentroid;
        yCentList[i] = *yCentroid;
        areaList[i] = *area;
