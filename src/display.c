@@ -164,6 +164,7 @@ int main(){
 
   //find centroids for every block
   for(i=0; i<entityCount; i++){
+       printf("%d\n",i); //try to find the segfault
        int lastPoint;
        double *xCentroid;
        double *yCentroid;
