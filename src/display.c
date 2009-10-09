@@ -154,10 +154,6 @@ int main(){
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
 
-  for(i=0; i<entityCount; i++){
-    svg_polygon(*shapeList[i], svg);
-  }
-
   //TODO: load pairs from GAL file
   
 
@@ -194,6 +190,13 @@ int main(){
 
   //write header
   svg_header(svg);
+
+  //write individual polygons
+  for(i=0; i<entityCount; i++){
+    svg_polygon(*shapeList[i], svg);
+  }
+
+
 
   printf("SVG header printed.\n");
   
