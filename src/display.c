@@ -70,6 +70,7 @@ int polyCentroid(double x[], double y[], int n,
 	  *yCentroid =	ytmp / (3 * atmp);
 	  return 0;
      }
+     printf("Segfault test 3\n");
      return 2;
 } //end Graphics Gems code
 
