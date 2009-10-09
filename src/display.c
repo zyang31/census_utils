@@ -64,11 +64,8 @@ int polyCentroid(double x[], double y[], int n,
      }
      *area = atmp / 2;
      if (atmp != 0){
-          printf("Branch taken\n");
 	  *xCentroid =	xtmp / (3 * atmp);
-          printf("Segfault test 3\n");
 	  *yCentroid =	ytmp / (3 * atmp);
-          printf("Segfault test 4\n");
 	  return 0;
      }
      return 2;
@@ -185,7 +182,6 @@ int main(){
   for(i=0; i<10; i++){
        printf("X: %f Y: %f \n", xCentList[i], yCentList[i]);
   }
-
 
 
   //write header
