@@ -67,11 +67,11 @@ int polyCentroid(double x[], double y[], int n,
      if (atmp != 0){
           printf("Branch taken\n");
 	  *xCentroid =	xtmp / (3 * atmp);
-	  *yCentroid =	ytmp / (3 * atmp);
           printf("Segfault test 3\n");
+	  *yCentroid =	ytmp / (3 * atmp);
+          printf("Segfault test 4\n");
 	  return 0;
      }
-     printf("Segfault test 4\n");
      return 2;
 } //end Graphics Gems code
 
