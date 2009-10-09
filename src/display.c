@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
-
+#include "centroid.h"
 /*
   Code to display Census shapefiles.
   Copyright (C) <2009>  <Joshua Justice>
@@ -93,7 +93,9 @@ int main(){
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-  
+  double *xCentList = malloc(entityCount*sizeof(double));
+  double *yCentList = malloc(entityCount*sizeof(double));
+  double *areaList = malloc(entityCount*sizeof(double));
   //populate the shapeList
   for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
@@ -112,6 +114,41 @@ int main(){
   for(i=0; i<entityCount; i++){
     svg_polygon(*shapeList[i], svg);
   }
+
+  //load pairs from GAL file
+  
+
+
+  //find centroids for every block
+  for(i=0; i<entityCount; i++){
+       int lastPoint;
+       double *xCentroid;
+       double *yCentroid;
+       double *area;
+       int status;
+       SHPObject block = *shapeList[i];
+       //Note that we're going to disregard holes, etc.
+       if(block.nParts>1){
+            lastPoint = block.panPartStart[1]-1;
+       }else{
+            lastPoint = block.nVertices;
+       }
+       status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
+       xCentList[i] = *xCentroid;
+       yCentList[i] = *yCentroid;
+       areaList[i] = *area;
+
+       
+  }
+
+
+
+
+
+
+
+
+
   
   //write footer
   svg_footer(svg);
@@ -121,5 +158,6 @@ int main(){
   }
   SHPClose(handle);
   fclose(svg);
+  return 0;
 }
 
