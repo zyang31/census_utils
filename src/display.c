@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
-#include "centroid.h"
+
 /*
   Code to display Census shapefiles.
   Copyright (C) <2009>  <Joshua Justice>
@@ -24,7 +24,51 @@
   The Shapelib library is licensed under the GNU Lesser General Public License.
   A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
   For information on Shapelib, see http://shapelib.maptools.org/ .
+
+  EULA: The Graphics Gems code is copyright-protected. 
+  In other words, you cannot claim the text of the code as your own and resell it. 
+  Using the code is permitted in any program, product, or library, non-commercial or commercial. 
+  Giving credit is not required, though is a nice gesture. 
+  The code comes as-is, and if there are any flaws or problems with any Gems code, nobody involved
+  with Gems - authors, editors, publishers, or webmasters - are to be held responsible. 
+  Basically, don't be a jerk, and remember that anything free comes with no guarantee. 
 */
+
+
+
+/*  
+  polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
+  of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
+  is assumed that the contour is closed, i.e., that the vertex following
+  (x[n-1], y[n-1]) is (x[0], y[0]).  The algebraic sign of the area is
+  positive for counterclockwise ordering of vertices in x-y plane;
+  otherwise negative.
+
+  Returned values:  0 for normal execution;  1 if the polygon is
+  degenerate (number of vertices < 3);  and 2 if area = 0 (and the
+  centroid is undefined).
+*/
+
+int polyCentroid(double x[], double y[], int n,
+		 double *xCentroid, double *yCentroid, double *area){
+     register int i, j;
+     double ai, atmp = 0, xtmp = 0, ytmp = 0;
+     if (n < 3) return 1;
+     for (i = n-1, j = 0; j < n; i = j, j++){
+	  ai = x[i] * y[j] - x[j] * y[i];
+	  atmp += ai;
+	  xtmp += (x[j] + x[i]) * ai;
+	  ytmp += (y[j] + y[i]) * ai;
+     }
+     *area = atmp / 2;
+     if (atmp != 0){
+	  *xCentroid =	xtmp / (3 * atmp);
+	  *yCentroid =	ytmp / (3 * atmp);
+	  return 0;
+     }
+     return 2;
+} //end Graphics Gems code
+
 
 void svg_header(FILE *svg){
   fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
@@ -76,7 +120,10 @@ int main(){
   double padfMaxBound[4];
   int i;
   //For now, we'll use this. Later on, this will change.
-  char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //for clamps!
+  char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+  
   SHPHandle handle = SHPOpen(sf_name, "rb");
 
 
@@ -106,17 +153,17 @@ int main(){
   //set up the SVG file pointer
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
-  //write header
-  svg_header(svg);
-
-  printf("SVG header printed.\n");
 
   for(i=0; i<entityCount; i++){
     svg_polygon(*shapeList[i], svg);
   }
 
-  //load pairs from GAL file
+  //TODO: load pairs from GAL file
   
+
+
+
+
 
 
   //find centroids for every block
@@ -137,17 +184,23 @@ int main(){
        xCentList[i] = *xCentroid;
        yCentList[i] = *yCentroid;
        areaList[i] = *area;
-
-       
+  }
+  //test code:
+  for(i=0; i<10; i++){
+       printf("X: %f Y: %f \n", xCentList[i], yCentList[i]);
   }
 
 
 
+  //write header
+  svg_header(svg);
+
+  printf("SVG header printed.\n");
+  
 
 
-
-
-
+  //TODO: write pairs of centroids
+  
 
   
   //write footer
