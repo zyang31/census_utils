@@ -121,20 +121,28 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  //For now, we'll use this. Later on, this will change.
+  //For desktop
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for clamps!
   char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
-  
+  //Eventually, this won't be hardcoded
+
   SHPHandle handle = SHPOpen(sf_name, "rb");
 
 
   int fn_len = strlen(sf_name);
   char svg_filename[fn_len];
+  char gal_filename[fn_len];
   FILE *svg;
   strcpy(svg_filename, sf_name);
+  strcpy(gal_filename, sf_name);
   svg_filename[fn_len-2] = 'v';
   svg_filename[fn_len-1] = 'g';
+  gal_filename[fn_len-3] = 'g';
+  gal_filename[fn_len-2] = 'a';
+  gal_filename[fn_len-1] = 'l';
+  //I know, the above isn't really robust enough.
+  //Should be improved upon when the file name is no longer hardcoded
 
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
