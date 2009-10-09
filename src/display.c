@@ -63,7 +63,6 @@ int polyCentroid(double x[], double y[], int n,
 	  ytmp += (y[j] + y[i]) * ai;
      }
      *area = atmp / 2;
-     printf("Segfault test 2\n");
      if (atmp != 0){
           printf("Branch taken\n");
 	  *xCentroid =	xtmp / (3 * atmp);
@@ -171,9 +170,6 @@ int main(){
   //find centroids for every block
   for(i=0; i<entityCount; i++){
        int lastPoint;
-       double *xCentroid;
-       double *yCentroid;
-       double *area;
        int status;
        SHPObject block = *shapeList[i];
        //Note that we're going to disregard holes, etc.
@@ -182,10 +178,8 @@ int main(){
        }else{
             lastPoint = block.nVertices-1;
        }
-       status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
-       xCentList[i] = *xCentroid;
-       yCentList[i] = *yCentroid;
-       areaList[i] = *area;
+       status = polyCentroid(block.padfX, block.padfY, lastPoint, 
+                             xCentList+i, yCentList+i, areaList+i);
   }
   //test code:
   for(i=0; i<10; i++){
