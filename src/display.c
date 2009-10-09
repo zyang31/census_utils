@@ -171,13 +171,12 @@ int main(){
        int status;
        SHPObject block = *shapeList[i];
        //Note that we're going to disregard holes, etc.
-       printf("%d\n",i); //try to find the segfault
-
        if(block.nParts>1){
             lastPoint = block.panPartStart[1]-1;
        }else{
             lastPoint = block.nVertices;
        }
+       printf("%d\n",i); //try to find the segfault
        status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
        xCentList[i] = *xCentroid;
        yCentList[i] = *yCentroid;
