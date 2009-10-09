@@ -175,7 +175,7 @@ int main(){
        if(block.nParts>1){
             lastPoint = block.panPartStart[1]-1;
        }else{
-            lastPoint = block.nVertices;
+            lastPoint = block.nVertices-1;
        }
        printf("%d\n",lastPoint); //try to find the segfault reason
        for(j=0; j<block.nVertices; j++){
