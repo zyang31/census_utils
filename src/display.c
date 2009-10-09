@@ -178,7 +178,7 @@ int main(){
             lastPoint = block.nVertices;
        }
        printf("%d\n",lastPoint); //try to find the segfault reason
-       for(j=0; j<lastPoint; j++){
+       for(j=0; j<block.nVertices; j++){
             printf("X: %f\n", block.padfX[j]);
        }
        status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
