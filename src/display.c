@@ -164,7 +164,6 @@ int main(){
 
   //find centroids for every block
   for(i=0; i<entityCount; i++){
-       printf("%d\n",i); //try to find the segfault
        int lastPoint;
        double *xCentroid;
        double *yCentroid;
@@ -172,6 +171,8 @@ int main(){
        int status;
        SHPObject block = *shapeList[i];
        //Note that we're going to disregard holes, etc.
+       printf("%d\n",i); //try to find the segfault
+
        if(block.nParts>1){
             lastPoint = block.panPartStart[1]-1;
        }else{
