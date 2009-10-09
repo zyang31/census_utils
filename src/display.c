@@ -67,6 +67,7 @@ int polyCentroid(double x[], double y[], int n,
      if (atmp != 0){
 	  *xCentroid =	xtmp / (3 * atmp);
 	  *yCentroid =	ytmp / (3 * atmp);
+          printf("Segfault test 3\n");
 	  return 0;
      }
      printf("Segfault test 4\n");
