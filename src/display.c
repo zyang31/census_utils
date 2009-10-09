@@ -20,11 +20,13 @@
   You should have received a copy of the GNU General Public License along
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+*/
+/*
   The Shapelib library is licensed under the GNU Lesser General Public License.
   A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
   For information on Shapelib, see http://shapelib.maptools.org/ .
-
+*/
+/*
   EULA: The Graphics Gems code is copyright-protected. 
   In other words, you cannot claim the text of the code as your own and resell it. 
   Using the code is permitted in any program, product, or library, non-commercial or commercial. 
@@ -164,7 +166,6 @@ int main(){
 
   //find centroids for every block
   for(i=0; i<entityCount; i++){
-       int j;
        int lastPoint;
        double *xCentroid;
        double *yCentroid;
@@ -176,10 +177,6 @@ int main(){
             lastPoint = block.panPartStart[1]-1;
        }else{
             lastPoint = block.nVertices-1;
-       }
-       printf("%d\n",lastPoint); //try to find the segfault reason
-       for(j=0; j<block.nVertices; j++){
-            printf("X: %f\n", block.padfX[j]);
        }
        status = polyCentroid(block.padfX, block.padfY, lastPoint, xCentroid, yCentroid, area);
        xCentList[i] = *xCentroid;
