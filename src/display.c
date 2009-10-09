@@ -164,6 +164,7 @@ int main(){
 
   //find centroids for every block
   for(i=0; i<entityCount; i++){
+       int j;
        int lastPoint;
        double *xCentroid;
        double *yCentroid;
