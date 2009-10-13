@@ -17,7 +17,7 @@
   neighborlist * neighbors=(neighbor*) malloc (sizeof(neighborlist)*block_count);
 */
 
-int CheckCont(SHPObject *a, SHPObject *b)
+int checkCont(SHPObject *a, SHPObject *b)
 {
   int jLim;
   int hLim;
@@ -41,7 +41,7 @@ int CheckCont(SHPObject *a, SHPObject *b)
               hLim=b->panPartStart[k+1]-2;
             }
             for(h=b->panPartStart[k];h<hLim;h++){
-              if( CheckOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
+              if( checkOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
                 return TRUE;
               }
             }
@@ -50,7 +50,7 @@ int CheckCont(SHPObject *a, SHPObject *b)
     }
      return FALSE;
 }
-int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
+int checkOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, double yb1, double xb2, double yb2)
 {
   double delXa=(xa2-xa1);          
   double delYa=(ya2-ya1);
@@ -116,22 +116,22 @@ int CheckOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
   }
 }
 
-void callTestCode()
+void callOverlapTestCode()
 {
   int test1, test2, test3, test4, test5, test6;	
 
 
-  test1 = CheckOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
+  test1 = checkOverlap(3, 3.5, 2, 3, 1, 2.5, 4, 4);  //should return true
 
-  test2 = CheckOverlap(1, 2.5, 2, 3, 3, 3.5, 4, 4);  //should return false
+  test2 = checkOverlap(1, 2.5, 2, 3, 3, 3.5, 4, 4);  //should return false
 
-  test3 = CheckOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
+  test3 = checkOverlap(1,2.5,3, 3.5, 2, 3, 4, 4);    //should return true
 
-  test4 = CheckOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return true
+  test4 = checkOverlap(4, 0, 10, 0, 4, 0, 10, 0);    //should return true
 
-  test5 = CheckOverlap(0,4,0,10,0,5,0,11);	//should return true
+  test5 = checkOverlap(0,4,0,10,0,5,0,11);	//should return true
 
-  test6 = CheckOverlap(1,1,-1,-1,-1,1,1,-1);	//should return false
+  test6 = checkOverlap(1,1,-1,-1,-1,1,1,-1);	//should return false
 
   printf("test1 should be true: %i\n",test1);
   printf("test2 should be false: %i\n",test2);
@@ -144,9 +144,39 @@ void callTestCode()
 
 }
 
+void callBlockTestCode()
+{
+	int nSHPType=5;
+	int nVertices=4;
+	double padfXA[]= {1, 2, 2, 1};
+	double padfYA[]= {3, 3, 1, 1};
+	double padfXB[]= {2, 3, 3, 2};
+	double padfYB[]= {3, 3, 1, 1};
+	double padfXC[]= {2, 3, 3, 2};
+	double padfYC[]= {6, 6, 5, 5};
+
+	SHPObject * testObjA = SHPCreateSimpleObject( nSHPType, nVertices, 
+			    padfXA, padfYA, NULL);
+	SHPObject * testObjB = SHPCreateSimpleObject( nSHPType, nVertices, 
+			    padfXB, padfYB, NULL);
+	SHPObject * testObjC = SHPCreateSimpleObject( nSHPType, nVertices, 
+			    padfXC, padfYC, NULL);
+
+	int test1=checkCont(testObjA, testObjB);
+	int test2=checkCont(testObjA, testObjC);
+
+	printf("test1: %i\n",test1);
+	printf("test2: %i\n\n",test2);
+
+	SHPDestroyObject( testObjA);
+	SHPDestroyObject( testObjB);
+	SHPDestroyObject( testObjC);
+}
+
 int main()
 {
-  callTestCode();
+  callOverlapTestCode();
+  callBlockTestCode();
   //TODO: later on, change to a real main method
   return FALSE;
 }
