@@ -9,8 +9,8 @@ public class LoaderTest {
 	 */
 	public static void main(String[] args) {
 		BlockGraph bg = new BlockGraph();
-		bg.load(new File(args[0]), BlockGraph.TYPE_US);
-
+		bg.load(new File(args[0]), BlockGraph.TYPE_AUS);
+ 
 	}
 
 }

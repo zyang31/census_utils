@@ -1,5 +1,7 @@
-CFLAGS = -c -g -O0
+CFLAGS = -c -Wall -g -O0
 #remove -g -O0 when not debugging
+
+#note that shpopen.o comes from shapelib folder
 
 default: contig display blockcont
 

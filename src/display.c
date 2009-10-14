@@ -20,11 +20,57 @@
   You should have received a copy of the GNU General Public License along
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+*/
+/*
   The Shapelib library is licensed under the GNU Lesser General Public License.
   A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
   For information on Shapelib, see http://shapelib.maptools.org/ .
 */
+/*
+  EULA: The Graphics Gems code is copyright-protected. 
+  In other words, you cannot claim the text of the code as your own and resell it. 
+  Using the code is permitted in any program, product, or library, non-commercial or commercial. 
+  Giving credit is not required, though is a nice gesture. 
+  The code comes as-is, and if there are any flaws or problems with any Gems code, nobody involved
+  with Gems - authors, editors, publishers, or webmasters - are to be held responsible. 
+  Basically, don't be a jerk, and remember that anything free comes with no guarantee. 
+*/
+
+
+
+/*  
+  polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
+  of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
+  is assumed that the contour is closed, i.e., that the vertex following
+  (x[n-1], y[n-1]) is (x[0], y[0]).  The algebraic sign of the area is
+  positive for counterclockwise ordering of vertices in x-y plane;
+  otherwise negative.
+
+  Returned values:  0 for normal execution;  1 if the polygon is
+  degenerate (number of vertices < 3);  and 2 if area = 0 (and the
+  centroid is undefined).
+*/
+
+int polyCentroid(double x[], double y[], int n,
+		 double *xCentroid, double *yCentroid, double *area){
+     register int i, j;
+     double ai, atmp = 0, xtmp = 0, ytmp = 0;
+     if (n < 3) return 1;
+     for (i = n-1, j = 0; j < n; i = j, j++){
+	  ai = x[i] * y[j] - x[j] * y[i];
+	  atmp += ai;
+	  xtmp += (x[j] + x[i]) * ai;
+	  ytmp += (y[j] + y[i]) * ai;
+     }
+     *area = atmp / 2;
+     if (atmp != 0){
+	  *xCentroid =	xtmp / (3 * atmp);
+	  *yCentroid =	ytmp / (3 * atmp);
+	  return 0;
+     }
+     return 2;
+} //end Graphics Gems code
+
 
 void svg_header(FILE *svg){
   fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
@@ -75,17 +121,28 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  //For now, we'll use this. Later on, this will change.
-  char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //For desktop
+  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //for clamps!
+  char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+  //Eventually, this won't be hardcoded
+
   SHPHandle handle = SHPOpen(sf_name, "rb");
 
 
   int fn_len = strlen(sf_name);
   char svg_filename[fn_len];
+  char gal_filename[fn_len];
   FILE *svg;
   strcpy(svg_filename, sf_name);
+  strcpy(gal_filename, sf_name);
   svg_filename[fn_len-2] = 'v';
   svg_filename[fn_len-1] = 'g';
+  gal_filename[fn_len-3] = 'g';
+  gal_filename[fn_len-2] = 'a';
+  gal_filename[fn_len-1] = 'l';
+  //I know, the above isn't really robust enough.
+  //Should be improved upon when the file name is no longer hardcoded
 
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
@@ -93,7 +150,9 @@ int main(){
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-  
+  double xCentList[entityCount];
+  double yCentList[entityCount];
+  double areaList[entityCount];
   //populate the shapeList
   for(i=0; i<entityCount; i++){
     shapeList[i] = SHPReadObject(handle,i);
@@ -104,14 +163,52 @@ int main(){
   //set up the SVG file pointer
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
+
+  //TODO: load pairs from GAL file
+  
+
+
+
+
+
+
+  //find centroids for every block
+  for(i=0; i<entityCount; i++){
+       int lastPoint;
+       int status;
+       SHPObject block = *shapeList[i];
+       //Note that we're going to disregard holes, etc.
+       if(block.nParts>1){
+            lastPoint = block.panPartStart[1]-1;
+       }else{
+            lastPoint = block.nVertices-1;
+       }
+       status = polyCentroid(block.padfX, block.padfY, lastPoint, 
+                             xCentList+i, yCentList+i, areaList+i);
+  }
+  //test code:
+  for(i=0; i<10; i++){
+       printf("X: %f Y: %f \n", xCentList[i], yCentList[i]);
+  }
+
+
   //write header
   svg_header(svg);
 
-  printf("SVG header printed.\n");
-
+  //write individual polygons
   for(i=0; i<entityCount; i++){
     svg_polygon(*shapeList[i], svg);
   }
+
+
+
+  printf("SVG header printed.\n");
+  
+
+
+  //TODO: write pairs of centroids
+  
+
   
   //write footer
   svg_footer(svg);
@@ -121,5 +218,6 @@ int main(){
   }
   SHPClose(handle);
   fclose(svg);
+  return 0;
 }
 
