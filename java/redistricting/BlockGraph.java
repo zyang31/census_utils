@@ -1,10 +1,16 @@
 package redistricting;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
@@ -37,11 +43,13 @@ public class BlockGraph {
 	public static final int TYPE_US = 0;
 	public static final int TYPE_AUS = 1;
 
-	public ArrayList<Block> blockList;
+	// public ArrayList<Block> blockList;
+	// a hash table is much faster!
+	Hashtable<Integer, Block> blockTable;
 	public ArrayList<District> distList;
 
 	public BlockGraph() {
-		this.blockList = null;
+		this.blockTable = new Hashtable<Integer, Block>();
 	}
 
 	public void addDistrict(District d) {
@@ -53,11 +61,11 @@ public class BlockGraph {
 	}
 
 	public void addBlock(Block b) {
-		blockList.add(b);
+		blockTable.put(new Integer(b.recordNo), b);
 	}
 
 	public void removeBlock(Block b) {
-		blockList.remove(b);
+		blockTable.remove(b);
 	}
 
 	public void load(File dbfFile, int type) {
@@ -111,21 +119,29 @@ public class BlockGraph {
 
 			Object[] rowObjects;
 
+			int recordNum = 0;
+
 			while ((rowObjects = reader.nextRecord()) != null) {
-				int recordNum = -1;
+				recordNum++;
 				int pop = -1;
+				// note that the measure units for Australia and US are
+				// different!
+				// for AUS it is probably necessary to adjust to square meters
+				// instead
+				// of 1000 km2 TODO
 				int area = -1;
 
 				if (type == TYPE_US) {
-					recordNum = Integer.parseInt((String) rowObjects[0]);
-					pop = Integer.parseInt((String) rowObjects[popfield]);
-					area = Integer.parseInt((String) rowObjects[areafield]);
+					// recordNum = Integer.parseInt((String) rowObjects[0]);
+					pop = Integer.parseInt(((String) rowObjects[popfield]).trim());
+					area = Integer.parseInt(((String) rowObjects[areafield]).trim());
 				} else if (type == TYPE_AUS) {
-					recordNum = (Integer) rowObjects[0];
+					// recordNum = (Integer) rowObjects[0];
 					pop = (Integer) rowObjects[popfield];
 					area = (Integer) rowObjects[areafield];
 				}
 
+				//System.out.println("Adding new block (" + recordNum + "," + pop + "," + area + ")");
 				Block b = new Block(recordNum, pop, area);
 				this.addBlock(b);
 			}
@@ -138,7 +154,82 @@ public class BlockGraph {
 			System.out.println(e.getMessage());
 		}
 
-		// second, loop through GAL file and add neighbors
+		// Read GAL file
+		String filename = dbfFile.getAbsolutePath().substring(0,
+				dbfFile.getAbsolutePath().length() - 3)
+				+ "GAL";
+		parseGal(filename);
+
+	}
+
+	public void parseGal(String filename) {
+		File galFile = new File(filename);
+
+		try {
+			FileInputStream fstream = new FileInputStream(galFile);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			int n_blocks = Integer.parseInt(br.readLine());
+
+			String currentline;
+			int line_num = 2;
+
+			for (int i = 0; i < n_blocks; i++, line_num++) {
+				// read current block id and number of neighbors
+				currentline = br.readLine();
+
+				if (currentline == null) {
+					System.err.println("Error in GAL file at line " + line_num);
+					System.exit(1);
+				}
+
+				StringTokenizer block_st = new StringTokenizer(currentline);
+				int current_block_id = -1;
+				int num_neighbors = -1;
+
+				try {
+					current_block_id = Integer.parseInt(block_st.nextToken());
+					num_neighbors = Integer.parseInt(block_st.nextToken());
+				} catch (NoSuchElementException e) {
+					System.err.println("Error in GAL file at line " + line_num);
+					System.exit(1);
+				}
+
+				Block currentBlock = blockTable.get(new Integer(
+						current_block_id));
+
+				// now read neighbors ids
+				currentline = br.readLine();
+
+				if (currentline == null) {
+					System.err.println("Error in GAL file at line " + line_num);
+					System.exit(1);
+				}
+
+				StringTokenizer neighbor_st = new StringTokenizer(currentline);
+
+				for (int j = 0; j < num_neighbors; j++) {
+					int neighbor_id = -1;
+					try {
+						neighbor_id = Integer.parseInt(neighbor_st.nextToken());
+					} catch (NoSuchElementException e) {
+						System.err.println("Error in GAL file at line "
+								+ line_num);
+						System.exit(1);
+					}
+
+					//System.out.println("Adding " + neighbor_id + " to the neighbors of " + current_block_id);
+					currentBlock.neighbors.add(blockTable.get(new Integer(
+							neighbor_id)));
+				}
+			}
+
+			in.close();
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public void save() {

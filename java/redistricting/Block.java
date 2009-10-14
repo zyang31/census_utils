@@ -36,6 +36,7 @@ public class Block {
 		this.population=population;
 		this.area=area;
 		this.popDensity = (double) population / (double) area; 
+		this.neighbors = new ArrayList<Block>();
 	}
 	
 	public String toString(){
