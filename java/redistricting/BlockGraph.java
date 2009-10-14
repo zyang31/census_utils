@@ -1,10 +1,14 @@
 package redistricting;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
@@ -37,11 +41,13 @@ public class BlockGraph {
 	public static final int TYPE_US = 0;
 	public static final int TYPE_AUS = 1;
 
-	public ArrayList<Block> blockList;
+	//public ArrayList<Block> blockList;
+	//a hash table is much faster!
+	Hashtable<Integer, Block> blockTable;
 	public ArrayList<District> distList;
 
 	public BlockGraph() {
-		this.blockList = null;
+		this.blockTable = null;
 	}
 
 	public void addDistrict(District d) {
@@ -53,11 +59,11 @@ public class BlockGraph {
 	}
 
 	public void addBlock(Block b) {
-		blockList.add(b);
+		blockTable.put(new Integer(b.recordNo), b);
 	}
 
 	public void removeBlock(Block b) {
-		blockList.remove(b);
+		blockTable.remove(b);
 	}
 
 	public void load(File dbfFile, int type) {
@@ -114,6 +120,11 @@ public class BlockGraph {
 			while ((rowObjects = reader.nextRecord()) != null) {
 				int recordNum = -1;
 				int pop = -1;
+				// note that the measure units for Australia and US are
+				// different!
+				// for AUS it is probably necessary to adjust to square meters
+				// instead
+				// of 1000 km2 TODO
 				int area = -1;
 
 				if (type == TYPE_US) {
@@ -138,9 +149,35 @@ public class BlockGraph {
 			System.out.println(e.getMessage());
 		}
 
+		/*String filename = dbfFile.getAbsolutePath().substring(0,
+				dbfFile.getAbsolutePath().length() - 3)
+				+ "GAL";
+		parseGal(filename);*/
+
 		// second, loop through GAL file and add neighbors
 	}
 
+/*	public void parseGal(String filename) {
+		File galFile = new File(filename);
+
+		try {
+			FileInputStream fstream = new FileInputStream(galFile);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			int n_blocks = Integer.parseInt(br.readLine());
+
+			String currentline;
+			for (int i = 0; i < n_blocks; i++) {
+				
+			}
+
+			in.close();
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+*/
 	public void save() {
 		// should support writing to a file somehow
 	}
