@@ -141,7 +141,7 @@ public class BlockGraph {
 					area = (Integer) rowObjects[areafield];
 				}
 
-				System.out.println("Adding new block (" + recordNum + "," + pop + "," + area + ")");
+				//System.out.println("Adding new block (" + recordNum + "," + pop + "," + area + ")");
 				Block b = new Block(recordNum, pop, area);
 				this.addBlock(b);
 			}
@@ -219,7 +219,7 @@ public class BlockGraph {
 						System.exit(1);
 					}
 
-					System.out.println("Adding " + neighbor_id + " to the neighbors of " + current_block_id);
+					//System.out.println("Adding " + neighbor_id + " to the neighbors of " + current_block_id);
 					currentBlock.neighbors.add(blockTable.get(new Integer(
 							neighbor_id)));
 				}
