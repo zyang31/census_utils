@@ -154,9 +154,9 @@ int main(){
   strcpy(gal_filename, sf_name);
   svg_filename[fn_len-2] = 'v';
   svg_filename[fn_len-1] = 'g';
-  gal_filename[fn_len-3] = 'g';
-  gal_filename[fn_len-2] = 'a';
-  gal_filename[fn_len-1] = 'l';
+  gal_filename[fn_len-3] = 'G';
+  gal_filename[fn_len-2] = 'A';
+  gal_filename[fn_len-1] = 'L';
   //I know, the above isn't really robust enough.
   //Should be improved upon when the file name is no longer hardcoded
 
