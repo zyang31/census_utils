@@ -195,7 +195,6 @@ int main(){
        FILE *gal;
        printf("The name of the file is: %s\n", gal_filename);
        gal= fopen(gal_filename, "r");
-       //TODO: load neighbors from GAL file
        if(gal==NULL){
             printf("Error: Could not open GAL file.\n");
             return -1;
@@ -204,7 +203,7 @@ int main(){
        nblocks = atoi(line);
        if(nblocks==entityCount){
             printf("GAL block count matches shapefile block count. Proceeding...\n");
-
+       //TODO: load neighbors from GAL file
 
 
 
