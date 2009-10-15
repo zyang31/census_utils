@@ -116,6 +116,12 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   }
 }
 
+void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
+     //TODO: write this function
+
+
+}
+
 void svg_footer(FILE *svg){
   fputs("\t</g>\n", svg);
   fputs("</svg>", svg);
@@ -158,7 +164,7 @@ int main(){
   
   printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-  neighborlist neighbors[entityCount];
+  neighborList neighbors[entityCount];
   double xCentList[entityCount];
   double yCentList[entityCount];
   double areaList[entityCount];
@@ -172,16 +178,21 @@ int main(){
   //set up the SVG file pointer
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
-
+ 
 
   //write header
   svg_header(svg);
   printf("SVG header printed.\n");
+ 
+ //write individual polygons
+  for(i=0; i<entityCount; i++){
+       svg_polygon(*shapeList[i], svg, use_dist);
+  }
+  printf("Polygons all printed.\n");
 
-  //TODO: load neighbors from GAL file
   if(use_gal){
-       
-
+       gal = fopen(gal_filename, "r");
+       //TODO: load neighbors from GAL file
 
 
 
@@ -201,19 +212,14 @@ int main(){
                                   xCentList+i, yCentList+i, areaList+i);
        }
        printf("Centroids calculated.\n");
-
        //write paths from centroid to centroid
-
-       
+       for(i=0; i<entityCount; i++){
+            svg_neighbors(*shapeList[i], neighbors[i], svg);
+       }  
        //printf("Contiguity paths drawn.\n");
   }
 
-  //write individual polygons
-  for(i=0; i<entityCount; i++){
-       svg_polygon(*shapeList[i], svg, use_dist);
-  }
-  printf("Polygons all printed.\n");
- 
+
 
   
   //write footer
@@ -223,6 +229,9 @@ int main(){
     SHPDestroyObject(shapeList[i]);
   }
   SHPClose(handle);
+  if(use_gal){
+       fclose(gal);
+  }
   fclose(svg);
   return 0;
 }

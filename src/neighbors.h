@@ -5,6 +5,6 @@ typedef struct {
      int ID;
      struct neighbor *prev;
      struct neighbor *next;
-} neighborlist;
+} neighborList;
 
 #endif
