@@ -193,6 +193,7 @@ int main(){
        //int id;
        int nblocks;
        FILE *gal;
+       printf("The name of the file is: %s\n", gal_filename);
        gal= fopen(gal_filename, "r");
        //TODO: load neighbors from GAL file
        if(gal==NULL){
