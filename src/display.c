@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
+#include "neighbors.h"
 
 /*
   Code to display Census shapefiles.
@@ -84,7 +85,7 @@ void svg_header(FILE *svg){
   fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
 }
 
-void svg_polygon(SHPObject block, FILE *svg){
+void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   int i,j,jLim;
   double x,y;
   fputs("\t\t<path\n\t\t\td=\"", svg);  
@@ -107,7 +108,12 @@ void svg_polygon(SHPObject block, FILE *svg){
     }
   }
   fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
-  fputs("\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>",svg);
+  if(use_dist){
+       //replace #ffffff with that district's color
+       fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+  }else{
+       fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+  }
 }
 
 void svg_footer(FILE *svg){
@@ -121,9 +127,11 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
+  int use_gal = 1;
+  int use_dist = 0;
   //For desktop
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
-  //for clamps!
+  //for clamps
   char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
@@ -164,48 +172,47 @@ int main(){
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
 
-  //TODO: load pairs from GAL file
-  
-
-
-
-
-
-
-  //find centroids for every block
-  for(i=0; i<entityCount; i++){
-       int lastPoint;
-       int status;
-       SHPObject block = *shapeList[i];
-       //Note that we're going to disregard holes, etc.
-       if(block.nParts>1){
-            lastPoint = block.panPartStart[1]-1;
-       }else{
-            lastPoint = block.nVertices-1;
-       }
-       status = polyCentroid(block.padfX, block.padfY, lastPoint, 
-                             xCentList+i, yCentList+i, areaList+i);
-  }
-  //test code:
-  for(i=0; i<10; i++){
-       printf("X: %f Y: %f \n", xCentList[i], yCentList[i]);
-  }
-
 
   //write header
   svg_header(svg);
   printf("SVG header printed.\n");
 
+  //TODO: load pairs from GAL file
+  if(use_gal){
+       
+
+
+
+
+
+       //find centroids for every block
+       for(i=0; i<entityCount; i++){
+            int lastPoint;
+            int status;
+            SHPObject block = *shapeList[i];
+            //Note that we're going to disregard holes, etc.
+            if(block.nParts>1){
+                 lastPoint = block.panPartStart[1]-1;
+            }else{
+                 lastPoint = block.nVertices-1;
+            }
+            status = polyCentroid(block.padfX, block.padfY, lastPoint, 
+                                  xCentList+i, yCentList+i, areaList+i);
+       }
+       printf("Centroids calculated.\n");
+
+       //write paths from centroid to centroid
+
+       
+       //printf("Contiguity paths drawn.\n");
+  }
+
   //write individual polygons
   for(i=0; i<entityCount; i++){
-    svg_polygon(*shapeList[i], svg);
+       svg_polygon(*shapeList[i], svg, use_dist);
   }
   printf("Polygons all printed.\n");
-  
-
-
-  //TODO: write pairs of centroids
-  
+ 
 
   
   //write footer
