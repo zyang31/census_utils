@@ -196,7 +196,7 @@ int main(){
        FILE *gal;
        gal= fopen(gal_filename, "r");
        //TODO: load neighbors from GAL file
-       fgets(line, 1023,gal);
+       fgets(line, 1024, gal);
        nblocks = atoi(line);
        if(nblocks==entityCount){
             printf("GAL block count matches shapefile block count. Proceeding...\n");
