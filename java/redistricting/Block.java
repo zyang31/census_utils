@@ -3,7 +3,7 @@ package redistricting;
 import java.util.ArrayList;
 /**	
  * Copyright (C) 2009
- * @author Joshua Justice
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -19,7 +19,8 @@ import java.util.ArrayList;
  *	A copy of the GNU LGPL should be included in the merge-xbase folder.
  *	If it is not, it can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
  *	For details regarding JavaDBF, see http://javadbf.sarovar.org/
- *	
+ * 
+ * @author Joshua Justice
  *
 */
 public class Block {
@@ -35,6 +36,7 @@ public class Block {
 		this.population=population;
 		this.area=area;
 		this.popDensity = (double) population / (double) area; 
+		this.neighbors = new ArrayList<Block>();
 	}
 	
 	public String toString(){
