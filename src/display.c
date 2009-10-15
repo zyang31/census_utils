@@ -204,12 +204,16 @@ int main(){
        nblocks = atoi(line);
        if(nblocks==entityCount){
             printf("GAL block count matches shapefile block count. Proceeding...\n");
+
+
+
+
+
+
        }else{
             printf("Error: GAL block count does not match shapefile block count.\n");
+            return -1;
        }
-       
-         
-
        //find centroids for every block
        for(i=0; i<entityCount; i++){
             int lastPoint;
