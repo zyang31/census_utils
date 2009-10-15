@@ -164,7 +164,6 @@ int main(){
   printf("There are %d entities, of type %d\n", entityCount, shapeType);
   printf("Filename is: %s \n", svg_filename);
   
-  printf("Allocating %ld bytes of memory\n", entityCount*sizeof(SHPObject *));
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
   neighborList neighbors[entityCount];
   double xCentList[entityCount];
@@ -191,7 +190,7 @@ int main(){
        svg_polygon(*shapeList[i], svg, use_dist);
   }
   printf("Polygons all printed.\n");
-  printf("Did I even make it here?");  
+  printf("Did I even make it here?");
   if(use_gal){
        char line[1024];
        //int id;
