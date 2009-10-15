@@ -110,6 +110,7 @@ int checkOverlap(double xa1, double ya1, double xa2, double ya2, double xb1, dou
   else{
     return FALSE;
   }
+  return FALSE;
 }
 
 void callOverlapTestCode()
