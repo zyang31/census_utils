@@ -177,7 +177,7 @@ int main(){
   svg_header(svg);
   printf("SVG header printed.\n");
 
-  //TODO: load pairs from GAL file
+  //TODO: load neighbors from GAL file
   if(use_gal){
        
 
