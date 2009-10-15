@@ -161,9 +161,7 @@ int main(){
   //Should be improved upon when the file name is no longer hardcoded
 
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
-  printf("There are %d entities, of type %d\n", entityCount, shapeType);
-  printf("Filename is: %s \n", svg_filename);
-  
+ 
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
   neighborList neighbors[entityCount];
   double xCentList[entityCount];
