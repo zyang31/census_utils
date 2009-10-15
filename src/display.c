@@ -83,6 +83,7 @@ void svg_header(FILE *svg){
   fputs("\tid=\"svg2\">\n", svg);
   fputs("\t<defs\n\t\tid=\"defs1\" />\n", svg);
   fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
+  return;
 }
 
 void svg_polygon(SHPObject block, FILE *svg, int use_dist){
@@ -114,12 +115,13 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   }else{
        fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
   }
+  return;
 }
 
 void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
      //TODO: write this function
 
-
+     return;
 }
 
 void svg_footer(FILE *svg){
@@ -136,9 +138,9 @@ int main(){
   int use_gal = 1;
   int use_dist = 0;
   //For desktop
-  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for clamps
-  char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+  //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -191,11 +193,20 @@ int main(){
   printf("Polygons all printed.\n");
 
   if(use_gal){
-       gal = fopen(gal_filename, "r");
+       char line[1024];
+       int id;
+       int nblocks;
+       FILE *gal = fopen(gal_filename, "r");
        //TODO: load neighbors from GAL file
-
-
-
+       fgets(line, 1023,gal);
+       nblocks = atoi(line);
+       if(nblocks==entityCount){
+            printf("GAL block count matches shapefile block count. Proceeding...\n");
+       }else{
+            printf("Error: GAL block count does not match shapefile block count.\n");
+       }
+       
+         
 
        //find centroids for every block
        for(i=0; i<entityCount; i++){
@@ -217,8 +228,8 @@ int main(){
             svg_neighbors(*shapeList[i], neighbors[i], svg);
        }  
        //printf("Contiguity paths drawn.\n");
+       fclose(gal);
   }
-
 
 
   
@@ -229,9 +240,6 @@ int main(){
     SHPDestroyObject(shapeList[i]);
   }
   SHPClose(handle);
-  if(use_gal){
-       fclose(gal);
-  }
   fclose(svg);
   return 0;
 }
