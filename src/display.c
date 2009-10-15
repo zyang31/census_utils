@@ -138,9 +138,9 @@ int main(){
   int use_gal = 1;
   int use_dist = 0;
   //For desktop
-  char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for clamps
-  //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+  char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -191,12 +191,13 @@ int main(){
        svg_polygon(*shapeList[i], svg, use_dist);
   }
   printf("Polygons all printed.\n");
-
+  printf("Did I even make it here?");  
   if(use_gal){
        char line[1024];
-       int id;
+       //int id;
        int nblocks;
-       FILE *gal = fopen(gal_filename, "r");
+       FILE *gal;
+       gal= fopen(gal_filename, "r");
        //TODO: load neighbors from GAL file
        fgets(line, 1023,gal);
        nblocks = atoi(line);
