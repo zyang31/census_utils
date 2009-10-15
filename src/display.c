@@ -194,15 +194,13 @@ int main(){
 
   //write header
   svg_header(svg);
+  printf("SVG header printed.\n");
 
   //write individual polygons
   for(i=0; i<entityCount; i++){
     svg_polygon(*shapeList[i], svg);
   }
-
-
-
-  printf("SVG header printed.\n");
+  printf("Polygons all printed.\n");
   
 
 

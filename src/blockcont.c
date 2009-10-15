@@ -7,13 +7,9 @@
 #define FALSE 0
 
 //UTList * neighbors; //TODO: malloc an array of x pointers to linked lists where x = block count
-//TODO: the above should be in the main code not in a lower level function (make it global)
+//TODO: the neighbor list  should be in the main code
+// not in a lower level function (make it global)
 /*
-  typedef struct {
-  int ID;
-  struct neighbor *prev, *next;
-  }neighborlist;
-
   neighborlist * neighbors=(neighbor*) malloc (sizeof(neighborlist)*block_count);
 */
 
