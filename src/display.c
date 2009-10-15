@@ -196,6 +196,10 @@ int main(){
        FILE *gal;
        gal= fopen(gal_filename, "r");
        //TODO: load neighbors from GAL file
+       if(gal==NULL){
+            printf("Error: Could not open GAL file.\n");
+            return -1;
+       }
        fgets(line, 1024, gal);
        nblocks = atoi(line);
        if(nblocks==entityCount){
