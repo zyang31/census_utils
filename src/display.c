@@ -188,7 +188,7 @@ int main(){
        svg_polygon(*shapeList[i], svg, use_dist);
   }
   printf("Polygons all printed.\n");
-  printf("Did I even make it here?");
+  printf("How do I segfault between these two lines in a single-threaded app?");
   if(use_gal){
        char line[1024];
        //int id;
