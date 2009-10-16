@@ -3,10 +3,10 @@ CFLAGS = -c -Wall -g -O0
 
 #note that shpopen.o comes from shapelib folder
 
-default: contig display blockcont
+default: contig display
 
-contig: contig.o shpopen.o
-	$(CC) contig.o shpopen.o -o contig
+contig: contig.o shpopen.o blockcont.o
+	$(CC) contig.o shpopen.o blockcont.o -o contig
 
 contig.o: contig.c
 	$(CC) $(CFLAGS) contig.c -o contig.o
@@ -17,11 +17,8 @@ display: display.o shpopen.o
 display.o: display.c
 	$(CC) $(CFLAGS) display.c -o display.o
 
-blockcont: blockcont.o shpopen.o
-	$(CC) blockcont.o shpopen.o -o blockcont
-
 blockcont.o: blockcont.c
-	$(CC) $(CFLAGS) blockcont.c -o blockcont.o
+	$(CC) -c blockcont.c
 
 clean: 
 	rm -f contig contig.o display display.o blockcont blockcont.o

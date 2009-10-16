@@ -141,7 +141,7 @@ void callOverlapTestCode()
 
 }
 
-void callBlockTestCode()
+/*void callBlockTestCode()
 {
 	int nSHPType=5;
 	int nVertices=4;
@@ -168,12 +168,10 @@ void callBlockTestCode()
 	SHPDestroyObject( testObjA);
 	SHPDestroyObject( testObjB);
 	SHPDestroyObject( testObjC);
-}
-
+}*/
+/*
 int main()
 {
-  callOverlapTestCode();
-  callBlockTestCode();
-  //TODO: later on, change to a real main method
   return FALSE;
 }
+*/
