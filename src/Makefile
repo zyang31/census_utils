@@ -17,8 +17,8 @@ display: display.o shpopen.o
 display.o: display.c
 	$(CC) $(CFLAGS) display.c -o display.o
 
-blockcont: blockcont.o
-	$(CC) blockcont.o -o blockcont
+blockcont: blockcont.o shpopen.o
+	$(CC) blockcont.o shpopen.o -o blockcont
 
 blockcont.o: blockcont.c
 	$(CC) $(CFLAGS) blockcont.c -o blockcont.o
