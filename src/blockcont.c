@@ -170,10 +170,10 @@ void callBlockTestCode()
 	SHPDestroyObject( testObjC);
 }
 
-int main()
+/*int main()
 {
   callOverlapTestCode();
   callBlockTestCode();
   //TODO: later on, change to a real main method
   return FALSE;
-}
+}*/

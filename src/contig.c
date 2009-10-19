@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include "shapefil.h"
 #include "uthash.h"
+#include "blockcont.h"
 
 #define TRUNCATE_UPTO 	100000
 #define TOLERANCE 	0.0005
@@ -83,9 +84,18 @@ typedef struct
     UT_hash_handle hh;
 } HT_Struct_For_Block;
 
+struct neighbor_list
+{
+    int index;    //Store the index of the neighbor block. This is used later to sort
+    struct neighbor_list *next;
+    struct neighbor_list *prev; //dummy variable only for utlist sort to work.   
+};
+
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
+
+struct neighbor_list *NTABLE = NULL;
 
 void Add_block_to_HT();
 
@@ -199,7 +209,36 @@ void print_table()
     }
   }
 }
+
+void Add_to_NList()
+{
+}
  
+void generate_neighbor_table()
+{
+  HT_Struct_For_Block *s;
+  bucket_list *temp = NULL, *temp_next = NULL;
+
+  NTABLE = malloc(block_count * sizeof(struct neighbor_list *));
+
+  //Go over the HT; for every pair of objects (a,b) in the bucket_list add (a,b) and (b,a) to the neighbor list
+  for (s=HT_Blocks; s != NULL; s=s->hh.next)
+  {
+     temp = (bucket_list *)s->head_of_list.next_block;
+     while(temp !=NULL)
+     {
+        temp_next = (bucket_list *)temp->next_block;
+        while(temp_next != NULL)
+        {
+            if(checkCont(temp->block, temp_next->block))
+                  Add_to_NList(temp->block->nShapeId, temp_next->block->nShapeId);
+            temp_next = (bucket_list *)temp->next_block;
+        }
+        temp = (bucket_list *)temp->next_block;
+     }
+  }
+}
+
 //This function can be called to test on the hash table
 void test_hashing()
 {
@@ -238,6 +277,8 @@ int main(){
 
   printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
   //test_hashing();
+
+  generate_neighbor_table();
 
   //free all the items in the HT
   HT_Struct_For_Block *current;
