@@ -95,7 +95,7 @@ HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
 
-struct neighbor_list *NTABLE = NULL;
+struct neighbor_list **NTABLE = NULL;
 
 void Add_block_to_HT();
 
@@ -210,8 +210,23 @@ void print_table()
   }
 }
 
-void Add_to_NList()
+void Add_to_NList(int first, int second)
 {
+  struct neighbor_list *traverse;
+  struct neighbor_list *neighbor_node = malloc(sizeof(struct neighbor_list *));
+  neighbor_node->index = second;
+  neighbor_node->next = neighbor_node->prev = NULL; 
+  if (NTABLE[first] == NULL)
+  {
+     NTABLE[first] = neighbor_node;
+  }
+  else
+  {
+     traverse = NTABLE[first];
+     while(traverse->next != NULL)
+          traverse = traverse->next;
+     traverse->next = neighbor_node;
+  }
 }
  
 void generate_neighbor_table()
@@ -231,8 +246,11 @@ void generate_neighbor_table()
         while(temp_next != NULL)
         {
             if(checkCont(temp->block, temp_next->block))
+            {
                   Add_to_NList(temp->block->nShapeId, temp_next->block->nShapeId);
-            temp_next = (bucket_list *)temp->next_block;
+                  Add_to_NList(temp_next->block->nShapeId, temp->block->nShapeId);
+            }
+            temp_next = (bucket_list *)temp_next->next_block;
         }
         temp = (bucket_list *)temp->next_block;
      }
