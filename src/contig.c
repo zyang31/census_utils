@@ -27,6 +27,7 @@
 #include "shapefil.h"
 #include "uthash.h"
 #include "blockcont.h"
+#include "utlist.h"
 
 #define TRUNCATE_UPTO 	100000
 #define TOLERANCE 	0.0005
@@ -257,6 +258,36 @@ void generate_neighbor_table()
   }
 }
 
+int sort_algo(struct neighbor_list *first, struct neighbor_list *second)
+{
+  if (first->index < second->index) return -1;
+  else if (first->index == second->index) return 0;
+  else return 1;
+}
+
+void sort_NTABLE()
+{
+  int i;
+  for (i=0; i<block_count; i++)
+    LL_SORT(NTABLE[i], sort_algo); 
+}
+
+void print_neighbor_table()
+{
+  struct neighbor_list *temp = NULL;
+  int i;
+  for (i=0;i<block_count; i++)
+  {
+     temp = NTABLE[i];
+     printf("\n neighbor list of %d: ", i);
+     while (temp != NULL)
+     {
+        printf("%d\t", temp->index);
+        temp = temp->next;
+     }
+  }
+}
+
 //This function can be called to test on the hash table
 void test_hashing()
 {
@@ -298,6 +329,11 @@ int main(){
 
   generate_neighbor_table();
 
+  sort_NTABLE();
+
+  /* Use print_neighbor_table to print the neighbors of all the blocks */
+  //print_neighbor_table();
+
   //free all the items in the HT
   HT_Struct_For_Block *current;
   bucket_list *temp = NULL, *temp_next = NULL;
@@ -318,5 +354,20 @@ int main(){
 
   for(i=0; i<block_count; i++)
   SHPDestroyObject(block_list[i]);
+
+  //free the NTABLE
+  struct neighbor_list *traverse, *traverse_next;
+  for(i=0; i<block_count; i++)
+  {
+    traverse = traverse_next = NTABLE[i];
+    while (traverse != NULL)
+    {
+      traverse_next = traverse->next;
+      free(traverse);
+      traverse = traverse_next;
+    }
+  }
+  free(NTABLE);
+  NTABLE = NULL;
   return 0;
 }
