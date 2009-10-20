@@ -3,7 +3,7 @@ CFLAGS = -c -Wall -g -O0
 
 default: contig display
 
-contig: contig.o shapelib-1.2.10/shpopen.o
+contig: contig.o shapelib-1.2.10/shpopen.o blockcont.o
 	$(CC) contig.o blockcont.o shapelib-1.2.10/shpopen.o -o contig
 
 contig.o: contig.c
