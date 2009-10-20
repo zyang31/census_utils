@@ -318,32 +318,10 @@ void test_hashing()
   free(key1);
 }
  
-void callBlockTestCode()
-{
-
-	int test1=checkCont(block_list[1235-1], block_list[1-1]);
-	int test2=checkCont(block_list[1-1], block_list[1706-1]);
-	int test3=checkCont(block_list[1-1], block_list[7245-1]);
-	int test4=checkCont(block_list[1-1], block_list[7246-1]);
-	int test5=checkCont(block_list[1-1], block_list[7470-1]);
-	int test6=checkCont(block_list[1-1], block_list[8407-1]);	
-	int testo=checkCont(block_list[7245-1], block_list[1235-1]);
-	int testf=checkCont(block_list[1-1], block_list[2-1]);
-	
-	printf("test1: %i\n",test1);
-	printf("test2: %i\n",test2);
-	printf("test3: %i\n",test3);
-	printf("test4: %i\n",test4);
-	printf("test5: %i\n",test5);
-	printf("test6: %i\n",test6);
-	printf("test2-1: %i\n", testo);
-	printf("testf: %i\n\n",testf);
-}
-
 int main(){
   int i;
   /* handle has to be pointed to the right location */
-  SHPHandle handle = SHPOpen("/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp", "rb");
+  SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
   Add_Blocks_to_HT(handle);
 
   printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
@@ -373,7 +351,7 @@ int main(){
      HASH_DEL(HT_Blocks, current);
      free(current);
   }  
-  callBlockTestCode();
+
   for(i=0; i<block_count; i++)
   SHPDestroyObject(block_list[i]);
 
