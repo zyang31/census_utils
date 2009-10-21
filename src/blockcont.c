@@ -141,39 +141,3 @@ void callOverlapTestCode()
 
 }
 
-void callBlockTestCode()
-{
-	int nSHPType=5;
-	int nVertices=4;
-	double padfXA[]= {1, 2, 2, 1};
-	double padfYA[]= {3, 3, 1, 1};
-	double padfXB[]= {2, 3, 3, 2};
-	double padfYB[]= {3, 3, 1, 1};
-	double padfXC[]= {2, 3, 3, 2};
-	double padfYC[]= {6, 6, 5, 5};
-
-	SHPObject * testObjA = SHPCreateSimpleObject( nSHPType, nVertices, 
-			    padfXA, padfYA, NULL);
-	SHPObject * testObjB = SHPCreateSimpleObject( nSHPType, nVertices, 
-			    padfXB, padfYB, NULL);
-	SHPObject * testObjC = SHPCreateSimpleObject( nSHPType, nVertices, 
-			    padfXC, padfYC, NULL);
-
-	int test1=checkCont(testObjA, testObjB);
-	int test2=checkCont(testObjA, testObjC);
-
-	printf("test1: %i\n",test1);
-	printf("test2: %i\n\n",test2);
-
-	SHPDestroyObject( testObjA);
-	SHPDestroyObject( testObjB);
-	SHPDestroyObject( testObjC);
-}
-
-int main()
-{
-  callOverlapTestCode();
-  callBlockTestCode();
-  //TODO: later on, change to a real main method
-  return FALSE;
-}

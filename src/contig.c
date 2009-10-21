@@ -26,6 +26,8 @@
 #include <stddef.h>
 #include "shapefil.h"
 #include "uthash.h"
+#include "blockcont.h"
+#include "utlist.h"
 
 #define TRUNCATE_UPTO 	100000
 #define TOLERANCE 	0.0005
@@ -83,9 +85,18 @@ typedef struct
     UT_hash_handle hh;
 } HT_Struct_For_Block;
 
+struct neighbor_list
+{
+    int index;    //Store the index of the neighbor block. This is used later to sort
+    struct neighbor_list *next;
+    struct neighbor_list *prev; //dummy variable only for utlist sort to work.   
+};
+
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
+
+struct neighbor_list **NTABLE = NULL;
 
 void Add_block_to_HT();
 
@@ -199,7 +210,84 @@ void print_table()
     }
   }
 }
+
+void Add_to_NList(int first, int second)
+{
+  struct neighbor_list *traverse;
+  struct neighbor_list *neighbor_node = malloc(sizeof(struct neighbor_list *));
+  neighbor_node->index = second;
+  neighbor_node->next = neighbor_node->prev = NULL; 
+  if (NTABLE[first] == NULL)
+  {
+     NTABLE[first] = neighbor_node;
+  }
+  else
+  {
+     traverse = NTABLE[first];
+     while(traverse->next != NULL)
+          traverse = traverse->next;
+     traverse->next = neighbor_node;
+  }
+}
  
+void generate_neighbor_table()
+{
+  HT_Struct_For_Block *s;
+  bucket_list *temp = NULL, *temp_next = NULL;
+
+  NTABLE = malloc(block_count * sizeof(struct neighbor_list *));
+
+  //Go over the HT; for every pair of objects (a,b) in the bucket_list add (a,b) and (b,a) to the neighbor list
+  for (s=HT_Blocks; s != NULL; s=s->hh.next)
+  {
+     temp = (bucket_list *)s->head_of_list.next_block;
+     while(temp !=NULL)
+     {
+        temp_next = (bucket_list *)temp->next_block;
+        while(temp_next != NULL)
+        {
+            if(checkCont(temp->block, temp_next->block))
+            {
+                  Add_to_NList(temp->block->nShapeId, temp_next->block->nShapeId);
+                  Add_to_NList(temp_next->block->nShapeId, temp->block->nShapeId);
+            }
+            temp_next = (bucket_list *)temp_next->next_block;
+        }
+        temp = (bucket_list *)temp->next_block;
+     }
+  }
+}
+
+int sort_algo(struct neighbor_list *first, struct neighbor_list *second)
+{
+  if (first->index < second->index) return -1;
+  else if (first->index == second->index) return 0;
+  else return 1;
+}
+
+void sort_NTABLE()
+{
+  int i;
+  for (i=0; i<block_count; i++)
+    LL_SORT(NTABLE[i], sort_algo); 
+}
+
+void print_neighbor_table()
+{
+  struct neighbor_list *temp = NULL;
+  int i;
+  for (i=0;i<block_count; i++)
+  {
+     temp = NTABLE[i];
+     printf("\n neighbor list of %d: ", i);
+     while (temp != NULL)
+     {
+        printf("%d\t", temp->index);
+        temp = temp->next;
+     }
+  }
+}
+
 //This function can be called to test on the hash table
 void test_hashing()
 {
@@ -230,14 +318,43 @@ void test_hashing()
   free(key1);
 }
  
+void callBlockTestCode()
+{
+
+	int test1=checkCont(block_list[1235-1], block_list[1-1]);
+	int test2=checkCont(block_list[1-1], block_list[1706-1]);
+	int test3=checkCont(block_list[1-1], block_list[7245-1]);
+	int test4=checkCont(block_list[1-1], block_list[7246-1]);
+	int test5=checkCont(block_list[1-1], block_list[7470-1]);
+	int test6=checkCont(block_list[1-1], block_list[8407-1]);	
+	int testo=checkCont(block_list[7245-1], block_list[1235-1]);
+	int testf=checkCont(block_list[1-1], block_list[2-1]);
+	
+	printf("test1: %i\n",test1);
+	printf("test2: %i\n",test2);
+	printf("test3: %i\n",test3);
+	printf("test4: %i\n",test4);
+	printf("test5: %i\n",test5);
+	printf("test6: %i\n",test6);
+	printf("test2-1: %i\n", testo);
+	printf("testf: %i\n\n",testf);
+}
+
 int main(){
   int i;
   /* handle has to be pointed to the right location */
-  SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
+  SHPHandle handle = SHPOpen("/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp", "rb");
   Add_Blocks_to_HT(handle);
 
   printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
   //test_hashing();
+
+  generate_neighbor_table();
+
+  sort_NTABLE();
+
+  /* Use print_neighbor_table to print the neighbors of all the blocks */
+  //print_neighbor_table();
 
   //free all the items in the HT
   HT_Struct_For_Block *current;
@@ -256,8 +373,23 @@ int main(){
      HASH_DEL(HT_Blocks, current);
      free(current);
   }  
-
+  callBlockTestCode();
   for(i=0; i<block_count; i++)
   SHPDestroyObject(block_list[i]);
+
+  //free the NTABLE
+  struct neighbor_list *traverse, *traverse_next;
+  for(i=0; i<block_count; i++)
+  {
+    traverse = traverse_next = NTABLE[i];
+    while (traverse != NULL)
+    {
+      traverse_next = traverse->next;
+      free(traverse);
+      traverse = traverse_next;
+    }
+  }
+  free(NTABLE);
+  NTABLE = NULL;
   return 0;
 }
