@@ -151,7 +151,8 @@ int main(){
   double padfMaxBound[4];
   int i;
   int use_gal = 1;
-  int use_dist = 0;
+  int use_dist = 0;  //file loading
+//make color array here, fill w/ 0xffffff
   //For desktop
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for clamps
