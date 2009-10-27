@@ -72,10 +72,10 @@ int polyCentroid(double x[], double y[], int n,
      return 2;
 } //end Graphics Gems code
 
-int* colorArrange(int* array, int n){
+void colorArrange(int* array, int n){
    unsigned int array_size = n+1;
-   unsigned int max=16777215;
-   int min=3355443;
+   unsigned int max=0xffffff;
+   int min=0x000000;
    unsigned int diff=(max-min)/array_size;
    int i;
    unsigned int current = max;
@@ -84,7 +84,7 @@ int* colorArrange(int* array, int n){
       array[i]=current;
       current=current-diff;
    }
-   return array;
+   return;
 }
 
 void svg_header(FILE *svg){
@@ -265,3 +265,17 @@ int main(){
 }
 
 
+
+//for testing
+/*
+int main(){
+	int ndists=10;
+	int color_array[ndists+1];
+	int i;
+	colorArrange(color_array,ndists);
+	for(i=0;i<=ndists;i++){
+		printf("%X\n",color_array[i]);
+	}
+	return 0;
+}
+*/
