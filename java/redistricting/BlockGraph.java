@@ -1,9 +1,13 @@
 package redistricting;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,6 +19,7 @@ import java.util.StringTokenizer;
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
+import com.linuxense.javadbf.DBFWriter;
 
 /**
  * Copyright (C) 2009
@@ -124,24 +129,22 @@ public class BlockGraph {
 			while ((rowObjects = reader.nextRecord()) != null) {
 				recordNum++;
 				int pop = -1;
-				// note that the measure units for Australia and US are
-				// different!
-				// for AUS it is probably necessary to adjust to square meters
-				// instead
-				// of 1000 km2 TODO
 				int area = -1;
 
 				if (type == TYPE_US) {
 					// recordNum = Integer.parseInt((String) rowObjects[0]);
-					pop = Integer.parseInt(((String) rowObjects[popfield]).trim());
-					area = Integer.parseInt(((String) rowObjects[areafield]).trim());
+					pop = Integer.parseInt(((String) rowObjects[popfield])
+							.trim());
+					area = Integer.parseInt(((String) rowObjects[areafield])
+							.trim());
 				} else if (type == TYPE_AUS) {
 					// recordNum = (Integer) rowObjects[0];
 					pop = (Integer) rowObjects[popfield];
 					area = (Integer) rowObjects[areafield];
 				}
 
-				//System.out.println("Adding new block (" + recordNum + "," + pop + "," + area + ")");
+				// System.out.println("Adding new block (" + recordNum + "," +
+				// pop + "," + area + ")");
 				Block b = new Block(recordNum, pop, area);
 				this.addBlock(b);
 			}
@@ -219,7 +222,8 @@ public class BlockGraph {
 						System.exit(1);
 					}
 
-					//System.out.println("Adding " + neighbor_id + " to the neighbors of " + current_block_id);
+					// System.out.println("Adding " + neighbor_id +
+					// " to the neighbors of " + current_block_id);
 					currentBlock.neighbors.add(blockTable.get(new Integer(
 							neighbor_id)));
 				}
@@ -232,8 +236,101 @@ public class BlockGraph {
 		}
 	}
 
-	public void save() {
-		// should support writing to a file somehow
+	public void save(String outputFile) {
+		// part 1 - add district to dbf
+		saveDBF(new File(outputFile + ".dbf"), new File(outputFile + "_"
+				+ distList.size() + ".dbf"));
+
+		// part 2 - write which blocks are in which district
+		saveDST(new File(outputFile + ".dst"));
+	}
+
+	private void saveDBF(File original, File outFile) {
+		ArrayList<DBFField> originalFields;
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(original);
+			DBFReader reader = new DBFReader(fis);
+
+			// read existing fields
+			int fcount = reader.getFieldCount();
+			originalFields = new ArrayList<DBFField>(fcount);
+
+			for (int i = 0; i < fcount; i++) {
+				originalFields.add(reader.getField(i));
+			}
+
+			// create new district field
+			DBFField distField = new DBFField();
+			distField.setName("DISTRICT");
+			distField.setDataType(DBFField.FIELD_TYPE_N);
+			distField.setFieldLength(4);
+
+			// initialize writer
+			DBFWriter writer = new DBFWriter();
+
+			// create and write records
+			Object[] record;
+			int currentBlock = 1;
+			while ((record = reader.nextRecord()) != null) {
+				Object[] newRecord = new Object[record.length + 1];
+				System.arraycopy(record, 0, newRecord, 0, record.length);
+				Block block = blockTable.get(new Integer(currentBlock));
+				newRecord[record.length] = getBlockDistrictNo(block);
+				writer.addRecord(newRecord);
+				currentBlock++;
+			}
+			
+			//write to file
+			FileOutputStream fos = new FileOutputStream(outFile);
+			writer.write(fos);
+			
+			fos.close();
+			fis.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DBFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void saveDST(File dstFile) {
+		try {
+			// Create file
+			FileWriter fstream = new FileWriter(dstFile);
+			BufferedWriter out = new BufferedWriter(fstream);
+
+			// write block count and district count
+			out.write(blockTable.size() + " " + distList.size() + "\n");
+
+			for (Block b : blockTable.values()) {
+				out.write(b.recordNo + " " + getBlockDistrictNo(b) + "\n");
+			}
+
+			out.close();
+
+			System.out.println("DST info written to "
+					+ dstFile.getAbsolutePath());
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+
+	private int getBlockDistrictNo(Block b) {
+		for (District d : distList) {
+			if (d.hasBlock(b)) {
+				return d.getDistrictNo();
+			}
+		}
+
+		return 0;
 	}
 
 }
