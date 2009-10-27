@@ -29,8 +29,8 @@
 #include "blockcont.h"
 #include "utlist.h"
 
-#define TRUNCATE_UPTO 	100000
-#define TOLERANCE 	0.0005
+#define TRUNCATE_UPTO 	1000
+#define TOLERANCE 	0.005
 
 #define TRUNCATE(var, convert)  {                                                    \
      int temp = var*TRUNCATE_UPTO;                                                   \
@@ -91,6 +91,11 @@ struct neighbor_list
     struct neighbor_list *next;
     struct neighbor_list *prev; //dummy variable only for utlist sort to work.   
 };
+
+/*void int_to_string(int num, char *ptr)
+{
+  sprintf(retstr, "%i", num);
+}*/
 
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
@@ -225,7 +230,18 @@ void Add_to_NList(int first, int second)
   {
      traverse = NTABLE[first];
      while(traverse->next != NULL)
+     {
+          if (traverse->index == second)
+          {
+              return;
+          }
           traverse = traverse->next;
+     }
+     if (traverse->index == second)
+     {
+          return;
+     }
+         
      traverse->next = neighbor_node;
   }
 }
@@ -288,6 +304,49 @@ void print_neighbor_table()
   }
 }
 
+void Output_To_GAL()
+{
+  int i;
+  char *str_bc = calloc(10, sizeof(char));
+  char *ego_label = calloc(10, sizeof(char));
+  char *n_count = calloc(100, sizeof(char));
+  char *n_list = calloc(100, sizeof(char)); /*having three char ptrs will make writing into the .gal file faster */
+  char *temp_str = calloc(10, sizeof(char));
+  struct neighbor_list *temp;
+  FILE *fp = fopen("./Neighbor_List.gal", "w+");
+  sprintf(str_bc, "%i", block_count);
+  strcat(str_bc, "\n");
+  fputs(str_bc, fp);
+  for(i=0;i<block_count;i++)
+  {
+    int num_neighbors = 0;
+    sprintf(ego_label, "%i", i);
+    strcat(ego_label, " ");
+
+    /* We do not know the neighbor count of a vertex here; have to iterate through every 
+     *   neighbor list to find the count. Instead of iterating twice to find the count and 
+     *   again to print them we have separate lists for neibhbor count and neighbor list.
+     *   */
+
+    temp = NTABLE[i];
+    while(temp != NULL)
+    {
+      num_neighbors++;
+      sprintf(temp_str, "%i \0", temp->index);
+      strcat(n_list, temp_str);
+      temp = temp->next;
+    }
+    fputs(ego_label, fp);
+    sprintf(n_count, "%i", num_neighbors);
+    strcat(n_count,"\n\0");
+    fputs(n_count, fp);
+    strcat(n_list,"\n\n");
+    fputs(n_list, fp);
+    bzero(n_list, sizeof(n_list));
+  }
+  return;
+}
+
 //This function can be called to test on the hash table
 void test_hashing()
 {
@@ -318,32 +377,10 @@ void test_hashing()
   free(key1);
 }
  
-void callBlockTestCode()
-{
-
-	int test1=checkCont(block_list[1235-1], block_list[1-1]);
-	int test2=checkCont(block_list[1-1], block_list[1706-1]);
-	int test3=checkCont(block_list[1-1], block_list[7245-1]);
-	int test4=checkCont(block_list[1-1], block_list[7246-1]);
-	int test5=checkCont(block_list[1-1], block_list[7470-1]);
-	int test6=checkCont(block_list[1-1], block_list[8407-1]);	
-	int testo=checkCont(block_list[7245-1], block_list[1235-1]);
-	int testf=checkCont(block_list[1-1], block_list[2-1]);
-	
-	printf("test1: %i\n",test1);
-	printf("test2: %i\n",test2);
-	printf("test3: %i\n",test3);
-	printf("test4: %i\n",test4);
-	printf("test5: %i\n",test5);
-	printf("test6: %i\n",test6);
-	printf("test2-1: %i\n", testo);
-	printf("testf: %i\n\n",testf);
-}
-
 int main(){
   int i;
   /* handle has to be pointed to the right location */
-  SHPHandle handle = SHPOpen("/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp", "rb");
+  SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
   Add_Blocks_to_HT(handle);
 
   printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
@@ -354,7 +391,9 @@ int main(){
   sort_NTABLE();
 
   /* Use print_neighbor_table to print the neighbors of all the blocks */
-  //print_neighbor_table();
+  print_neighbor_table();
+
+  Output_To_GAL();
 
   //free all the items in the HT
   HT_Struct_For_Block *current;
@@ -373,7 +412,7 @@ int main(){
      HASH_DEL(HT_Blocks, current);
      free(current);
   }  
-  callBlockTestCode();
+
   for(i=0; i<block_count; i++)
   SHPDestroyObject(block_list[i]);
 
