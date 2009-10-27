@@ -72,6 +72,20 @@ int polyCentroid(double x[], double y[], int n,
      return 2;
 } //end Graphics Gems code
 
+int* colorArrange(int* array, int n){
+   unsigned int array_size = n+1;
+   unsigned int max=16777215;
+   int min=3355443;
+   unsigned int diff=(max-min)/array_size;
+   int i;
+   unsigned int current = max;
+   //check array size here
+   for(i=0; i<array_size; i++){
+      array[i]=current;
+      current=current-diff;
+   }
+   return array;
+}
 
 void svg_header(FILE *svg){
   fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
@@ -110,8 +124,9 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   }
   fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
   if(use_dist){
-       //replace #ffffff with that district's color
-       fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+       //TODO: replace #ffffff with that district's color
+       //use %X6 on that block's district's entry in colorarray
+       //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
   }else{
        fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
   }
@@ -248,4 +263,5 @@ int main(){
   fclose(svg);
   return 0;
 }
+
 
