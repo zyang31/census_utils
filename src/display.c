@@ -150,7 +150,8 @@ void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
 
      while(current!=NULL){
           currPos = current.ID - 1;
-          
+          nx = xCentList[currPos];
+          ny = yCentList[currPos];
 
 
      }
