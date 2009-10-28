@@ -152,9 +152,10 @@ void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
           nx = xCentList[currPos];
           ny = yCentList[currPos];
           //draw paths here 
-          
-
-          //advance current
+          fputs("\t\t<path\n\t\t\td=\"", svg);
+          fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
+          fprintf(svg,"L %f %f\" />\n", nx, ny); //Lineto neighbor X/Y       
+          //advance current pointer
           current = current -> next;
      }
 
