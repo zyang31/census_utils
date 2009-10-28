@@ -4,7 +4,6 @@
 #include "shapefil.h"
 #include "neighbors.h"
 
-
 /*
   Code to display Census shapefiles.
   Copyright (C) <2009>  <Joshua Justice>
@@ -143,12 +142,13 @@ void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
      neighborList *current = neighbors;
      int currPos;
      double bx, by, nx, ny;
+
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
      fputs("\t</g>\n", svg);
      fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-     while(current != NULL){
-          currPos = current->ID - 1;
+     while(current != NULL && current->ID != 0){
+          currPos = (current->ID) - 1;
           nx = xCentList[currPos];
           ny = yCentList[currPos];
           //draw paths here 
