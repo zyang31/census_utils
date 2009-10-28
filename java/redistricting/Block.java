@@ -1,6 +1,8 @@
 package redistricting;
 
 import java.util.ArrayList;
+
+import com.linuxense.javadbf.DBFField;
 /**	
  * Copyright (C) 2009
  * 
@@ -42,5 +44,4 @@ public class Block {
 	public String toString(){
 		return ""+recordNo;
 	}
-	
 }
