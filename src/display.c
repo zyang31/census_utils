@@ -145,15 +145,17 @@ void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
      double bx, by, nx, ny;
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
-
+     fputs("\t</g>\n", svg);
+     fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
      while(current != NULL){
           currPos = current->ID - 1;
           nx = xCentList[currPos];
           ny = yCentList[currPos];
+          //draw paths here 
           
 
-
-
+          //advance current
+          current = current -> next
      }
 
 
@@ -175,9 +177,9 @@ int main(){
      int use_dist = 0;  //file loading
      //make color array here, fill w/ 0xffffff
      //For desktop
-     //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+     char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
      //for clamps
-     char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+     //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
      //Eventually, this won't be hardcoded
 
      SHPHandle handle = SHPOpen(sf_name, "rb");
