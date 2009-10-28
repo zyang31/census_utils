@@ -155,7 +155,7 @@ void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
           
 
           //advance current
-          current = current -> next
+          current = current -> next;
      }
 
 
