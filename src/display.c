@@ -4,9 +4,6 @@
 #include "shapefil.h"
 #include "neighbors.h"
 
-//global variables
-double xCentList[entityCount];
-double yCentList[entityCount];
 
 /*
   Code to display Census shapefiles.
@@ -145,11 +142,11 @@ void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
      neighborList current = neighbors;
      int currPos;
      double bx, by, nx, ny;
-     bx = xCentList[block.ID - 1];
-     by = yCentList[block.ID - 1];
+     bx = xCentList[block.nShapeId - 1];
+     by = yCentList[block.nShapeId - 1];
 
      while(current!=NULL){
-          currPos = current.ID - 1;
+          currPos = current.nShapeId - 1;
           nx = xCentList[currPos];
           ny = yCentList[currPos];
           
@@ -204,6 +201,8 @@ int main(){
      SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
      neighborList neighbors[entityCount];
      double areaList[entityCount];
+     double xCentList[entityCount];
+     double yCentList[entityCount];
      //populate the shapeList
      for(i=0; i<entityCount; i++){
           shapeList[i] = SHPReadObject(handle,i);
