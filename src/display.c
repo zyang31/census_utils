@@ -134,19 +134,20 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
      return;
 }
 
-void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
+void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
+                   double yCentList[], FILE *svg){
      //TODO: write this function
      //The process is as follows:
      //for each neighbor to the block, print the path between the centroids
      
-     neighborList current = neighbors;
+     neighborList *current = neighbors;
      int currPos;
      double bx, by, nx, ny;
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
 
-     while(current!=NULL){
-          currPos = current.nShapeId - 1;
+     while(current != NULL){
+          currPos = current->ID - 1;
           nx = xCentList[currPos];
           ny = yCentList[currPos];
           
@@ -266,7 +267,7 @@ int main(){
           printf("Centroids calculated.\n");
           //write paths from centroid to centroid
           for(i=0; i<entityCount; i++){
-               svg_neighbors(*shapeList[i], neighbors[i], svg);
+               svg_neighbors(*shapeList[i], &neighbors[i], xCentList, yCentList, svg);
           }  
           //printf("Contiguity paths drawn.\n");
           fclose(gal);
