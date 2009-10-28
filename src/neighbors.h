@@ -3,8 +3,8 @@
 
 typedef struct {
      int ID;
-     struct neighbor *prev;
-     struct neighbor *next;
+     struct neighborList *prev;
+     struct neighborList *next;
 } neighborList;
 
 #endif
