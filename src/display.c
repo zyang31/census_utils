@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
-#include "neighbors.h"
+#include "neighbors.h
+
+//global variables
+double xCentList[entityCount];
+double yCentList[entityCount];
 
 /*
   Code to display Census shapefiles.
@@ -135,10 +139,21 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
 
 void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
      //TODO: write this function
-    
+     //The process is as follows:
+     //for each neighbor to the block, print the path between the centroids
+     
+     neighborList current = neighbors;
+     int currPos;
+     double bx, by, nx, ny;
+     bx = xCentList[block.ID - 1];
+     by = yCentList[block.ID - 1];
+
+     while(current!=NULL){
+          currPos = current.ID - 1;
+          
 
 
-
+     }
 
 
      return;
@@ -185,8 +200,6 @@ int main(){
  
      SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
      neighborList neighbors[entityCount];
-     double xCentList[entityCount];
-     double yCentList[entityCount];
      double areaList[entityCount];
      //populate the shapeList
      for(i=0; i<entityCount; i++){
