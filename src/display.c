@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
-#include "neighbors.h
+#include "neighbors.h"
 
 //global variables
 double xCentList[entityCount];
@@ -152,6 +152,8 @@ void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
           currPos = current.ID - 1;
           nx = xCentList[currPos];
           ny = yCentList[currPos];
+          
+
 
 
      }
