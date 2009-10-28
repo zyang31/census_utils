@@ -2,7 +2,7 @@ package edu.gatech.c4g.r4g;
 
 import java.io.File;
 
-import edu.gatech.c4g.r4g.redistricting.BlockGraph;
+import edu.gatech.c4g.r4g.model.BlockGraph;
 
 public class LoaderTest {
 

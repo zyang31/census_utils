@@ -1,4 +1,4 @@
-package edu.gatech.c4g.r4g.redistricting;
+package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
 
