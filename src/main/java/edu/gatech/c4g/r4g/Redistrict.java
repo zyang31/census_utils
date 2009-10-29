@@ -8,17 +8,17 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
+import org.geotools.factory.GeoTools;
 
 import edu.gatech.c4g.r4g.redistricting.IRedistrictingAlgorithm;
 
 public class Redistrict {
 
 	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -i <input_file>";
-	private static final String HEADER = "Redistricting - A bunch of algorithms to (fairly?) redistrict Australia";
+	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "+GeoTools.getVersion()+")";
 	private static final String FOOTER = "\nCopyright 2009 - Aaron Ciaghi, Stephen Long, Joshua Justice";
 	private static Options options;
 
-	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws Exception {
 
 		setup();
