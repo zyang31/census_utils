@@ -3,7 +3,7 @@
 #include <string.h>
 #include "shapefil.h"
 #include "neighbors.h"
-
+#define SVG_SCALE 5000
 /*
   Code to display Census shapefiles.
   Copyright (C) <2009>  <Joshua Justice>
@@ -117,8 +117,8 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
                }else{
                     fputs("L ",svg); //no \n is also deliberate here
                }
-               x=(block.padfX[j]+180)*10000;
-               y=(block.padfY[j]-90)*-10000; //SVG has y-down
+               x=(block.padfX[j]+180)*SVG_SCALE;
+               y=(block.padfY[j]-90)*-SVG_SCALE; //SVG has y-down
                fprintf(svg, "%f %f ",x,y);
           }
      }
@@ -133,7 +133,7 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
      return;
 }
 
-void svg_neighbors(SHPObject block, struct neighbor_list *neighbor_list,
+void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
                    double xCentList[], double yCentList[], FILE *svg){
      //TODO: write this function
      //The process is as follows:
@@ -141,16 +141,22 @@ void svg_neighbors(SHPObject block, struct neighbor_list *neighbor_list,
      
      int current, i;
      double bx, by, nx, ny;
-     int ncount = neighbor_list->num_neighbors;
+     int ncount = neighbor_list.num_neighbors;
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
      fputs("\t</g>\n", svg);
      fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
 
      for(i=0; i<ncount; i++){
-          current = neighbor_list->neighbors[i];
+          current = neighbor_list.neighbors[i];
           nx = xCentList[current];
           ny = yCentList[current];
+          nx = (nx+180)*SVG_SCALE;
+          ny = (ny-90)*-SVG_SCALE; //need to match scale with the other code!
+
+
+
+
           //draw paths here 
           fputs("\t\t<path\n\t\t\td=\"", svg);
           fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
@@ -288,7 +294,7 @@ int main(){
           printf("Centroids calculated.\n");
           //write paths from centroid to centroid
           for(i=0; i<entityCount; i++){
-               //svg_neighbors(*shapeList[i], neighbors[i], svg);
+               svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
           }  
           //printf("Contiguity paths drawn.\n");
        
