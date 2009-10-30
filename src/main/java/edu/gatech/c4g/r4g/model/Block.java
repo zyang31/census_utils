@@ -2,7 +2,6 @@ package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
 
-import com.linuxense.javadbf.DBFField;
 /**	
  * Copyright (C) 2009
  * 

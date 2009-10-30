@@ -16,10 +16,10 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import com.linuxense.javadbf.DBFException;
-import com.linuxense.javadbf.DBFField;
-import com.linuxense.javadbf.DBFReader;
-import com.linuxense.javadbf.DBFWriter;
+//import com.linuxense.javadbf.DBFException;
+//import com.linuxense.javadbf.DBFField;
+//import com.linuxense.javadbf.DBFReader;
+//import com.linuxense.javadbf.DBFWriter;
 
 /**
  * Copyright (C) 2009
@@ -74,231 +74,231 @@ public class BlockGraph {
 	}
 
 	public void load(File dbfFile, int type) {
-		try {
-			InputStream inputStream = new FileInputStream(dbfFile);
-			DBFReader reader = new DBFReader(inputStream);
-
-			int numberOfFields = reader.getFieldCount();
-			int popfield = -1;
-			int areafield = -1;
-
-			// search for population and area fields
-			for (int i = 0; i < numberOfFields; i++) {
-				DBFField field = reader.getField(i);
-
-				switch (type) {
-				case TYPE_US: {
-					if (field.getName().equals("POP100")) {
-						popfield = i;
-					}
-					if (field.getName().equals("AREALAND")) {
-						areafield = i;
-					}
-				}
-					break;
-				case TYPE_AUS: {
-					// 2006 is the year of the census
-					if (field.getName().equals("TURPOP2006")) {
-						popfield = i;
-					}
-					if (field.getName().equals("AREA")) {
-						areafield = i;
-					}
-				}
-					break;
-				default: {
-					System.err.println("Cannot recognize type!");
-					System.exit(1);
-				}
-				}
-			}
-
-			if (popfield == -1) {
-				System.err.println("Could not find population data!");
-				System.exit(1);
-			}
-			if (areafield == -1) {
-				System.err.println("Could not find area data!");
-				System.exit(1);
-			}
-
-			Object[] rowObjects;
-
-			int recordNum = 0;
-
-			while ((rowObjects = reader.nextRecord()) != null) {
-				recordNum++;
-				int pop = -1;
-				int area = -1;
-
-				if (type == TYPE_US) {
-					// recordNum = Integer.parseInt((String) rowObjects[0]);
-					pop = Integer.parseInt(((String) rowObjects[popfield])
-							.trim());
-					area = Integer.parseInt(((String) rowObjects[areafield])
-							.trim());
-				} else if (type == TYPE_AUS) {
-					// recordNum = (Integer) rowObjects[0];
-					pop = (Integer) rowObjects[popfield];
-					area = (Integer) rowObjects[areafield];
-				}
-
-				// System.out.println("Adding new block (" + recordNum + "," +
-				// pop + "," + area + ")");
-				Block b = new Block(recordNum, pop, area);
-				this.addBlock(b);
-			}
-			inputStream.close();
-		} catch (DBFException e) {
-
-			System.out.println(e.getMessage());
-		} catch (IOException e) {
-
-			System.out.println(e.getMessage());
-		}
-
-		// Read GAL file
-		String filename = dbfFile.getAbsolutePath().substring(0,
-				dbfFile.getAbsolutePath().length() - 3)
-				+ "GAL";
-		parseGal(filename);
-
-	}
-
-	public void parseGal(String filename) {
-		File galFile = new File(filename);
-
-		try {
-			FileInputStream fstream = new FileInputStream(galFile);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-			int n_blocks = Integer.parseInt(br.readLine());
-
-			String currentline;
-			int line_num = 2;
-
-			for (int i = 0; i < n_blocks; i++, line_num++) {
-				// read current block id and number of neighbors
-				currentline = br.readLine();
-
-				if (currentline == null) {
-					System.err.println("Error in GAL file at line " + line_num);
-					System.exit(1);
-				}
-
-				StringTokenizer block_st = new StringTokenizer(currentline);
-				int current_block_id = -1;
-				int num_neighbors = -1;
-
-				try {
-					current_block_id = Integer.parseInt(block_st.nextToken());
-					num_neighbors = Integer.parseInt(block_st.nextToken());
-				} catch (NoSuchElementException e) {
-					System.err.println("Error in GAL file at line " + line_num);
-					System.exit(1);
-				}
-
-				Block currentBlock = blockTable.get(new Integer(
-						current_block_id));
-
-				// now read neighbors ids
-				currentline = br.readLine();
-
-				if (currentline == null) {
-					System.err.println("Error in GAL file at line " + line_num);
-					System.exit(1);
-				}
-
-				StringTokenizer neighbor_st = new StringTokenizer(currentline);
-
-				for (int j = 0; j < num_neighbors; j++) {
-					int neighbor_id = -1;
-					try {
-						neighbor_id = Integer.parseInt(neighbor_st.nextToken());
-					} catch (NoSuchElementException e) {
-						System.err.println("Error in GAL file at line "
-								+ line_num);
-						System.exit(1);
-					}
-
-					// System.out.println("Adding " + neighbor_id +
-					// " to the neighbors of " + current_block_id);
-					currentBlock.neighbors.add(blockTable.get(new Integer(
-							neighbor_id)));
-				}
-			}
-
-			in.close();
-		} catch (Exception e) {// Catch exception if any
-			System.err.println("Error: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
-	public void save(String outputFile) {
-		// part 1 - add district to dbf
-		saveDBF(new File(outputFile + ".dbf"), new File(outputFile + "_"
-				+ distList.size() + ".dbf"));
-
-		// part 2 - write which blocks are in which district
-		saveDST(new File(outputFile + ".dst"));
-	}
-
-	private void saveDBF(File original, File outFile) {
-		ArrayList<DBFField> originalFields;
-
-		FileInputStream fis;
-		try {
-			fis = new FileInputStream(original);
-			DBFReader reader = new DBFReader(fis);
-
-			// read existing fields
-			int fcount = reader.getFieldCount();
-			originalFields = new ArrayList<DBFField>(fcount);
-
-			for (int i = 0; i < fcount; i++) {
-				originalFields.add(reader.getField(i));
-			}
-
-			// create new district field
-			DBFField distField = new DBFField();
-			distField.setName("DISTRICT");
-			distField.setDataType(DBFField.FIELD_TYPE_N);
-			distField.setFieldLength(4);
-
-			// initialize writer
-			DBFWriter writer = new DBFWriter();
-
-			// create and write records
-			Object[] record;
-			int currentBlock = 1;
-			while ((record = reader.nextRecord()) != null) {
-				Object[] newRecord = new Object[record.length + 1];
-				System.arraycopy(record, 0, newRecord, 0, record.length);
-				Block block = blockTable.get(new Integer(currentBlock));
-				newRecord[record.length] = getBlockDistrictNo(block);
-				writer.addRecord(newRecord);
-				currentBlock++;
-			}
-			
-			//write to file
-			FileOutputStream fos = new FileOutputStream(outFile);
-			writer.write(fos);
-			
-			fos.close();
-			fis.close();
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DBFException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			InputStream inputStream = new FileInputStream(dbfFile);
+//			DBFReader reader = new DBFReader(inputStream);
+//
+//			int numberOfFields = reader.getFieldCount();
+//			int popfield = -1;
+//			int areafield = -1;
+//
+//			// search for population and area fields
+//			for (int i = 0; i < numberOfFields; i++) {
+//				DBFField field = reader.getField(i);
+//
+//				switch (type) {
+//				case TYPE_US: {
+//					if (field.getName().equals("POP100")) {
+//						popfield = i;
+//					}
+//					if (field.getName().equals("AREALAND")) {
+//						areafield = i;
+//					}
+//				}
+//					break;
+//				case TYPE_AUS: {
+//					// 2006 is the year of the census
+//					if (field.getName().equals("TURPOP2006")) {
+//						popfield = i;
+//					}
+//					if (field.getName().equals("AREA")) {
+//						areafield = i;
+//					}
+//				}
+//					break;
+//				default: {
+//					System.err.println("Cannot recognize type!");
+//					System.exit(1);
+//				}
+//				}
+//			}
+//
+//			if (popfield == -1) {
+//				System.err.println("Could not find population data!");
+//				System.exit(1);
+//			}
+//			if (areafield == -1) {
+//				System.err.println("Could not find area data!");
+//				System.exit(1);
+//			}
+//
+//			Object[] rowObjects;
+//
+//			int recordNum = 0;
+//
+//			while ((rowObjects = reader.nextRecord()) != null) {
+//				recordNum++;
+//				int pop = -1;
+//				int area = -1;
+//
+//				if (type == TYPE_US) {
+//					// recordNum = Integer.parseInt((String) rowObjects[0]);
+//					pop = Integer.parseInt(((String) rowObjects[popfield])
+//							.trim());
+//					area = Integer.parseInt(((String) rowObjects[areafield])
+//							.trim());
+//				} else if (type == TYPE_AUS) {
+//					// recordNum = (Integer) rowObjects[0];
+//					pop = (Integer) rowObjects[popfield];
+//					area = (Integer) rowObjects[areafield];
+//				}
+//
+//				// System.out.println("Adding new block (" + recordNum + "," +
+//				// pop + "," + area + ")");
+//				Block b = new Block(recordNum, pop, area);
+//				this.addBlock(b);
+//			}
+//			inputStream.close();
+//		} catch (DBFException e) {
+//
+//			System.out.println(e.getMessage());
+//		} catch (IOException e) {
+//
+//			System.out.println(e.getMessage());
+//		}
+//
+//		// Read GAL file
+//		String filename = dbfFile.getAbsolutePath().substring(0,
+//				dbfFile.getAbsolutePath().length() - 3)
+//				+ "GAL";
+//		parseGal(filename);
+//
+//	}
+//
+//	public void parseGal(String filename) {
+//		File galFile = new File(filename);
+//
+//		try {
+//			FileInputStream fstream = new FileInputStream(galFile);
+//			DataInputStream in = new DataInputStream(fstream);
+//			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//
+//			int n_blocks = Integer.parseInt(br.readLine());
+//
+//			String currentline;
+//			int line_num = 2;
+//
+//			for (int i = 0; i < n_blocks; i++, line_num++) {
+//				// read current block id and number of neighbors
+//				currentline = br.readLine();
+//
+//				if (currentline == null) {
+//					System.err.println("Error in GAL file at line " + line_num);
+//					System.exit(1);
+//				}
+//
+//				StringTokenizer block_st = new StringTokenizer(currentline);
+//				int current_block_id = -1;
+//				int num_neighbors = -1;
+//
+//				try {
+//					current_block_id = Integer.parseInt(block_st.nextToken());
+//					num_neighbors = Integer.parseInt(block_st.nextToken());
+//				} catch (NoSuchElementException e) {
+//					System.err.println("Error in GAL file at line " + line_num);
+//					System.exit(1);
+//				}
+//
+//				Block currentBlock = blockTable.get(new Integer(
+//						current_block_id));
+//
+//				// now read neighbors ids
+//				currentline = br.readLine();
+//
+//				if (currentline == null) {
+//					System.err.println("Error in GAL file at line " + line_num);
+//					System.exit(1);
+//				}
+//
+//				StringTokenizer neighbor_st = new StringTokenizer(currentline);
+//
+//				for (int j = 0; j < num_neighbors; j++) {
+//					int neighbor_id = -1;
+//					try {
+//						neighbor_id = Integer.parseInt(neighbor_st.nextToken());
+//					} catch (NoSuchElementException e) {
+//						System.err.println("Error in GAL file at line "
+//								+ line_num);
+//						System.exit(1);
+//					}
+//
+//					// System.out.println("Adding " + neighbor_id +
+//					// " to the neighbors of " + current_block_id);
+//					currentBlock.neighbors.add(blockTable.get(new Integer(
+//							neighbor_id)));
+//				}
+//			}
+//
+//			in.close();
+//		} catch (Exception e) {// Catch exception if any
+//			System.err.println("Error: " + e.getMessage());
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	public void save(String outputFile) {
+//		// part 1 - add district to dbf
+//		saveDBF(new File(outputFile + ".dbf"), new File(outputFile + "_"
+//				+ distList.size() + ".dbf"));
+//
+//		// part 2 - write which blocks are in which district
+//		saveDST(new File(outputFile + ".dst"));
+//	}
+//
+//	private void saveDBF(File original, File outFile) {
+//		ArrayList<DBFField> originalFields;
+//
+//		FileInputStream fis;
+//		try {
+//			fis = new FileInputStream(original);
+//			DBFReader reader = new DBFReader(fis);
+//
+//			// read existing fields
+//			int fcount = reader.getFieldCount();
+//			originalFields = new ArrayList<DBFField>(fcount);
+//
+//			for (int i = 0; i < fcount; i++) {
+//				originalFields.add(reader.getField(i));
+//			}
+//
+//			// create new district field
+//			DBFField distField = new DBFField();
+//			distField.setName("DISTRICT");
+//			distField.setDataType(DBFField.FIELD_TYPE_N);
+//			distField.setFieldLength(4);
+//
+//			// initialize writer
+//			DBFWriter writer = new DBFWriter();
+//
+//			// create and write records
+//			Object[] record;
+//			int currentBlock = 1;
+//			while ((record = reader.nextRecord()) != null) {
+//				Object[] newRecord = new Object[record.length + 1];
+//				System.arraycopy(record, 0, newRecord, 0, record.length);
+//				Block block = blockTable.get(new Integer(currentBlock));
+//				newRecord[record.length] = getBlockDistrictNo(block);
+//				writer.addRecord(newRecord);
+//				currentBlock++;
+//			}
+//			
+//			//write to file
+//			FileOutputStream fos = new FileOutputStream(outFile);
+//			writer.write(fos);
+//			
+//			fos.close();
+//			fis.close();
+//
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (DBFException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	private void saveDST(File dstFile) {

@@ -1,21 +1,25 @@
 package edu.gatech.c4g.r4g;
 
+import java.io.File;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.geotools.factory.GeoTools;
+import org.geotools.swing.data.JFileDataStoreChooser;
 
 import edu.gatech.c4g.r4g.redistricting.IRedistrictingAlgorithm;
+import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
 
 	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -i <input_file>";
-	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "+GeoTools.getVersion()+")";
+	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
+			+ GeoTools.getVersion() + ")";
 	private static final String FOOTER = "\nCopyright 2009 - Aaron Ciaghi, Stephen Long, Joshua Justice";
 	private static Options options;
 
@@ -34,15 +38,32 @@ public class Redistrict {
 				System.exit(0);
 			}
 
-			if (commandLine.hasOption('a') && commandLine.hasOption('n')
-					&& commandLine.hasOption('i')) {
-				int ndis = Integer.parseInt(commandLine.getOptionValue('n'));
-				String file = commandLine.getOptionValue('i');
+			if (commandLine.hasOption('a') && commandLine.hasOption('n')) {
+				File file = null;
+
+				if (!commandLine.hasOption('i')) {
+					file = JFileDataStoreChooser.showOpenFile("shp", null);
+					if (file == null) {
+						return;
+					}
+				} else {
+					file = new File(commandLine.getOptionValue('i'));
+				}
+				
+				if (file == null){
+					System.err.println("A shapefile must be selected!");
+					System.exit(1);
+				}
+				
+				int ndis = Integer.parseInt(commandLine.getOptionValue('n'));;
 				String alg = commandLine.getOptionValue('a');
-				
-				//select algorithm
-				IRedistrictingAlgorithm ra;//TODO
-				
+
+				MapView mv = new MapView(new File(commandLine.getOptionValue('i')));
+				mv.showShapefile();
+
+				// select algorithm
+				IRedistrictingAlgorithm ra;// TODO
+
 			} else {
 				printUsage(options);
 				System.exit(0);
