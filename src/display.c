@@ -144,6 +144,9 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
      int ncount = neighbor_list.num_neighbors;
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
+     bx = (bx+180)*SVG_SCALE;
+     by = (by-90)*SVG_SCALE;
+
      fputs("\t</g>\n", svg);
      fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
 
