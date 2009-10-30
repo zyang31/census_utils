@@ -100,6 +100,7 @@ struct neighbor_list
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
+char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
 
 struct neighbor_list **NTABLE = NULL;
 
@@ -204,13 +205,15 @@ void print_table()
 {
   HT_Struct_For_Block *s;
   bucket_list *temp = NULL;
+  printf("\n printing elements in the hash table \n");
   for(s=HT_Blocks; s != NULL; s=s->hh.next)
   {
     temp = (bucket_list *)s->head_of_list.next_block;
-    printf("\npadfX = %f, padfY = %f \n", s->padfX, s->padfY); 
+    printf("\nfor padfX = %f, padfY = %f \n", s->padfX, s->padfY); 
     while(temp != NULL)
     {
-       printf("\nin the bucket_list");
+       //printf("\nin the bucket_list");
+       printf("%d\t", temp->block->nShapeId);
        temp = (bucket_list *)temp->next_block;
     }
   }
@@ -313,7 +316,13 @@ void Output_To_GAL()
   char *n_list = calloc(100, sizeof(char)); /*having three char ptrs will make writing into the .gal file faster */
   char *temp_str = calloc(10, sizeof(char));
   struct neighbor_list *temp;
-  FILE *fp = fopen("./Neighbor_List.gal", "w+");
+  int fn_len = strlen(sf_name);
+  char gal_filename[fn_len];
+  strcpy(gal_filename, sf_name);
+  gal_filename[fn_len-3] = 'G';
+  gal_filename[fn_len-2] = 'A';
+  gal_filename[fn_len-1] = 'L';
+  FILE *fp = fopen(gal_filename, "w+");
   sprintf(str_bc, "%i", block_count);
   strcat(str_bc, "\n");
   fputs(str_bc, fp);
@@ -344,6 +353,12 @@ void Output_To_GAL()
     fputs(n_list, fp);
     bzero(n_list, sizeof(n_list));
   }
+  fclose(fp);
+  free(str_bc);
+  free(ego_label);
+  free(n_count);
+  free(n_list);
+  free(temp_str);
   return;
 }
 
@@ -380,11 +395,12 @@ void test_hashing()
 int main(){
   int i;
   /* handle has to be pointed to the right location */
-  SHPHandle handle = SHPOpen("/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp", "rb");
+  SHPHandle handle = SHPOpen(sf_name, "rb");
   Add_Blocks_to_HT(handle);
 
   printf("\nTotal number of slots in the block HT = %d\n", HASH_COUNT(HT_Blocks));
   //test_hashing();
+  //print_table();
 
   generate_neighbor_table();
 
@@ -392,6 +408,8 @@ int main(){
 
   /* Use print_neighbor_table to print the neighbors of all the blocks */
   print_neighbor_table();
+
+  Output_To_GAL();
 
   Output_To_GAL();
 

@@ -133,32 +133,29 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
      return;
 }
 
-void svg_neighbors(SHPObject block, neighborList *neighbors, double xCentList[],
-                   double yCentList[], FILE *svg){
+void svg_neighbors(SHPObject block, struct neighbor_list *neighbor_list,
+                   double xCentList[], double yCentList[], FILE *svg){
      //TODO: write this function
      //The process is as follows:
      //for each neighbor to the block, print the path between the centroids
      
-     neighborList *current = neighbors;
-     int currPos;
+     int current, i;
      double bx, by, nx, ny;
-
+     int ncount = neighbor_list->num_neighbors;
      bx = xCentList[block.nShapeId - 1];
      by = yCentList[block.nShapeId - 1];
      fputs("\t</g>\n", svg);
      fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-     while(current != NULL && current->ID != 0){
-          currPos = (current->ID) - 1;
-          nx = xCentList[currPos];
-          ny = yCentList[currPos];
+
+     for(i=0; i<ncount; i++){
+          current = neighbor_list->neighbors[i];
+          nx = xCentList[current];
+          ny = yCentList[current];
           //draw paths here 
           fputs("\t\t<path\n\t\t\td=\"", svg);
           fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
           fprintf(svg,"L %f %f\" />\n", nx, ny); //Lineto neighbor X/Y       
-          //advance current pointer
-          current = current -> next;
      }
-
 
      return;
 }
@@ -175,12 +172,11 @@ int main(){
      double padfMaxBound[4];
      int i;
      int use_gal = 1;
-     int use_dist = 0;  //file loading
-     //make color array here, fill w/ 0xffffff
-     //For desktop
+     int use_dist = 0;
+     //For josh
      char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
-     //for clamps
-     //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
+     //for sumanth
+     //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
      //Eventually, this won't be hardcoded
 
      SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -203,10 +199,11 @@ int main(){
      SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
  
      SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-     neighborList neighbors[entityCount];
-     double areaList[entityCount];
+     //neighborList neighbors[entityCount];
+     struct neighbor_list *NLIST;
      double xCentList[entityCount];
      double yCentList[entityCount];
+     double areaList[entityCount];
      //populate the shapeList
      for(i=0; i<entityCount; i++){
           shapeList[i] = SHPReadObject(handle,i);
@@ -217,37 +214,58 @@ int main(){
      //set up the SVG file pointer
      svg = fopen(svg_filename, "a+");
      printf("SVG file opened for writing.\n");
- 
-
      //write header
      svg_header(svg);
      printf("SVG header printed.\n");
- 
+  
      //write individual polygons
      for(i=0; i<entityCount; i++){
           svg_polygon(*shapeList[i], svg, use_dist);
      }
      printf("Polygons all printed.\n");
      if(use_gal){
-          char line[1024];
-          //int id;
-          int nblocks;
           FILE *gal;
+          int block, num_neigh, nblocks, temp_neigh;
+          int count=0;
           printf("The name of the file is: %s\n", gal_filename);
           gal= fopen(gal_filename, "r");
           if(gal==NULL){
                printf("Error: Could not open GAL file.\n");
                return -1;
           }
-          fgets(line, 1024, gal);
-          nblocks = atoi(line);
+
+          fscanf(gal, "%d", &nblocks);
           if(nblocks==entityCount){
                printf("GAL block count matches shapefile block count. Proceeding...\n");
-               //TODO: load neighbors from GAL file
 
+               NLIST = malloc(nblocks * sizeof(struct neighbor_list));
 
+               while(fscanf(gal, "%d %d", &block, &num_neigh) != EOF)
+               {
+                    NLIST[block].num_neighbors = num_neigh;
+                    if(num_neigh != 0)
+                    { 
+                         count=0;
+                         NLIST[block].neighbors = malloc(num_neigh * sizeof(int));
+                         while(count < num_neigh)
+                         {
+                              fscanf(gal, "%d", &temp_neigh);
+                              NLIST[block].neighbors[count] = temp_neigh;
+                              count++;
+                         }
+                    }
+               }
 
-
+               //Debugging: print the neighbor list of all blocks
+               /*int i,j;
+                 for(i=0;i<nblocks;i++)
+                 {
+                 printf("%d %d\n", i, NLIST[i].num_neighbors);
+                 if(NLIST[i].num_neighbors > 0)
+                 for(j=0;j<NLIST[i].num_neighbors;j++)
+                 printf("%d ", NLIST[i].neighbors[j]);
+                 printf("\n");
+                 }*/
 
           }else{
                printf("Error: GAL block count does not match shapefile block count.\n");
@@ -270,13 +288,21 @@ int main(){
           printf("Centroids calculated.\n");
           //write paths from centroid to centroid
           for(i=0; i<entityCount; i++){
-               svg_neighbors(*shapeList[i], &neighbors[i], xCentList, yCentList, svg);
+               //svg_neighbors(*shapeList[i], neighbors[i], svg);
           }  
           //printf("Contiguity paths drawn.\n");
+       
+          //Free NLIST
+          for(i=0; i<entityCount; i++)
+          {
+               free(NLIST[i].neighbors);
+               NLIST[i].neighbors = NULL;
+          }
+          free(NLIST);
+          NLIST = NULL;
+
           fclose(gal);
      }
-
-
   
      //write footer
      svg_footer(svg);
