@@ -3,7 +3,7 @@
 #include <string.h>
 #include "shapefil.h"
 #include "neighbors.h"
-#define SVG_SCALE 5000
+#define SVG_SCALE 10000
 /*
   Code to display Census shapefiles.
   Copyright (C) <2009>  <Joshua Justice>
@@ -147,19 +147,12 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
      bx = (bx+180)*SVG_SCALE;
      by = (by-90)*-SVG_SCALE;
 
-     fputs("\t</g>\n", svg);
-     fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-
      for(i=0; i<ncount; i++){
           current = neighbor_list.neighbors[i];
           nx = xCentList[current];
           ny = yCentList[current];
           nx = (nx+180)*SVG_SCALE;
           ny = (ny-90)*-SVG_SCALE; //need to match scale with the other code!
-
-
-
-
           //draw paths here 
           fputs("\t\t<path\n\t\t\td=\"", svg);
           fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
@@ -229,7 +222,7 @@ int main(){
   
      //write individual polygons
      for(i=0; i<entityCount; i++){
-          svg_polygon(*shapeList[i], svg, use_dist);
+          //svg_polygon(*shapeList[i], svg, use_dist);
      }
      printf("Polygons all printed.\n");
      if(use_gal){
@@ -296,10 +289,13 @@ int main(){
           }
           printf("Centroids calculated.\n");
           //write paths from centroid to centroid
-          for(i=0; i<entityCount; i++){
+          fputs("\t</g>\n", svg);
+          fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
+                    for(i=0; i<entityCount; i++){
+               
                svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
           }  
-          //printf("Contiguity paths drawn.\n");
+          printf("Contiguity paths drawn.\n");
        
           //Free NLIST
           for(i=0; i<entityCount; i++)
