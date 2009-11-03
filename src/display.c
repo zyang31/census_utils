@@ -3,76 +3,76 @@
 #include <string.h>
 #include "shapefil.h"
 #include "neighbors.h"
-
+ 
 /*
-  Code to display Census shapefiles.
-  Copyright (C) <2009>  <Joshua Justice>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License along
-  with this program; if not, write to the Free Software Foundation, Inc.,
-  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
-/*
-  The Shapelib library is licensed under the GNU Lesser General Public License.
-  A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
-  For information on Shapelib, see http://shapelib.maptools.org/ .
+Code to display Census shapefiles.
+Copyright (C) <2009> <Joshua Justice>
+ 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+ 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 /*
-  EULA: The Graphics Gems code is copyright-protected. 
-  In other words, you cannot claim the text of the code as your own and resell it. 
-  Using the code is permitted in any program, product, or library, non-commercial or commercial. 
-  Giving credit is not required, though is a nice gesture. 
-  The code comes as-is, and if there are any flaws or problems with any Gems code, nobody involved
-  with Gems - authors, editors, publishers, or webmasters - are to be held responsible. 
-  Basically, don't be a jerk, and remember that anything free comes with no guarantee. 
+The Shapelib library is licensed under the GNU Lesser General Public License.
+A copy of the GNU LGPL can be found on http://www.gnu.org/licenses/lgpl-3.0.txt .
+For information on Shapelib, see http://shapelib.maptools.org/ .
 */
-
-
-
-/*  
-  polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
-  of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
-  is assumed that the contour is closed, i.e., that the vertex following
-  (x[n-1], y[n-1]) is (x[0], y[0]).  The algebraic sign of the area is
-  positive for counterclockwise ordering of vertices in x-y plane;
-  otherwise negative.
-
-  Returned values:  0 for normal execution;  1 if the polygon is
-  degenerate (number of vertices < 3);  and 2 if area = 0 (and the
-  centroid is undefined).
+/*
+EULA: The Graphics Gems code is copyright-protected.
+In other words, you cannot claim the text of the code as your own and resell it.
+Using the code is permitted in any program, product, or library, non-commercial or commercial.
+Giving credit is not required, though is a nice gesture.
+The code comes as-is, and if there are any flaws or problems with any Gems code, nobody involved
+with Gems - authors, editors, publishers, or webmasters - are to be held responsible.
+Basically, don't be a jerk, and remember that anything free comes with no guarantee.
 */
-
+ 
+ 
+ 
+/*
+polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
+of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
+is assumed that the contour is closed, i.e., that the vertex following
+(x[n-1], y[n-1]) is (x[0], y[0]). The algebraic sign of the area is
+positive for counterclockwise ordering of vertices in x-y plane;
+otherwise negative.
+ 
+Returned values: 0 for normal execution; 1 if the polygon is
+degenerate (number of vertices < 3); and 2 if area = 0 (and the
+centroid is undefined).
+*/
+ 
 int polyCentroid(double x[], double y[], int n,
-		 double *xCentroid, double *yCentroid, double *area){
+double *xCentroid, double *yCentroid, double *area){
      register int i, j;
      double ai, atmp = 0, xtmp = 0, ytmp = 0;
      if (n < 3) return 1;
      for (i = n-1, j = 0; j < n; i = j, j++){
-	  ai = x[i] * y[j] - x[j] * y[i];
-	  atmp += ai;
-	  xtmp += (x[j] + x[i]) * ai;
-	  ytmp += (y[j] + y[i]) * ai;
+ai = x[i] * y[j] - x[j] * y[i];
+atmp += ai;
+xtmp += (x[j] + x[i]) * ai;
+ytmp += (y[j] + y[i]) * ai;
      }
      *area = atmp / 2;
      if (atmp != 0){
-	  *xCentroid =	xtmp / (3 * atmp);
-	  *yCentroid =	ytmp / (3 * atmp);
-	  return 0;
+*xCentroid = xtmp / (3 * atmp);
+*yCentroid = ytmp / (3 * atmp);
+return 0;
      }
      return 2;
 } //end Graphics Gems code
-
-
+ 
+ 
 void svg_header(FILE *svg){
   fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
   fputs("<svg\n\txmlns:svg=\"http://www.w3.org/2000/svg\"\n", svg);
@@ -85,11 +85,11 @@ void svg_header(FILE *svg){
   fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
   return;
 }
-
+ 
 void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   int i,j,jLim;
   double x,y;
-  fputs("\t\t<path\n\t\t\td=\"", svg);  
+  fputs("\t\t<path\n\t\t\td=\"", svg);
   for(i=0;i<block.nParts;i++){
     if(i==block.nParts-1){
       jLim=block.nVertices-1;
@@ -117,19 +117,19 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
   }
   return;
 }
-
+ 
 //void svg_neighbors(SHPObject block, neighborList neighbors, FILE *svg){
 void svg_neighbors(SHPObject block, struct neighbor_list *neighbor_list, FILE *svg){
      //TODO: write this function
-
+ 
      return;
 }
-
+ 
 void svg_footer(FILE *svg){
   fputs("\t</g>\n", svg);
   fputs("</svg>", svg);
 }
-
+ 
 int main(){
   int entityCount;
   int shapeType;
@@ -143,10 +143,10 @@ int main(){
   //for clamps
   char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
-
+ 
   SHPHandle handle = SHPOpen(sf_name, "rb");
-
-
+ 
+ 
   int fn_len = strlen(sf_name);
   char svg_filename[fn_len];
   char gal_filename[fn_len];
@@ -160,7 +160,7 @@ int main(){
   gal_filename[fn_len-1] = 'L';
   //I know, the above isn't really robust enough.
   //Should be improved upon when the file name is no longer hardcoded
-
+ 
   SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
  
   SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
@@ -180,7 +180,7 @@ int main(){
   svg = fopen(svg_filename, "a+");
   printf("SVG file opened for writing.\n");
  
-
+ 
   //write header
   svg_header(svg);
   printf("SVG header printed.\n");
@@ -200,18 +200,18 @@ int main(){
             printf("Error: Could not open GAL file.\n");
             return -1;
        }
-
+ 
        fscanf(gal, "%d", &nblocks);
        if(nblocks==entityCount){
             printf("GAL block count matches shapefile block count. Proceeding...\n");
-
+ 
        NLIST = malloc(nblocks * sizeof(struct neighbor_list));
-
+ 
        while(fscanf(gal, "%d %d", &block, &num_neigh) != EOF)
        {
           NLIST[block].num_neighbors = num_neigh;
           if(num_neigh != 0)
-          { 
+          {
              count=0;
              NLIST[block].neighbors = malloc(num_neigh * sizeof(int));
              while(count < num_neigh)
@@ -222,18 +222,18 @@ int main(){
              }
            }
        }
-
+ 
        //Debugging: print the neighbor list of all blocks
-       /*int i,j;
-       for(i=0;i<nblocks;i++)
-       {
-          printf("%d %d\n", i, NLIST[i].num_neighbors);
-          if(NLIST[i].num_neighbors > 0)
-          for(j=0;j<NLIST[i].num_neighbors;j++)
-          printf("%d ", NLIST[i].neighbors[j]);
-          printf("\n");
-       }*/
-
+       int i,j;
+         for(i=0;i<nblocks;i++)
+         {
+            printf("%d %d\n", i, NLIST[i].num_neighbors);
+            if(NLIST[i].num_neighbors > 0)
+               for(j=0;j<NLIST[i].num_neighbors;j++)
+                  printf("%d ", NLIST[i].neighbors[j]);
+            printf("\n");
+         }
+ 
       }else{
             printf("Error: GAL block count does not match shapefile block count.\n");
             return -1;
@@ -249,14 +249,14 @@ int main(){
             }else{
                  lastPoint = block.nVertices-1;
             }
-            status = polyCentroid(block.padfX, block.padfY, lastPoint, 
+            status = polyCentroid(block.padfX, block.padfY, lastPoint,
                                   xCentList+i, yCentList+i, areaList+i);
        }
        printf("Centroids calculated.\n");
        //write paths from centroid to centroid
        for(i=0; i<entityCount; i++){
             //svg_neighbors(*shapeList[i], neighbors[i], svg);
-       }  
+       }
        //printf("Contiguity paths drawn.\n");
        
        //Free NLIST
@@ -267,7 +267,7 @@ int main(){
        }
        free(NLIST);
        NLIST = NULL;
-
+ 
        fclose(gal);
   }
   
@@ -281,4 +281,3 @@ int main(){
   fclose(svg);
   return 0;
 }
-
