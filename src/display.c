@@ -157,7 +157,7 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
           fputs("\t\t<path\n\t\t\td=\"", svg);
           fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
           fprintf(svg, "L %f %f\"\n", nx, ny); //Lineto neighbor X/Y
-	  fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId); //id
+	  fprintf(svg,"\n\t\t\tid=\"path%d\"\n",block.nShapeId); //id
 	  fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>\n"); //style
      }
 
