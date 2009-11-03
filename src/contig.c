@@ -422,7 +422,6 @@ int main(){
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
   print_neighbor_table();
- 
   Output_To_GAL();
  
   //free all the items in the HT
