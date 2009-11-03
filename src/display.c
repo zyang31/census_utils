@@ -54,272 +54,268 @@
 
 int polyCentroid(double x[], double y[], int n,
 		 double *xCentroid, double *yCentroid, double *area){
-     register int i, j;
-     double ai, atmp = 0, xtmp = 0, ytmp = 0;
-     if (n < 3) return 1;
-     for (i = n-1, j = 0; j < n; i = j, j++){
-          ai = x[i] * y[j] - x[j] * y[i];
-          atmp += ai;
-          xtmp += (x[j] + x[i]) * ai;
-          ytmp += (y[j] + y[i]) * ai;
-     }
-     *area = atmp / 2;
-     if (atmp != 0){
-          *xCentroid =	xtmp / (3 * atmp);
-          *yCentroid =	ytmp / (3 * atmp);
-          return 0;
-     }
-     return 2;
+  register int i, j;
+  double ai, atmp = 0, xtmp = 0, ytmp = 0;
+  if (n < 3) return 1;
+  for (i = n-1, j = 0; j < n; i = j, j++){
+    ai = x[i] * y[j] - x[j] * y[i];
+    atmp += ai;
+    xtmp += (x[j] + x[i]) * ai;
+    ytmp += (y[j] + y[i]) * ai;
+  }
+  *area = atmp / 2;
+  if (atmp != 0){
+    *xCentroid =	xtmp / (3 * atmp);
+    *yCentroid =	ytmp / (3 * atmp);
+    return 0;
+  }
+  return 2;
 } //end Graphics Gems code
 
 void colorArrange(int* array, int n){
-     unsigned int array_size = n+1;
-     unsigned int max=0xffffff;
-     int min=0x000000;
-     unsigned int diff=(max-min)/array_size;
-     int i;
-     unsigned int current = max;
-     //check array size here
-     for(i=0; i<array_size; i++){
-          array[i]=current;
-          current=current-diff;
-     }
-     return;
+  unsigned int array_size = n+1;
+  unsigned int max=0xffffff;
+  int min=0x000000;
+  unsigned int diff=(max-min)/array_size;
+  int i;
+  unsigned int current = max;
+  //check array size here
+  for(i=0; i<array_size; i++){
+    array[i]=current;
+    current=current-diff;
+  }
+  return;
 }
 
 void svg_header(FILE *svg){
-     fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
-     fputs("<svg\n\txmlns:svg=\"http://www.w3.org/2000/svg\"\n", svg);
-     fputs("\txmlns=\"http://www.w3.org/2000/svg\"\n", svg);
-     fputs("\tversion=\"1.0\"\n", svg);
-     fputs("\twidth=\"360000\"\n", svg);
-     fputs("\theight=\"180000\"\n", svg);
-     fputs("\tid=\"svg2\">\n", svg);
-     fputs("\t<defs\n\t\tid=\"defs1\" />\n", svg);
-     fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
-     return;
+  fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n", svg);
+  fputs("<svg\n\txmlns:svg=\"http://www.w3.org/2000/svg\"\n", svg);
+  fputs("\txmlns=\"http://www.w3.org/2000/svg\"\n", svg);
+  fputs("\tversion=\"1.0\"\n", svg);
+  fputs("\twidth=\"360000\"\n", svg);
+  fputs("\theight=\"180000\"\n", svg);
+  fputs("\tid=\"svg2\">\n", svg);
+  fputs("\t<defs\n\t\tid=\"defs1\" />\n", svg);
+  fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
+  return;
 }
 
 void svg_polygon(SHPObject block, FILE *svg, int use_dist){
-     int i,j,jLim;
-     double x,y;
-     fputs("\t\t<path\n\t\t\td=\"", svg);  
-     for(i=0;i<block.nParts;i++){
-          if(i==block.nParts-1){
-               jLim=block.nVertices-1;
-          }else{
-               jLim=block.panPartStart[i+1]-2;
-          }
-          for(j=block.panPartStart[i];j<jLim;j++){
-               //draw coordinates at padfX[j] etc.
-               if(j==block.panPartStart[i]){
-                    fputs("M ",svg); //not having the \n is deliberate
-               }else{
-                    fputs("L ",svg); //no \n is also deliberate here
-               }
-               x=(block.padfX[j]+180)*SVG_SCALE;
-               y=(block.padfY[j]-90)*-SVG_SCALE; //SVG has y-down
-               fprintf(svg, "%f %f ",x,y);
-          }
-     }
-     fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
-     if(use_dist){
-          //TODO: replace #ffffff with that district's color
-          //use %X6 on that block's district's entry in colorarray
-          //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
-     }else{
-          fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
-     }
-     return;
+  int i,j,jLim;
+  double x,y;
+  fputs("\t\t<path\n\t\t\td=\"", svg);  
+  for(i=0;i<block.nParts;i++){
+    if(i==block.nParts-1){
+      jLim=block.nVertices-1;
+    }else{
+      jLim=block.panPartStart[i+1]-2;
+    }
+    for(j=block.panPartStart[i];j<jLim;j++){
+      //draw coordinates at padfX[j] etc.
+      if(j==block.panPartStart[i]){
+	fputs("M ",svg); //not having the \n is deliberate
+      }else{
+	fputs("L ",svg); //no \n is also deliberate here
+      }
+      x=(block.padfX[j]+180)*SVG_SCALE;
+      y=(block.padfY[j]-90)*-SVG_SCALE; //SVG has y-down
+      fprintf(svg, "%f %f ",x,y);
+    }
+  }
+  fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
+  if(use_dist){
+    //TODO: replace #ffffff with that district's color
+    //use %X6 on that block's district's entry in colorarray
+    //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+  }else{
+    fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+  }
+  return;
 }
 
 void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
                    double xCentList[], double yCentList[], FILE *svg){
-     //TODO: write this function
-     //The process is as follows:
-     //for each neighbor to the block, print the path between the centroids
+  //TODO: write this function
+  //The process is as follows:
+  //for each neighbor to the block, print the path between the centroids
      
-     int current, i;
-     double bx, by, nx, ny;
-     int ncount = neighbor_list.num_neighbors;
-     bx = xCentList[block.nShapeId - 1];
-     by = yCentList[block.nShapeId - 1];
-     bx = (bx+180)*SVG_SCALE;
-     by = (by-90)*-SVG_SCALE;
+  int current, i;
+  double bx, by, nx, ny;
+  int ncount = neighbor_list.num_neighbors;
+  bx = xCentList[block.nShapeId - 1];
+  by = yCentList[block.nShapeId - 1];
+  bx = (bx+180)*SVG_SCALE;
+  by = (by-90)*-SVG_SCALE;
 
-     for(i=0; i<ncount; i++){
-          current = neighbor_list.neighbors[i];
-          nx = xCentList[current];
-          ny = yCentList[current];
-          nx = (nx+180)*SVG_SCALE;
-          ny = (ny-90)*-SVG_SCALE; //need to match scale with the other code!
-          //draw paths here 
-          fputs("\t\t<path\n\t\t\td=\"", svg);
-          fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
-          fprintf(svg, "L %f %f\"\n", nx, ny); //Lineto neighbor X/Y
-	  fprintf(svg,"\n\t\t\tid=\"path%d\"\n",block.nShapeId); //id
-	  fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>\n"); //style
-     }
+  for(i=0; i<ncount; i++){
+    current = neighbor_list.neighbors[i];
+    nx = xCentList[current];
+    ny = yCentList[current];
+    nx = (nx+180)*SVG_SCALE;
+    ny = (ny-90)*-SVG_SCALE; //need to match scale with the other code!
+    //draw paths here 
+    fputs("\t\t<path\n\t\t\td=\"", svg);
+    fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
+    fprintf(svg, "L %f %f\"\n", nx, ny); //Lineto neighbor X/Y
+    fprintf(svg,"\n\t\t\tid=\"path%d\"\n",block.nShapeId); //id
+    fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>\n"); //style
+  }
 
-     return;
+  return;
 }
 
 void svg_footer(FILE *svg){
-     fputs("\t</g>\n", svg);
-     fputs("</svg>", svg);
+  fputs("\t</g>\n", svg);
+  fputs("</svg>", svg);
 }
 
 int main(){
-     int entityCount;
-     int shapeType;
-     double padfMinBound[4];
-     double padfMaxBound[4];
-     int i;
-     int use_gal = 1;
-     int use_dist = 0;
-     //For josh
-     //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
-     //for sumanth
-     char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
-     //Eventually, this won't be hardcoded
+  int entityCount;
+  int shapeType;
+  double padfMinBound[4];
+  double padfMaxBound[4];
+  int i;
+  int use_gal = 1;
+  int use_dist = 0;
+  //For josh
+  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  //for sumanth
+  char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+  //Eventually, this won't be hardcoded
 
-     SHPHandle handle = SHPOpen(sf_name, "rb");
+  SHPHandle handle = SHPOpen(sf_name, "rb");
 
 
-     int fn_len = strlen(sf_name);
-     char svg_filename[fn_len];
-     char gal_filename[fn_len];
-     FILE *svg;
-     strcpy(svg_filename, sf_name);
-     strcpy(gal_filename, sf_name);
-     svg_filename[fn_len-2] = 'v';
-     svg_filename[fn_len-1] = 'g';
-     gal_filename[fn_len-3] = 'G';
-     gal_filename[fn_len-2] = 'A';
-     gal_filename[fn_len-1] = 'L';
-     //I know, the above isn't really robust enough.
-     //Should be improved upon when the file name is no longer hardcoded
+  int fn_len = strlen(sf_name);
+  char svg_filename[fn_len];
+  char gal_filename[fn_len];
+  FILE *svg;
+  strcpy(svg_filename, sf_name);
+  strcpy(gal_filename, sf_name);
+  svg_filename[fn_len-2] = 'v';
+  svg_filename[fn_len-1] = 'g';
+  gal_filename[fn_len-3] = 'G';
+  gal_filename[fn_len-2] = 'A';
+  gal_filename[fn_len-1] = 'L';
+  //I know, the above isn't really robust enough.
+  //Should be improved upon when the file name is no longer hardcoded
 
-     SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
+  SHPGetInfo(handle, &entityCount, &shapeType, padfMinBound, padfMaxBound);
  
-     SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
-     //neighborList neighbors[entityCount];
-     struct neighbor_list *NLIST;
-     double xCentList[entityCount];
-     double yCentList[entityCount];
-     double areaList[entityCount];
-     //populate the shapeList
-     for(i=0; i<entityCount; i++){
-          shapeList[i] = SHPReadObject(handle,i);
-     }
-     printf("Shapelist populated.\n");
-     //delete file if it exists
-     remove(svg_filename);
-     //set up the SVG file pointer
-     svg = fopen(svg_filename, "a+");
-     printf("SVG file opened for writing.\n");
-     //write header
-     svg_header(svg);
-     printf("SVG header printed.\n");
+  SHPObject **shapeList = malloc(entityCount*sizeof(SHPObject *));
+  //neighborList neighbors[entityCount];
+  struct neighbor_list *NLIST;
+  double xCentList[entityCount];
+  double yCentList[entityCount];
+  double areaList[entityCount];
+  //populate the shapeList
+  for(i=0; i<entityCount; i++){
+    shapeList[i] = SHPReadObject(handle,i);
+  }
+  printf("Shapelist populated.\n");
+  //delete file if it exists
+  remove(svg_filename);
+  //set up the SVG file pointer
+  svg = fopen(svg_filename, "a+");
+  printf("SVG file opened for writing.\n");
+  //write header
+  svg_header(svg);
+  printf("SVG header printed.\n");
   
-     //write individual polygons
-     for(i=0; i<entityCount; i++){
-          svg_polygon(*shapeList[i], svg, use_dist);
-     }
-     printf("Polygons all printed.\n");
-     if(use_gal){
-          FILE *gal;
-          int block, num_neigh, nblocks, temp_neigh;
-          int count=0;
-          printf("The name of the file is: %s\n", gal_filename);
-          gal= fopen(gal_filename, "r");
-          if(gal==NULL){
-               printf("Error: Could not open GAL file.\n");
-               return -1;
-          }
+  //write individual polygons
+  for(i=0; i<entityCount; i++){
+    svg_polygon(*shapeList[i], svg, use_dist);
+  }
+  printf("Polygons all printed.\n");
+  if(use_gal){
+    FILE *gal;
+    int block, num_neigh, nblocks, temp_neigh;
+    int count=0;
+    printf("The name of the file is: %s\n", gal_filename);
+    gal= fopen(gal_filename, "r");
+    if(gal==NULL){
+      printf("Error: Could not open GAL file.\n");
+      return -1;
+    }
 
-          fscanf(gal, "%d", &nblocks);
-          if(nblocks==entityCount){
-               printf("GAL block count matches shapefile block count. Proceeding...\n");
+    fscanf(gal, "%d", &nblocks);
 
-               NLIST = malloc(nblocks * sizeof(struct neighbor_list));
+    printf("GAL block count matches shapefile block count. Proceeding...\n");
 
-               while(fscanf(gal, "%d %d", &block, &num_neigh) != EOF)
-               {
-                    NLIST[block].num_neighbors = num_neigh;
-                    if(num_neigh != 0)
-                    { 
-                         count=0;
-                         NLIST[block].neighbors = malloc(num_neigh * sizeof(int));
-                         while(count < num_neigh)
-                         {
-                              fscanf(gal, "%d", &temp_neigh);
-                              NLIST[block].neighbors[count] = temp_neigh;
-                              count++;
-                         }
-                    }
-               }
+    NLIST = malloc(nblocks * sizeof(struct neighbor_list));
 
-               //Debugging: print the neighbor list of all blocks
-               /*int i,j;
-                 for(i=0;i<nblocks;i++)
-                 {
-                 printf("%d %d\n", i, NLIST[i].num_neighbors);
-                 if(NLIST[i].num_neighbors > 0)
-                 for(j=0;j<NLIST[i].num_neighbors;j++)
-                 printf("%d ", NLIST[i].neighbors[j]);
-                 printf("\n");
-                 }*/
+    while(fscanf(gal, "%d %d", &block, &num_neigh) != EOF)
+      {
+	NLIST[block].num_neighbors = num_neigh;
+	if(num_neigh != 0)
+	  { 
+	    count=0;
+	    NLIST[block].neighbors = malloc(num_neigh * sizeof(int));
+	    while(count < num_neigh)
+	      {
+		fscanf(gal, "%d", &temp_neigh);
+		NLIST[block].neighbors[count] = temp_neigh;
+		count++;
+	      }
+	  }
+      }
 
-          }else{
-               printf("Error: GAL block count does not match shapefile block count.\n");
-               return -1;
-          }
-          //find centroids for every block
-          for(i=0; i<entityCount; i++){
-               int lastPoint;
-               int status;
-               SHPObject block = *shapeList[i];
-               //Note that we're going to disregard holes, etc.
-               if(block.nParts>1){
-                    lastPoint = block.panPartStart[1]-1;
-               }else{
-                    lastPoint = block.nVertices-1;
-               }
-               status = polyCentroid(block.padfX, block.padfY, lastPoint, 
-                                     xCentList+i, yCentList+i, areaList+i);
-          }
-          printf("Centroids calculated.\n");
-          //write paths from centroid to centroid
-          fputs("\t</g>\n", svg);
-          fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-	  for(i=0; i<entityCount; i++){
+    //Debugging: print the neighbor list of all blocks
+    /*int i,j;
+      for(i=0;i<nblocks;i++)
+      {
+      printf("%d %d\n", i, NLIST[i].num_neighbors);
+      if(NLIST[i].num_neighbors > 0)
+      for(j=0;j<NLIST[i].num_neighbors;j++)
+      printf("%d ", NLIST[i].neighbors[j]);
+      printf("\n");
+      }*/
+
+    //find centroids for every block
+    for(i=0; i<entityCount; i++){
+      int lastPoint;
+      int status;
+      SHPObject block = *shapeList[i];
+      //Note that we're going to disregard holes, etc.
+      if(block.nParts>1){
+	lastPoint = block.panPartStart[1]-1;
+      }else{
+	lastPoint = block.nVertices-1;
+      }
+      status = polyCentroid(block.padfX, block.padfY, lastPoint, 
+			    xCentList+i, yCentList+i, areaList+i);
+    }
+    printf("Centroids calculated.\n");
+    //write paths from centroid to centroid
+    fputs("\t</g>\n", svg);
+    fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
+    for(i=0; i<entityCount; i++){
                
-	    svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
-          }  
-          printf("Contiguity paths drawn.\n");
+      svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
+    }  
+    printf("Contiguity paths drawn.\n");
        
-          //Free NLIST
-          for(i=0; i<entityCount; i++)
-          {
-               free(NLIST[i].neighbors);
-               NLIST[i].neighbors = NULL;
-          }
-          free(NLIST);
-          NLIST = NULL;
+    //Free NLIST
+    for(i=0; i<entityCount; i++)
+      {
+	free(NLIST[i].neighbors);
+	NLIST[i].neighbors = NULL;
+      }
+    free(NLIST);
+    NLIST = NULL;
 
-          fclose(gal);
-     }
+    fclose(gal);
+  }
   
-     //write footer
-     svg_footer(svg);
-     printf("SVG footer printed.\n");
-     for(i=0; i<entityCount; i++){
-          SHPDestroyObject(shapeList[i]);
-     }
-     SHPClose(handle);
-     fclose(svg);
-     return 0;
+  //write footer
+  svg_footer(svg);
+  printf("SVG footer printed.\n");
+  for(i=0; i<entityCount; i++){
+    SHPDestroyObject(shapeList[i]);
+  }
+  SHPClose(handle);
+  fclose(svg);
+  return 0;
 }
 
 
