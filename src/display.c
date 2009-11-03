@@ -73,18 +73,18 @@ int polyCentroid(double x[], double y[], int n,
 } //end Graphics Gems code
 
 void colorArrange(int* array, int n){
-     unsigned int array_size = n+1;
-     unsigned int max=0xffffff;
-     int min=0x000000;
-     unsigned int diff=(max-min)/array_size;
-     int i;
-   //  int arrayLim;
-     unsigned int current = max;
-     //check array size here
-     for(i=0; i<array_size; i++){
-          array[i]=current;
-          current=current-diff;
-     }
+  unsigned int array_size = n+1;
+  unsigned int max=0xffffff;
+  int min=0x000000;
+  unsigned int diff=(max-min)/array_size;
+  int i;
+  //  int arrayLim;
+  unsigned int current = max;
+  //check array size here
+  for(i=0; i<array_size; i++){
+    array[i]=current;
+    current=current-diff;
+  }
 }
 
 void svg_header(FILE *svg){
@@ -101,36 +101,34 @@ void svg_header(FILE *svg){
 }
 
 void svg_polygon(SHPObject block, FILE *svg, int use_dist, int* colorArray){
-     int i,j,jLim;
-     double x,y;
-     fputs("\t\t<path\n\t\t\td=\"", svg);  
-     for(i=0;i<block.nParts;i++){
-          if(i==block.nParts-1){
-               jLim=block.nVertices-1;
-          }else{
-               jLim=block.panPartStart[i+1]-2;
-          }
-          for(j=block.panPartStart[i];j<jLim;j++){
-               //draw coordinates at padfX[j] etc.
-               if(j==block.panPartStart[i]){
-                    fputs("M ",svg); //not having the \n is deliberate
-               }else{
-                    fputs("L ",svg); //no \n is also deliberate here
-               }
-               x=(block.padfX[j]+180)*SVG_SCALE;
-               y=(block.padfY[j]-90)*-SVG_SCALE; //SVG has y-down
-               fprintf(svg, "%f %f ",x,y);
-          }
-     }
-     fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
-     if(use_dist){
-          //TODO: replace #ffffff with that district's color
-          //use %X6 on that block's district's entry in colorarray
-          //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
-     }else{
-          fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
-     }
-     return;
+  int i,j,jLim;
+  double x,y;
+  fputs("\t\t<path\n\t\t\td=\"", svg);  
+  for(i=0;i<block.nParts;i++){
+    if(i==block.nParts-1){
+      jLim=block.nVertices-1;
+    }else{
+      jLim=block.panPartStart[i+1]-2;
+    }
+    for(j=block.panPartStart[i];j<jLim;j++){
+      //draw coordinates at padfX[j] etc.
+      if(j==block.panPartStart[i]){
+	fputs("M ",svg); //not having the \n is deliberate
+      }else{
+	fputs("L ",svg); //no \n is also deliberate here
+      }
+      x=(block.padfX[j]+180)*SVG_SCALE;
+      y=(block.padfY[j]-90)*-SVG_SCALE; //SVG has y-down
+      fprintf(svg, "%f %f ",x,y);
+    }
+  }
+  fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId);
+  if(use_dist){
+    fprintf(svg,"\t\t\tstyle=\"fill:#%x;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
+  }else{
+    fprintf(svg,"\t\t\tstyle=\"fill:#%x;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
+  }
+  return;
 }
 
 void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
@@ -221,30 +219,30 @@ int main(){
   //write header
   svg_header(svg);
   printf("SVG header printed.\n");
-//Call colorArrange:
-     int *colorArray = malloc(entityCount*sizeof(int));;
-     colorArrange(colorArray,entityCount);
+  //Call colorArrange:
+  int *colorArray = malloc(entityCount*sizeof(int));;
+  colorArrange(colorArray,entityCount);
 
-     //write individual polygons
-     for(i=0; i<entityCount; i++){
-          //svg_polygon(*shapeList[i], svg, use_dist, colorArray);
-     }
-     printf("Polygons all printed.\n");
-     if(use_gal){
-          FILE *gal;
-          int block, num_neigh, nblocks, temp_neigh;
-          int count=0;
-          printf("The name of the file is: %s\n", gal_filename);
-          gal= fopen(gal_filename, "r");
-          if(gal==NULL){
-               printf("Error: Could not open GAL file.\n");
-               return -1;
-          }
-
+  //write individual polygons
+  for(i=0; i<entityCount; i++){
+    svg_polygon(*shapeList[i], svg, use_dist, colorArray);
+  }
+  printf("Polygons all printed.\n");
+  if(use_gal){
+    FILE *gal;
+    int block, num_neigh, nblocks, temp_neigh;
+    int count=0;
+    printf("The name of the file is: %s\n", gal_filename);
+    gal= fopen(gal_filename, "r");
+    if(gal==NULL){
+      printf("Error: Could not open GAL file.\n");
+      return -1;
+    }
+    fscanf(gal, "%d", &nblocks);
     printf("GAL block count matches shapefile block count. Proceeding...\n");
-
+	  
     NLIST = malloc(nblocks * sizeof(struct neighbor_list));
-
+	  
     while(fscanf(gal, "%d %d", &block, &num_neigh) != EOF)
       {
 	NLIST[block].num_neighbors = num_neigh;
@@ -308,16 +306,16 @@ int main(){
     fclose(gal);
   }
   
-     //write footer
-     svg_footer(svg);
-     printf("SVG footer printed.\n");
-     for(i=0; i<entityCount; i++){
-          SHPDestroyObject(shapeList[i]);
-     }
-     SHPClose(handle);
-     fclose(svg);
-     free(colorArray);
-     return 0;
+  //write footer
+  svg_footer(svg);
+  printf("SVG footer printed.\n");
+  for(i=0; i<entityCount; i++){
+    SHPDestroyObject(shapeList[i]);
+  }
+  SHPClose(handle);
+  fclose(svg);
+  free(colorArray);
+  return 0;
 }
 
 
