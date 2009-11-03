@@ -78,13 +78,13 @@ void colorArrange(int* array, int n){
      int min=0x000000;
      unsigned int diff=(max-min)/array_size;
      int i;
+   //  int arrayLim;
      unsigned int current = max;
      //check array size here
      for(i=0; i<array_size; i++){
           array[i]=current;
           current=current-diff;
      }
-     return;
 }
 
 void svg_header(FILE *svg){
@@ -100,7 +100,7 @@ void svg_header(FILE *svg){
      return;
 }
 
-void svg_polygon(SHPObject block, FILE *svg, int use_dist){
+void svg_polygon(SHPObject block, FILE *svg, int use_dist, int* colorArray){
      int i,j,jLim;
      double x,y;
      fputs("\t\t<path\n\t\t\td=\"", svg);  
@@ -126,9 +126,9 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist){
      if(use_dist){
           //TODO: replace #ffffff with that district's color
           //use %X6 on that block's district's entry in colorarray
-          //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+          //fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
      }else{
-          fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
+          fprintf(svg,"\t\t\tstyle=\"fill:#%x6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
      }
      return;
 }
@@ -220,9 +220,13 @@ int main(){
      svg_header(svg);
      printf("SVG header printed.\n");
   
+//Call colorArrange:
+     int *colorArray = malloc(entityCount*sizeof(int));;
+     colorArrange(colorArray,entityCount);
+
      //write individual polygons
      for(i=0; i<entityCount; i++){
-          //svg_polygon(*shapeList[i], svg, use_dist);
+          //svg_polygon(*shapeList[i], svg, use_dist, colorArray);
      }
      printf("Polygons all printed.\n");
      if(use_gal){
@@ -317,6 +321,7 @@ int main(){
      }
      SHPClose(handle);
      fclose(svg);
+     free(colorArray);
      return 0;
 }
 
