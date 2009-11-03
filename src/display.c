@@ -156,7 +156,9 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
           //draw paths here 
           fputs("\t\t<path\n\t\t\td=\"", svg);
           fprintf(svg, "M %f %f ",bx, by); //Moveto block X/Y 
-          fprintf(svg,"L %f %f\" />\n", nx, ny); //Lineto neighbor X/Y       
+          fprintf(svg, "L %f %f\"\n", nx, ny); //Lineto neighbor X/Y
+	  fprintf(svg,"\"\n\t\t\tid=\"path%d\"\n",block.nShapeId); //id
+	  fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>\n"); //style
      }
 
      return;
@@ -176,9 +178,9 @@ int main(){
      int use_gal = 1;
      int use_dist = 0;
      //For josh
-     char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+     //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
      //for sumanth
-     //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+     char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
      //Eventually, this won't be hardcoded
 
      SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -222,7 +224,7 @@ int main(){
   
      //write individual polygons
      for(i=0; i<entityCount; i++){
-          //svg_polygon(*shapeList[i], svg, use_dist);
+          svg_polygon(*shapeList[i], svg, use_dist);
      }
      printf("Polygons all printed.\n");
      if(use_gal){
@@ -291,9 +293,9 @@ int main(){
           //write paths from centroid to centroid
           fputs("\t</g>\n", svg);
           fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-                    for(i=0; i<entityCount; i++){
+	  for(i=0; i<entityCount; i++){
                
-               svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
+	    svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
           }  
           printf("Contiguity paths drawn.\n");
        
