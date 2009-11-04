@@ -1,0 +1,37 @@
+INPUT
+  a state divided in meshblocks. Each meshblock contains population data and type data (water, parkland, commercial, residential,...)
+
+OUTPUT
+  a set of meshblock groupings that represent districts.
+
+DISTRICTING CRITERIA
+(see http://aec.gov.au/Electorates/Redistributions/Overview.htm):
+
+  * standard deviation for the average population per district in each disctrict must not be greater than +/-10%;
+  * physical features and area of the proposed division; and
+  * existing boundaries of divisions in the State or Territory.
+
+VALIDATION
+  * we can check if the average standard deviation of the population per district obtained with our algorithm is lower than the one in the current districting (>16% in some districts)
+  * we can check if there are districts whose boundaries disregard natural borders
+
+ALGORITHM
+
+-1. Eliminate zero-blocks (blocks with area=0)
+0. Calculate ideal population of each district
+1. Find islands (separated clusters of meshblocks) and mainland (the biggest of such clusters)
+2. Find natural borders (find "water we know about")
+3. For each island, calculate how much (%) of the ideal population that island contains
+4. Link the islands:
+	- take an island I
+	- find the closest island or meshblock in mainland
+	- if a mainland meshblock is found, link and stop
+	- otherwise, link the island and repeat
+	- IMPORTANT: LINK ONLY IF THE POPULATION IS LESS THAN 100% THE IDEAL POP. AND WILL NOT EXCEED 105%
+5. Calculate districts (heuristics go here):
+	- take the most populated block
+	- N=1
+	- if adding N neighbors makes the district "complete" (=100% ideal population +/-10%), add that neighbor and start with the next district
+	- repeat with N+1 until all neighbors have been used and the district is not complete.
+	- if all the neighbors have been added, start with the next set of neighbors
+6. Assign the unassigned (??)
