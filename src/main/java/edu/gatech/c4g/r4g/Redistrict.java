@@ -9,8 +9,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import edu.gatech.c4g.r4g.redistricting.IRedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.view.MapView;
@@ -49,16 +54,21 @@ public class Redistrict {
 				} else {
 					file = new File(commandLine.getOptionValue('i'));
 				}
-				
-				if (file == null){
+
+				if (file == null) {
 					System.err.println("A shapefile must be selected!");
 					System.exit(1);
 				}
-				
-				int ndis = Integer.parseInt(commandLine.getOptionValue('n'));;
+
+				int ndis = Integer.parseInt(commandLine.getOptionValue('n'));
 				String alg = commandLine.getOptionValue('a');
 
-				MapView mv = new MapView(new File(commandLine.getOptionValue('i')));
+				FileDataStore store = FileDataStoreFinder
+						.getDataStore(new File(commandLine.getOptionValue('i')));
+				FeatureSource<SimpleFeatureType, SimpleFeature> source = store
+						.getFeatureSource();
+
+				MapView mv = new MapView(source);
 				mv.showShapefile();
 
 				// select algorithm

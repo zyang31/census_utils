@@ -35,11 +35,6 @@ public class District {
 	}
 
 	public int getPopulation() {
-//		int sum = 0;
-//		for (Block b : blockTable) {
-//			sum += b.population;
-//		}
-//		return sum;
 		return pop;
 	}
 
@@ -52,7 +47,12 @@ public class District {
 	}
 	
 	public void addBlock(Block b){
-		blockTable.put(b.recordNo, b);
-		pop += b.population;
+		blockTable.put(b.getId(), b);
+		pop += b.getPopulation();
+	}
+	
+	public void removeBlock(Block b){
+		blockTable.remove(b.getId());
+		pop -= b.getPopulation();
 	}
 }

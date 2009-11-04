@@ -2,17 +2,18 @@ package edu.gatech.c4g.r4g.redistricting;
 
 import java.io.File;
 
+import org.geotools.data.FeatureSource;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
 public abstract class RedistrictingAlgorithm {
 
-	String file;
 	BlockGraph bg;
-	
-	public RedistrictingAlgorithm(String file){
-		this.file = file;
+
+	public RedistrictingAlgorithm(FeatureSource<SimpleFeatureType, SimpleFeature> source, String galFile){
 		bg = new BlockGraph();
-		bg.load(new File(file + ".dbf"), BlockGraph.TYPE_AUS);
+		bg.load(source, galFile);
 	}
-	
 }
