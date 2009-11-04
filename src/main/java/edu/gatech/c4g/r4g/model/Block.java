@@ -10,8 +10,11 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 public class Block {
 	public static final String POPULATION_FIELD = "TURPOP2006"; // to be
 																// externalized
+	public static final int UNASSIGNED = 0;
 
 	private int id;
+	
+	private int distNo = UNASSIGNED;
 
 	private SimpleFeature feature;
 	private MultiPolygon polygon;
@@ -47,4 +50,16 @@ public class Block {
 		return 0;
 	}
 
+	public MultiPolygon getPolygon(){
+		return polygon;
+	}
+
+	public int getDistNo() {
+		return distNo;
+	}
+
+	public void setDistNo(int distNo) {
+		this.distNo = distNo;
+	}
+	
 }

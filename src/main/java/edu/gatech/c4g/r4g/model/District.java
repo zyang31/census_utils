@@ -52,6 +52,7 @@ public class District {
 	}
 	
 	public void removeBlock(Block b){
+		b.setDistNo(Block.UNASSIGNED);
 		blockTable.remove(b.getId());
 		pop -= b.getPopulation();
 	}
