@@ -80,9 +80,9 @@ public class Saver {
 			BufferedWriter out = new BufferedWriter(fstream);
 
 			// write block count and district count
-			out.write(bg.blockTable.size() + " " + bg.getDistrictCount() + "\n");
+			out.write(bg.getAllBlocks().size() + " " + bg.getDistrictCount() + "\n");
 
-			for (Block b : bg.blockTable.values()) {
+			for (Block b : bg.getAllBlocks()) {
 				out.write(b.getId() + " " + b.getDistNo() + "\n");
 			}
 

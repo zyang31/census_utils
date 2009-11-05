@@ -22,16 +22,17 @@ ALGORITHM
 1. Find islands (separated clusters of meshblocks) and mainland (the biggest of such clusters) DONE
 2. Find natural borders (find "water we know about") DONE
 3. For each island, calculate how much (%) of the ideal population that island contains
-4. Link the islands:
+4. Find coastline
+5. Link the islands:
 	- take an island I
 	- find the closest island or meshblock in mainland
 	- if a mainland meshblock is found, link and stop
 	- otherwise, link the island and repeat
 	- IMPORTANT: LINK ONLY IF THE POPULATION IS LESS THAN 100% THE IDEAL POP. AND WILL NOT EXCEED 105%
-5. Calculate districts (heuristics go here):
+6. Calculate districts (heuristics go here):
 	- take the most populated block
 	- N=1
 	- if adding N neighbors makes the district "complete" (=100% ideal population +/-10%), add that neighbor and start with the next district
 	- repeat with N+1 until all neighbors have been used and the district is not complete.
 	- if all the neighbors have been added, start with the next set of neighbors
-6. Assign the unassigned (??)
+7. Assign the unassigned (??)

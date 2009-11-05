@@ -9,11 +9,12 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
+import edu.gatech.c4g.r4g.model.Island;
 
 public class AustralianLoader extends Loader {
 
 	private static final String NATURAL_BORDER_WATER = "Water";
-	
+
 	@Override
 	public BlockGraph load(
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
@@ -22,13 +23,18 @@ public class AustralianLoader extends Loader {
 		BlockGraph bg = super.load(source, galFile);
 		return removeNaturalBorders(bg);
 	}
-	
-	private BlockGraph removeNaturalBorders(BlockGraph bg){
-		Set<Entry<Integer, Block>> blocks = bg.blockTable.entrySet();
+
+	private BlockGraph removeNaturalBorders(BlockGraph bg) {
+		for (Block b : bg.getAllBlocks()) {
+			SimpleFeature f = b.getFeature();
+			String cat = (String) f.getProperty("CATEGORY").getValue();
+			if (cat.equals(Block.CATEGORY_WATER)
+					|| cat.equals(Block.CATEGORY_SHIPPING)) {
+				bg.removeBlock(b);
+			}
+		}
 		
-		
-		
-		return bg; 
+		return bg;
 	}
 
 }

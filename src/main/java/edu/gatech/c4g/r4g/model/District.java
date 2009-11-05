@@ -1,6 +1,7 @@
 package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 
 /**
@@ -25,35 +26,29 @@ import java.util.Hashtable;
  * 
  * 
  */
-public class District {
+public class District extends Graph {
 	private int districtNo;
-	private int pop;
-	private Hashtable<Integer, Block> blockTable;
+	private Hashtable<Integer, Block> blocks;
 
 	public District(int districtNo) {
+		blocks = new Hashtable<Integer, Block>();
 		this.districtNo = districtNo;
 	}
 
-	public int getPopulation() {
-		return pop;
+	public void addBlock(Block b) {
+		blocks.put(b.getId(), b);
+		population += b.getPopulation();
 	}
 
-	public int getDistrictNo() {
-		return districtNo;
-	}
-
-	public boolean hasBlock(Block b) {
-		return blockTable.contains(b);
-	}
-	
-	public void addBlock(Block b){
-		blockTable.put(b.getId(), b);
-		pop += b.getPopulation();
-	}
-	
-	public void removeBlock(Block b){
+	public void removeBlock(Block b) {
 		b.setDistNo(Block.UNASSIGNED);
-		blockTable.remove(b.getId());
-		pop -= b.getPopulation();
+		blocks.remove(b.getId());
+		population -= b.getPopulation();
+	}
+
+	public void addAllBlocks(Collection<Block> c) {
+		for (Block b : c) {
+			addBlock(b);
+		}
 	}
 }

@@ -32,35 +32,13 @@ public abstract class Loader {
 	public BlockGraph load(
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			String galFile) {
-		BlockGraph bg = new BlockGraph();
-
-		try {
-			FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source
-					.getFeatures();
-
-			Iterator<SimpleFeature> iterator = collection.iterator();
-			try {
-				for (Iterator<SimpleFeature> i = collection.iterator(); i
-						.hasNext();) {
-					SimpleFeature feature = i.next();
-
-					Block b = new Block(feature);
-					bg.blockTable.put(b.getId(), b);
-				}
-			} finally {
-				collection.close(iterator);
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BlockGraph bg = new BlockGraph(source);
 
 		// Read GAL file
 		parseGal(bg, galFile);
 
 		// remove blocks with area 0
-		for (Block b : bg.blockTable.values()) {
+		for (Block b : bg.getAllBlocks()) {
 			if (b.getArea() == 0) {
 				bg.removeBlock(b);
 			}
@@ -104,8 +82,7 @@ public abstract class Loader {
 					System.exit(1);
 				}
 
-				Block currentBlock = bg.blockTable.get(new Integer(
-						current_block_id));
+				Block currentBlock = bg.getBlock(current_block_id);
 
 				// now read neighbors ids
 				currentline = br.readLine();
@@ -129,8 +106,7 @@ public abstract class Loader {
 
 					// System.out.println("Adding " + neighbor_id +
 					// " to the neighbors of " + current_block_id);
-					currentBlock.neighbors.add(bg.blockTable.get(new Integer(
-							neighbor_id)));
+					currentBlock.neighbors.add(bg.getBlock(neighbor_id));
 				}
 			}
 

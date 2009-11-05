@@ -39,9 +39,9 @@ public class Block {
 		return id;
 	}
 
-	public double getPopulation() {
+	public int getPopulation() {
 		Property population = feature.getProperty(POPULATION_FIELD);
-		return Double.parseDouble(population.getValue().toString());
+		return (int)Double.parseDouble(population.getValue().toString());
 	}
 
 	public double getArea() {

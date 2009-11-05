@@ -44,7 +44,8 @@ public class Redistrict {
 			System.exit(0);
 		}
 
-		if (commandLine.hasOption('a') && commandLine.hasOption('n')) {
+		if (commandLine.hasOption('a') && commandLine.hasOption('n')
+				&& commandLine.hasOption('d')) {
 			File file = null;
 
 			if (!commandLine.hasOption('i')) {
@@ -58,6 +59,12 @@ public class Redistrict {
 
 			if (file == null) {
 				System.err.println("A shapefile must be selected!");
+				System.exit(1);
+			}
+			
+			double maxDeviation = Double.parseDouble(commandLine.getOptionValue('d')); 
+			if ((maxDeviation > 1) || (maxDeviation < 0)){
+				System.err.println("Max Deviation must be between 0 and 1|");
 				System.exit(1);
 			}
 
@@ -89,7 +96,7 @@ public class Redistrict {
 				System.exit(1);
 			}
 
-			ra.redistrict(ndis);
+			ra.redistrict(ndis, maxDeviation);
 
 		} else {
 			printUsage(options);
@@ -110,6 +117,12 @@ public class Redistrict {
 		Option ndists = OptionBuilder.withArgName("n_dist").hasArgs(1)
 				.withDescription("Specify the number of districts to create")
 				.create("n");
+		Option deviation = OptionBuilder
+				.withArgName("max_deviation")
+				.hasArgs(1)
+				.withDescription(
+						"Max deviation allowed for the population of a district from the ideal population")
+				.create("d");
 		Option file = OptionBuilder.withArgName("input_file").hasArgs(1)
 				.withDescription("Specify the input file (without extension)")
 				.create("i");
@@ -118,6 +131,7 @@ public class Redistrict {
 		options.addOption(help);
 		options.addOption(algorithm);
 		options.addOption(ndists);
+		options.addOption(deviation);
 		options.addOption(file);
 	}
 
