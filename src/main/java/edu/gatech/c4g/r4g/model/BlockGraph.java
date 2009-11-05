@@ -50,7 +50,7 @@ public class BlockGraph extends Graph {
 		blocks.put(b.getId(), b);
 		population += b.getPopulation();
 	}
-	
+
 	public void removeBlock(Block b) {
 		for (Block neighbor : b.neighbors) {
 			neighbor.neighbors.remove(b);
@@ -58,8 +58,8 @@ public class BlockGraph extends Graph {
 
 		blocks.remove(b);
 	}
-	
-	public Block getBlock(int index){
+
+	public Block getBlock(int index) {
 		return blocks.get(new Integer(index));
 	}
 
@@ -75,7 +75,11 @@ public class BlockGraph extends Graph {
 	public int getDistrictCount() {
 		return distList.size();
 	}
-	
+
+	public ArrayList<District> getDistList() {
+		return distList;
+	}
+
 	/**
 	 * Returns a list containing all the islands in the graph sorted by number
 	 * of blocks.
@@ -101,9 +105,9 @@ public class BlockGraph extends Graph {
 
 			public int compare(Island o1, Island o2) {
 				if (o1.getAllBlocks().size() > o2.getAllBlocks().size()) {
-					return 1;
-				} else if (o1.getAllBlocks().size() < o2.getAllBlocks().size()) {
 					return -1;
+				} else if (o1.getAllBlocks().size() < o2.getAllBlocks().size()) {
+					return 1;
 				}
 				return 0;
 			}
@@ -113,14 +117,27 @@ public class BlockGraph extends Graph {
 		return islands;
 	}
 
+	// private void addToIsland(Island island, Block b) {
+	// if (!island.hasBlock(b)) {
+	// System.out.println("Adding block " + b.getId());
+	// island.addBlock(b);
+	// for (Block bl : b.neighbors) {
+	// if (!island.hasBlock(bl)) {
+	// addToIsland(island, bl);
+	// }
+	// }
+	// }
+	// }
+
 	private void addToIsland(Island island, Block b) {
-		if (!island.hasBlock(b)) {
-			island.addBlock(b);
-			for (Block bl : b.neighbors) {
-				if (!island.hasBlock(bl)) {
-					addToIsland(island, bl);
-				}
-			}
+		//System.out.println(island.getPopulation());
+		island.addBlock(b);
+		
+		ArrayList<Block> toAdd = b.neighbors;
+		toAdd.removeAll(island.getAllBlocks());
+		
+		for (Block bl : toAdd){
+			addToIsland(island, bl);
 		}
 	}
 

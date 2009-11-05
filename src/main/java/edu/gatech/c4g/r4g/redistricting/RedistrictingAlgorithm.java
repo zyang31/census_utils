@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -33,10 +34,18 @@ public abstract class RedistrictingAlgorithm {
 			String galFile) {
 		this.loader = loader;
 		bg = loader.load(source, galFile);
+		
+		//islands = new ArrayList<Island>();
 		islands = bg.toIslands();
+
+		// TEST
+		// for (Island i : islands){
+		// System.out.println(i.getPopulation());
+		// }
 	}
 
 	/**
+	 * TODO THIS DOES NOT WORK!! (WHY?)
 	 * 
 	 * @param ndis
 	 *            number of districts to create
@@ -52,54 +61,132 @@ public abstract class RedistrictingAlgorithm {
 		ArrayList<Block> mainlandBlocks = new ArrayList<Block>();
 		mainlandBlocks.addAll(islands.get(0).getAllBlocks());
 
-		// sort the blocks by density
-		Collections.sort(mainlandBlocks, new BlockDensityComparator());
-
 		int currentDistNo = 1;
 
-		while (!mainlandBlocks.isEmpty() && (currentDistNo <= ndis)) {
+		while (/* !mainlandBlocks.isEmpty() && */(currentDistNo <= ndis)) {
+			System.out.println("Building district " + currentDistNo);// TODO
+			// transform
+			// to
+			// LOG
+			// (log4j?)
+			
+			// sort the blocks by density
+			Collections.sort(mainlandBlocks, new BlockDensityComparator());
+
 			District dist = new District(currentDistNo);
 			// add the most populated block
-			Block firstBlock = mainlandBlocks.get(0);
-			dist.addBlock(firstBlock);
-			mainlandBlocks.remove(0);
+			ArrayList<Block> expandFrom = new ArrayList<Block>(); 
+			expandFrom.add(mainlandBlocks.get(0));
+			mainlandBlocks.removeAll(expandFrom);// needed?
 
 			while (!((dist.getPopulation() <= maxPopulation) && (dist
-					.getPopulation() >= minPopulation))) {
+					.getPopulation() >= minPopulation))
+					&& !expandFrom.isEmpty()) {
 
-				Collections.sort(firstBlock.neighbors,
-						new BlockDensityComparator());
+				ArrayList<Block> candidates = new ArrayList<Block>();
 
-				//TODO dynamic programming algorithm goes here				
-//				int neighborsPop = 0;
-//				
-//				for (Block b : firstBlock.neighbors) {
-//					neighborsPop += b.getPopulation();
-//				}
-//
-//				if (dist.getPopulation() + neighborsPop <= maxPopulation) {
-//					dist.addAllBlocks(firstBlock.neighbors);
-//				} else {
-//					
-//				}
+				for (Block b : expandFrom) {					
+					for (Block n : b.neighbors) {
+						if (n.getDistNo() == Block.UNASSIGNED) {
+							candidates.add(n);
+						}
+					}
+				}
+				
+				System.out.println(candidates.size() + " candidates");
 
+				ArrayList<Block> blocksToAdd = chooseNeighbors(dist
+						.getPopulation(), candidates);
+
+				dist.addAllBlocks(blocksToAdd);
+				// TEST
+				System.out.println("District " + dist.getDistrictNo() + ": "
+						+ dist.getPopulation());
+
+				mainlandBlocks.removeAll(blocksToAdd);
+
+				expandFrom = blocksToAdd;
 			}
 
+			System.out.println("District " + dist.getDistrictNo() + ": "
+					+ dist.getPopulation() + " (" + dist.getAllBlocks().size()
+					+ ")");
+
 			bg.addDistrict(dist);
+
+			currentDistNo++;
 		}
+
+		// TEST
+		for (District d : bg.getDistList()) {
+			System.out.println("District " + d.getDistrictNo() + ": "
+					+ d.getPopulation());
+		}
+
+		System.out.println("Unassigned blocks: " + mainlandBlocks.size());
 
 		// stage2
 
 		// stage3
 	}
 
+	private ArrayList<Block> chooseNeighbors(int basePop,
+			ArrayList<Block> blocks) {
+		ArrayList<Block> blocksToTake = new ArrayList<Block>();
+
+		int[] population = new int[blocks.size()];
+
+		// generate random instance, items 1..N
+		for (int n = 0; n < blocks.size(); n++) {
+			population[n] = blocks.get(n).getPopulation();
+		}
+
+		// opt[n] = population obtained by taking blocks 1..n
+		// sol[n] = does opt solution to pack items 1..n include item n?
+		int[] opt = new int[blocks.size()];
+		boolean[] sol = new boolean[blocks.size()];
+
+		for (int n = 0; n < blocks.size(); n++) {
+			// don't take block n
+			int option1;
+			// take item n
+			int option2 = Integer.MIN_VALUE;
+			;
+
+			if (n > 0) {
+				option1 = opt[n - 1];
+				if (population[n] + population[n - 1] <= maxPopulation)
+					option2 = population[n] + population[n - 1];
+			} else {
+				option1 = basePop;
+				if (population[n] + basePop <= maxPopulation)
+					option2 = population[n] + basePop;
+			}
+
+			// select better of two options
+			opt[n] = Math.max(option1, option2);
+			sol[n] = (option2 >= option1);
+		}
+
+		// determine which items to take
+		System.out.println("Will take:");
+		for (int n = blocks.size(); n > 0; n--) {
+			if (sol[n]) {
+				System.out.println("Block " + n);
+				blocksToTake.add(blocks.get(n));
+			}
+		}
+
+		return blocksToTake;
+	}
+
 	protected class BlockDensityComparator implements Comparator<Block> {
 
 		public int compare(Block o1, Block o2) {
 			if (o1.getDensity() > o2.getDensity()) {
-				return 1;
-			} else if (o1.getDensity() < o2.getDensity()) {
 				return -1;
+			} else if (o1.getDensity() < o2.getDensity()) {
+				return 1;
 			}
 			return 0;
 		}

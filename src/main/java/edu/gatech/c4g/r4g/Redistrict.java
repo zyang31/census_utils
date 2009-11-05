@@ -80,8 +80,8 @@ public class Redistrict {
 			String galFile = filename.substring(0, filename.length() - 4)
 					+ ".GAL";
 
-			MapView mv = new MapView(source);
-			mv.showShapefile();
+			//MapView mv = new MapView(source);
+			//mv.showShapefile();
 
 			RedistrictingAlgorithm ra = null;
 
@@ -96,6 +96,7 @@ public class Redistrict {
 				System.exit(1);
 			}
 
+			System.out.println("Redistricting. You can have a coffee while you are waiting");
 			ra.redistrict(ndis, maxDeviation);
 
 		} else {

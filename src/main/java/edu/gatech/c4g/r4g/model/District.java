@@ -35,7 +35,12 @@ public class District extends Graph {
 		this.districtNo = districtNo;
 	}
 
+	public int getDistrictNo() {
+		return districtNo;
+	}
+
 	public void addBlock(Block b) {
+		b.setDistNo(districtNo);
 		blocks.put(b.getId(), b);
 		population += b.getPopulation();
 	}
@@ -44,6 +49,10 @@ public class District extends Graph {
 		b.setDistNo(Block.UNASSIGNED);
 		blocks.remove(b.getId());
 		population -= b.getPopulation();
+	}
+	
+	public Collection<Block> getAllBlocks(){
+		return blocks.values();
 	}
 
 	public void addAllBlocks(Collection<Block> c) {

@@ -12,7 +12,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 public class Block {
 	public static final String POPULATION_FIELD = "TURPOP2006"; // to be
 	// externalized
-	public static final int UNASSIGNED = 0;
+	public static final int UNASSIGNED = -1;
 	public static final String CATEGORY_WATER = "Water";
 	public static final String CATEGORY_SHIPPING = "Shipping";
 
