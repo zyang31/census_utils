@@ -19,7 +19,7 @@ import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
 public abstract class Loader {
-	
+
 	/**
 	 * 
 	 * @param source
@@ -57,7 +57,14 @@ public abstract class Loader {
 		}
 
 		// Read GAL file
-		parseGal(bg,galFile);
+		parseGal(bg, galFile);
+
+		// remove blocks with area 0
+		for (Block b : bg.blockTable.values()) {
+			if (b.getArea() == 0) {
+				bg.removeBlock(b);
+			}
+		}
 
 		return bg;
 

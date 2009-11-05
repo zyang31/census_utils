@@ -83,7 +83,7 @@ public class Saver {
 			out.write(bg.blockTable.size() + " " + bg.getDistrictCount() + "\n");
 
 			for (Block b : bg.blockTable.values()) {
-				// out.write(b.recordNo + " " + getBlockDistrictNo(b) + "\n");
+				out.write(b.getId() + " " + b.getDistNo() + "\n");
 			}
 
 			out.close();

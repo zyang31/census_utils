@@ -28,7 +28,7 @@ public class AustralianLoader extends Loader {
 		
 		
 		
-		return null; 
+		return bg; 
 	}
 
 }

@@ -18,7 +18,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import edu.gatech.c4g.r4g.redistricting.AustralianRedistrictingAlgorithm;
-import edu.gatech.c4g.r4g.redistricting.IRedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.redistricting.RedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.util.AustralianLoader;
 import edu.gatech.c4g.r4g.view.MapView;
@@ -39,59 +38,62 @@ public class Redistrict {
 		CommandLineParser parser = new BasicParser();
 
 		// Parse the program arguments
-		try {
-			CommandLine commandLine = parser.parse(options, args);
-			if (commandLine.hasOption('h')) {
-				printUsage(options);
-				System.exit(0);
-			}
-
-			if (commandLine.hasOption('a') && commandLine.hasOption('n')) {
-				File file = null;
-
-				if (!commandLine.hasOption('i')) {
-					file = JFileDataStoreChooser.showOpenFile("shp", null);
-					if (file == null) {
-						return;
-					}
-				} else {
-					file = new File(commandLine.getOptionValue('i'));
-				}
-
-				if (file == null) {
-					System.err.println("A shapefile must be selected!");
-					System.exit(1);
-				}
-
-				int ndis = Integer.parseInt(commandLine.getOptionValue('n'));
-				String alg = commandLine.getOptionValue('a');
-
-				FileDataStore store = FileDataStoreFinder
-						.getDataStore(new File(commandLine.getOptionValue('i')));
-				FeatureSource<SimpleFeatureType, SimpleFeature> source = store
-						.getFeatureSource();
-
-				String filename = file.getAbsolutePath();
-				String galFile = filename.substring(0, filename.length() - 4)
-						+ ".GAL";
-
-				MapView mv = new MapView(source);
-				mv.showShapefile();
-
-				// run the algorithm
-
-				RedistrictingAlgorithm ra = new AustralianRedistrictingAlgorithm(
-						new AustralianLoader(), source, galFile);
-
-			} else {
-				printUsage(options);
-				System.exit(0);
-			}
-
-		} catch (Exception e) {
-			System.out.println("You provided bad program arguments!");
+		CommandLine commandLine = parser.parse(options, args);
+		if (commandLine.hasOption('h')) {
 			printUsage(options);
+			System.exit(0);
+		}
 
+		if (commandLine.hasOption('a') && commandLine.hasOption('n')) {
+			File file = null;
+
+			if (!commandLine.hasOption('i')) {
+				file = JFileDataStoreChooser.showOpenFile("shp", null);
+				if (file == null) {
+					return;
+				}
+			} else {
+				file = new File(commandLine.getOptionValue('i'));
+			}
+
+			if (file == null) {
+				System.err.println("A shapefile must be selected!");
+				System.exit(1);
+			}
+
+			int ndis = Integer.parseInt(commandLine.getOptionValue('n'));
+			String alg = commandLine.getOptionValue('a');
+
+			FileDataStore store = FileDataStoreFinder.getDataStore(new File(
+					commandLine.getOptionValue('i')));
+			FeatureSource<SimpleFeatureType, SimpleFeature> source = store
+					.getFeatureSource();
+
+			String filename = file.getAbsolutePath();
+			String galFile = filename.substring(0, filename.length() - 4)
+					+ ".GAL";
+
+			MapView mv = new MapView(source);
+			mv.showShapefile();
+
+			RedistrictingAlgorithm ra = null;
+
+			if (alg.equals("australia")) {
+				// run the algorithm
+				ra = new AustralianRedistrictingAlgorithm(
+						new AustralianLoader(), source, galFile);
+			} else if (alg.equals("usa")) {
+				// ra = american algorithm
+			} else {
+				System.err.println("Algorithm type not recognized!");
+				System.exit(1);
+			}
+
+			ra.redistrict(ndis);
+
+		} else {
+			printUsage(options);
+			System.exit(0);
 		}
 
 	}
@@ -99,8 +101,11 @@ public class Redistrict {
 	@SuppressWarnings("static-access")
 	private static void setup() {
 		Option help = new Option("h", "Print this message");
-		Option algorithm = OptionBuilder.withArgName("algorithm").hasArgs(1)
-				.withDescription("Specify the desired redistricting algorithm")
+		Option algorithm = OptionBuilder
+				.withArgName("algorithm")
+				.hasArgs(1)
+				.withDescription(
+						"Specify the desired redistricting algorithm ('australia' or 'usa')")
 				.create("a");
 		Option ndists = OptionBuilder.withArgName("n_dist").hasArgs(1)
 				.withDescription("Specify the number of districts to create")

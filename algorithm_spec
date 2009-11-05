@@ -17,10 +17,10 @@ VALIDATION
 
 ALGORITHM
 
--1. Eliminate zero-blocks (blocks with area=0)
-0. Calculate ideal population of each district
-1. Find islands (separated clusters of meshblocks) and mainland (the biggest of such clusters)
-2. Find natural borders (find "water we know about")
+-1. Eliminate zero-blocks (blocks with area=0) DONE
+0. Calculate ideal population of each district DONE
+1. Find islands (separated clusters of meshblocks) and mainland (the biggest of such clusters) DONE
+2. Find natural borders (find "water we know about") DONE
 3. For each island, calculate how much (%) of the ideal population that island contains
 4. Link the islands:
 	- take an island I
