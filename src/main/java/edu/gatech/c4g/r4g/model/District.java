@@ -48,4 +48,8 @@ public class District extends Graph {
 		b.setDistNo(Block.UNASSIGNED);
 	}
 
+	public boolean isInRange(double min, double max) {
+		return (population > min) && (population <= max);
+	}
+
 }

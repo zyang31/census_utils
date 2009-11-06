@@ -84,9 +84,9 @@ public abstract class RedistrictingAlgorithm {
 			expandFrom.add(mainlandBlocks.get(0));
 			mainlandBlocks.removeAll(expandFrom);// needed?
 
-			while (!((dist.getPopulation() <= maxPopulation) && (dist
-					.getPopulation() >= minPopulation))
-					&& !expandFrom.isEmpty()) {
+			// the condition here must be fixed
+			while (!expandFrom.isEmpty()
+					&& dist.getPopulation() <= idealPopulation) {
 
 				ArrayList<Block> candidates = new ArrayList<Block>();
 
@@ -98,24 +98,27 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 
-//				System.out.println(candidates.size() + " candidates");
+				// System.out.println(candidates.size() + " candidates");
 
 				ArrayList<Block> blocksToAdd = chooseNeighbors(dist
 						.getPopulation(), candidates);
 
 				dist.addAllBlocks(blocksToAdd);
+
+				// System.out.println(dist.getPopulation());
+
 				// TEST
-//				System.out.println("District " + dist.getDistrictNo() + ": "
-//						+ dist.getPopulation());
+				// System.out.println("District " + dist.getDistrictNo() + ": "
+				// + dist.getPopulation());
 
 				mainlandBlocks.removeAll(blocksToAdd);
 
 				expandFrom = blocksToAdd;
 			}
 
-//			System.out.println("District " + dist.getDistrictNo() + ": "
-//					+ dist.getPopulation() + " (" + dist.getAllBlocks().size()
-//					+ ")");
+			// System.out.println("District " + dist.getDistrictNo() + ": "
+			// + dist.getPopulation() + " (" + dist.getAllBlocks().size()
+			// + ")");
 
 			bg.addDistrict(dist);
 
@@ -123,9 +126,13 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 		// TEST
+		double totPop = idealPopulation * ndis;
+
 		for (District d : bg.getDistList()) {
-			System.out.println("District " + d.getDistrictNo() + ": "
-					+ d.getPopulation());
+			System.out.println("District " + d.getDistrictNo()
+					+ ": population " + d.getPopulation() + "("
+					+ (d.getPopulation() / totPop) * 100 + "%) ("
+					+ d.getAllBlocks().size() + " blocks)");
 		}
 
 		System.out.println("Unassigned blocks: " + mainlandBlocks.size());
@@ -156,11 +163,11 @@ public abstract class RedistrictingAlgorithm {
 			int option1;
 			// take item n
 			int option2 = Integer.MIN_VALUE;
-			
+
 			if (n > 0) {
 				option1 = opt[n - 1];
 				if (population[n] + population[n - 1] <= maxPopulation)
-					option2 = population[n] + population[n - 1];
+					option2 = population[n] + opt[n - 1];
 			} else {
 				option1 = basePop;
 				if (population[n] + basePop <= maxPopulation)

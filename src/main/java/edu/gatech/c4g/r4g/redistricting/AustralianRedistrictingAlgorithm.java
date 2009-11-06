@@ -4,8 +4,6 @@ import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import edu.gatech.c4g.r4g.model.Block;
-import edu.gatech.c4g.r4g.model.Island;
 import edu.gatech.c4g.r4g.util.AustralianLoader;
 
 public class AustralianRedistrictingAlgorithm extends RedistrictingAlgorithm {
