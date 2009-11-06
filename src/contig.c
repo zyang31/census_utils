@@ -29,8 +29,8 @@
 #include "blockcont.h"
 #include "utlist.h"
  
-#define TRUNCATE_UPTO 1000
-#define TOLERANCE 0.005
+#define TRUNCATE_UPTO 	10000000
+#define TOLERANCE 	0.0000005
  
 #define TRUNCATE(var, convert) { \
 int temp = var*TRUNCATE_UPTO; \
@@ -421,7 +421,7 @@ int main(){
   sort_NTABLE();
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
-  print_neighbor_table();
+  //print_neighbor_table();
   Output_To_GAL();
  
   //free all the items in the HT

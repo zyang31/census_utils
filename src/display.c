@@ -74,8 +74,10 @@ int polyCentroid(double x[], double y[], int n,
 
 void colorArrange(int* array, int n){
   unsigned int array_size = n+1;
+  //Sumanth - Debug
+  unsigned int min=0xffffff;
   unsigned int max=0xffffff;
-  int min=0x000000;
+  //int min=0x000000;
   unsigned int diff=(max-min)/array_size;
   int i;
   //  int arrayLim;
@@ -136,12 +138,18 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
   //TODO: write this function
   //The process is as follows:
   //for each neighbor to the block, print the path between the centroids
-     
+    
+  //Sumanth - Debug
+  printf("\n blockid = %d \n", block.nShapeId);
+ 
   int current, i;
   double bx, by, nx, ny;
   int ncount = neighbor_list.num_neighbors;
-  bx = xCentList[block.nShapeId - 1];
-  by = yCentList[block.nShapeId - 1];
+  //Sumanth - Debug
+  //bx = xCentList[block.nShapeId - 1];
+  //by = yCentList[block.nShapeId - 1];
+  bx = xCentList[block.nShapeId];
+  by = yCentList[block.nShapeId];
   bx = (bx+180)*SVG_SCALE;
   by = (by-90)*-SVG_SCALE;
 
@@ -288,10 +296,12 @@ int main(){
     //write paths from centroid to centroid
     fputs("\t</g>\n", svg);
     fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-    for(i=0; i<entityCount; i++){
+    //Sumanth - Debug
+    /*for(i=0; i<entityCount; i++){
                
       svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
-    }  
+    }*/  
+    svg_neighbors(*shapeList[20], NLIST[20], xCentList, yCentList, svg);
     printf("Contiguity paths drawn.\n");
        
     //Free NLIST
