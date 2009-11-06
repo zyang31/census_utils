@@ -24,7 +24,7 @@ import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
 
-	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -i <input_file>";
+	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -d <max_deviation> -i <input_file>";
 	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
 			+ GeoTools.getVersion() + ")";
 	private static final String FOOTER = "\nCopyright 2009 - Aaron Ciaghi, Stephen Long, Joshua Justice";
@@ -64,7 +64,7 @@ public class Redistrict {
 			
 			double maxDeviation = Double.parseDouble(commandLine.getOptionValue('d')); 
 			if ((maxDeviation > 1) || (maxDeviation < 0)){
-				System.err.println("Max Deviation must be between 0 and 1|");
+				System.err.println("Max Deviation must be between 0 and 1!");
 				System.exit(1);
 			}
 

@@ -97,6 +97,8 @@ public class BlockGraph extends Graph {
 			addToIsland(island, firstBlock);
 
 			islands.add(island);
+			
+			System.out.println("Island " + islands.indexOf(island) + " done (size=" + island.getAllBlocks().size() + ")");
 
 			allBlocks.removeAll(island.getAllBlocks());
 		}
@@ -130,13 +132,13 @@ public class BlockGraph extends Graph {
 	// }
 
 	private void addToIsland(Island island, Block b) {
-		//System.out.println(island.getPopulation());
+		// System.out.println(island.getPopulation());
 		island.addBlock(b);
-		
-		ArrayList<Block> toAdd = b.neighbors;
-		toAdd.removeAll(island.getAllBlocks());
-		
-		for (Block bl : toAdd){
+
+		ArrayList<Block> toAdd = new ArrayList<Block>(b.neighbors);
+		toAdd.removeAll(island.getAllBlocks());//SLOOOOOOOW
+
+		for (Block bl : toAdd) {
 			addToIsland(island, bl);
 		}
 	}

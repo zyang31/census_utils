@@ -33,10 +33,14 @@ public abstract class RedistrictingAlgorithm {
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			String galFile) {
 		this.loader = loader;
+		
+		System.out.println("Loading files");
 		bg = loader.load(source, galFile);
 		
 		//islands = new ArrayList<Island>();
+		System.out.println("Finding islands");
 		islands = bg.toIslands();
+		System.out.println("Found " + islands.size() + " islands");
 
 		// TEST
 		// for (Island i : islands){
