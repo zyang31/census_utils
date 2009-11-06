@@ -80,6 +80,7 @@ public abstract class RedistrictingAlgorithm {
 			District dist = new District(currentDistNo);
 			// add the most populated block
 			ArrayList<Block> expandFrom = new ArrayList<Block>();
+			dist.addBlock(mainlandBlocks.get(0));
 			expandFrom.add(mainlandBlocks.get(0));
 			mainlandBlocks.removeAll(expandFrom);// needed?
 
@@ -97,24 +98,24 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 
-				System.out.println(candidates.size() + " candidates");
+//				System.out.println(candidates.size() + " candidates");
 
 				ArrayList<Block> blocksToAdd = chooseNeighbors(dist
 						.getPopulation(), candidates);
 
 				dist.addAllBlocks(blocksToAdd);
 				// TEST
-				System.out.println("District " + dist.getDistrictNo() + ": "
-						+ dist.getPopulation());
+//				System.out.println("District " + dist.getDistrictNo() + ": "
+//						+ dist.getPopulation());
 
 				mainlandBlocks.removeAll(blocksToAdd);
 
 				expandFrom = blocksToAdd;
 			}
 
-			System.out.println("District " + dist.getDistrictNo() + ": "
-					+ dist.getPopulation() + " (" + dist.getAllBlocks().size()
-					+ ")");
+//			System.out.println("District " + dist.getDistrictNo() + ": "
+//					+ dist.getPopulation() + " (" + dist.getAllBlocks().size()
+//					+ ")");
 
 			bg.addDistrict(dist);
 
@@ -155,8 +156,7 @@ public abstract class RedistrictingAlgorithm {
 			int option1;
 			// take item n
 			int option2 = Integer.MIN_VALUE;
-			;
-
+			
 			if (n > 0) {
 				option1 = opt[n - 1];
 				if (population[n] + population[n - 1] <= maxPopulation)
@@ -173,10 +173,8 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 		// determine which items to take
-		System.out.println("Will take:");
-		for (int n = blocks.size() - 1; n > 0; n--) {
+		for (int n = blocks.size() - 1; n >= 0; n--) {
 			if (sol[n]) {
-				System.out.println("Block " + n);
 				blocksToTake.add(blocks.get(n));
 			}
 		}
