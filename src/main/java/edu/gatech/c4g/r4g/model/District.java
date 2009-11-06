@@ -28,7 +28,6 @@ import java.util.Hashtable;
  */
 public class District extends Graph {
 	private int districtNo;
-	private Hashtable<Integer, Block> blocks;
 
 	public District(int districtNo) {
 		blocks = new Hashtable<Integer, Block>();
@@ -40,24 +39,13 @@ public class District extends Graph {
 	}
 
 	public void addBlock(Block b) {
+		super.addBlock(b);
 		b.setDistNo(districtNo);
-		blocks.put(b.getId(), b);
-		population += b.getPopulation();
 	}
 
 	public void removeBlock(Block b) {
+		super.removeBlock(b);
 		b.setDistNo(Block.UNASSIGNED);
-		blocks.remove(b.getId());
-		population -= b.getPopulation();
-	}
-	
-	public Collection<Block> getAllBlocks(){
-		return blocks.values();
 	}
 
-	public void addAllBlocks(Collection<Block> c) {
-		for (Block b : c) {
-			addBlock(b);
-		}
-	}
 }

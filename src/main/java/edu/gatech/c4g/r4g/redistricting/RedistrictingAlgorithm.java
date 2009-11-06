@@ -33,11 +33,11 @@ public abstract class RedistrictingAlgorithm {
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			String galFile) {
 		this.loader = loader;
-		
+
 		System.out.println("Loading files");
 		bg = loader.load(source, galFile);
-		
-		//islands = new ArrayList<Island>();
+
+		// islands = new ArrayList<Island>();
 		System.out.println("Finding islands");
 		islands = bg.toIslands();
 		System.out.println("Found " + islands.size() + " islands");
@@ -73,13 +73,13 @@ public abstract class RedistrictingAlgorithm {
 			// to
 			// LOG
 			// (log4j?)
-			
+
 			// sort the blocks by density
 			Collections.sort(mainlandBlocks, new BlockDensityComparator());
 
 			District dist = new District(currentDistNo);
 			// add the most populated block
-			ArrayList<Block> expandFrom = new ArrayList<Block>(); 
+			ArrayList<Block> expandFrom = new ArrayList<Block>();
 			expandFrom.add(mainlandBlocks.get(0));
 			mainlandBlocks.removeAll(expandFrom);// needed?
 
@@ -89,14 +89,14 @@ public abstract class RedistrictingAlgorithm {
 
 				ArrayList<Block> candidates = new ArrayList<Block>();
 
-				for (Block b : expandFrom) {					
+				for (Block b : expandFrom) {
 					for (Block n : b.neighbors) {
 						if (n.getDistNo() == Block.UNASSIGNED) {
 							candidates.add(n);
 						}
 					}
 				}
-				
+
 				System.out.println(candidates.size() + " candidates");
 
 				ArrayList<Block> blocksToAdd = chooseNeighbors(dist
@@ -174,7 +174,7 @@ public abstract class RedistrictingAlgorithm {
 
 		// determine which items to take
 		System.out.println("Will take:");
-		for (int n = blocks.size(); n > 0; n--) {
+		for (int n = blocks.size() - 1; n > 0; n--) {
 			if (sol[n]) {
 				System.out.println("Block " + n);
 				blocksToTake.add(blocks.get(n));

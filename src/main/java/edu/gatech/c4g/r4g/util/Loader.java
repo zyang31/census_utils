@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -38,11 +39,13 @@ public abstract class Loader {
 		parseGal(bg, galFile);
 
 		// remove blocks with area 0
+		ArrayList<Block> toRemove = new ArrayList<Block>();
 		for (Block b : bg.getAllBlocks()) {
 			if (b.getArea() == 0) {
-				bg.removeBlock(b);
+				toRemove.add(b);
 			}
 		}
+		bg.removeAllBlocks(toRemove);
 
 		return bg;
 

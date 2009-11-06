@@ -15,7 +15,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class BlockGraph extends Graph {
-	private Hashtable<Integer, Block> blocks;
 	private ArrayList<District> distList;
 
 	public BlockGraph(FeatureSource<SimpleFeatureType, SimpleFeature> source) {
@@ -33,7 +32,7 @@ public class BlockGraph extends Graph {
 					SimpleFeature feature = i.next();
 
 					Block b = new Block(feature);
-					blocks.put(b.getId(), b);
+					addBlock(b);
 				}
 			} finally {
 				collection.close(iterator);
@@ -45,27 +44,12 @@ public class BlockGraph extends Graph {
 		}
 	}
 
-	@Override
-	public void addBlock(Block b) {
-		blocks.put(b.getId(), b);
-		population += b.getPopulation();
-	}
-
 	public void removeBlock(Block b) {
 		for (Block neighbor : b.neighbors) {
 			neighbor.neighbors.remove(b);
 		}
 
-		blocks.remove(b);
-	}
-
-	public Block getBlock(int index) {
-		return blocks.get(new Integer(index));
-	}
-
-	@Override
-	public Collection<Block> getAllBlocks() {
-		return blocks.values();
+		blocks.remove(b.getId());
 	}
 
 	public void addDistrict(District d) {
@@ -93,17 +77,13 @@ public class BlockGraph extends Graph {
 					% allBlocks.size();
 
 			Block firstBlock = allBlocks.get(start);
-			Island island = new Island();
-			addToIsland(island, firstBlock);
+			HashSet<Block> islandBlocks = new HashSet<Block>(); 
+			addToIsland(islandBlocks, firstBlock);
+			Island island = new Island(islandBlocks);
 
 			islands.add(island);
 
-			System.out.println("Island " + islands.indexOf(island)
-					+ " done (size=" + island.getAllBlocks().size() + ")");
-
-			allBlocks.removeAll(island.getAllBlocks());
-
-			System.out.println(allBlocks.size());
+			allBlocks.removeAll(islandBlocks);
 		}
 
 		Collections.sort(islands, new Comparator<Island>() {
@@ -122,28 +102,36 @@ public class BlockGraph extends Graph {
 		return islands;
 	}
 
-	// private void addToIsland(Island island, Block b) {
-	// if (!island.hasBlock(b)) {
-	// System.out.println("Adding block " + b.getId());
-	// island.addBlock(b);
-	// for (Block bl : b.neighbors) {
-	// if (!island.hasBlock(bl)) {
-	// addToIsland(island, bl);
-	// }
-	// }
-	// }
-	// }
-
-	private void addToIsland(Island island, Block b) {
-		// System.out.println(island.getPopulation());
-		island.addBlock(b);
-
-		ArrayList<Block> toAdd = b.neighbors;
-		toAdd.removeAll(island.getAllBlocks());
-
-		for (Block bl : toAdd) {
-			addToIsland(island, bl);
+	private void addToIsland(HashSet<Block> island, Block b) {
+		if (!island.contains(b)) {
+			island.add(b);
+			for (Block bl : b.neighbors) {
+				if (!island.contains(bl)) {
+					addToIsland(island, bl);
+				}
+			}
 		}
 	}
+
+	// private HashSet<Block> findIsland(Block startingBlock) {
+	// HashSet<Block> toAdd = new HashSet<Block>();
+	// toAdd.add(startingBlock);
+	//
+	// int oldSize = 0;
+	//
+	// while (oldSize < toAdd.size()) {
+	// oldSize = toAdd.size();
+	//
+	// HashSet<Block> newToAdd = new HashSet<Block>();
+	//
+	// for (Block b : toAdd) {
+	// newToAdd.addAll(b.neighbors);
+	// }
+	//
+	// toAdd.addAll(newToAdd);
+	// }
+	//
+	// return toAdd;
+	// }
 
 }

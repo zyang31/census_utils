@@ -1,5 +1,6 @@
 package edu.gatech.c4g.r4g.util;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -21,19 +22,24 @@ public class AustralianLoader extends Loader {
 			String galFile) {
 
 		BlockGraph bg = super.load(source, galFile);
+
 		return removeNaturalBorders(bg);
 	}
 
 	private BlockGraph removeNaturalBorders(BlockGraph bg) {
+		ArrayList<Block> toRemove = new ArrayList<Block>();
+		
 		for (Block b : bg.getAllBlocks()) {
 			SimpleFeature f = b.getFeature();
 			String cat = (String) f.getProperty("CATEGORY").getValue();
 			if (cat.equals(Block.CATEGORY_WATER)
 					|| cat.equals(Block.CATEGORY_SHIPPING)) {
-				bg.removeBlock(b);
+				toRemove.add(b);
 			}
 		}
 		
+		bg.removeAllBlocks(toRemove);
+
 		return bg;
 	}
 

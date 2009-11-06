@@ -17,6 +17,7 @@ import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import edu.gatech.c4g.r4g.model.Island;
 import edu.gatech.c4g.r4g.redistricting.AustralianRedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.redistricting.RedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.util.AustralianLoader;
