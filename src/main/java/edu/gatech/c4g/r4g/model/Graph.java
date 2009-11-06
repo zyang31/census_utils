@@ -31,4 +31,8 @@ public abstract class Graph {
 	public int getPopulation(){
 		return population;
 	}
+	
+	public boolean hasBlock(Block b){
+		return blocks.contains(b);
+	}
 }

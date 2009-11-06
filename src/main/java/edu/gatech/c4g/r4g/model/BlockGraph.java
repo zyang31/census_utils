@@ -97,10 +97,13 @@ public class BlockGraph extends Graph {
 			addToIsland(island, firstBlock);
 
 			islands.add(island);
-			
-			System.out.println("Island " + islands.indexOf(island) + " done (size=" + island.getAllBlocks().size() + ")");
+
+			System.out.println("Island " + islands.indexOf(island)
+					+ " done (size=" + island.getAllBlocks().size() + ")");
 
 			allBlocks.removeAll(island.getAllBlocks());
+
+			System.out.println(allBlocks.size());
 		}
 
 		Collections.sort(islands, new Comparator<Island>() {
@@ -135,8 +138,8 @@ public class BlockGraph extends Graph {
 		// System.out.println(island.getPopulation());
 		island.addBlock(b);
 
-		ArrayList<Block> toAdd = new ArrayList<Block>(b.neighbors);
-		toAdd.removeAll(island.getAllBlocks());//SLOOOOOOOW
+		ArrayList<Block> toAdd = b.neighbors;
+		toAdd.removeAll(island.getAllBlocks());
 
 		for (Block bl : toAdd) {
 			addToIsland(island, bl);
