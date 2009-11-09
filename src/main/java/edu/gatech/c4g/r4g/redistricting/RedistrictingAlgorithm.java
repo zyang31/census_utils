@@ -64,25 +64,23 @@ public abstract class RedistrictingAlgorithm {
 		// redistrict mainland
 		ArrayList<Block> mainlandBlocks = new ArrayList<Block>();
 		mainlandBlocks.addAll(islands.get(0).getAllBlocks());
+		// sort the blocks by density
+		Collections.sort(mainlandBlocks, new BlockDensityComparator());
 
-		int currentDistNo = 1;
-
-		while (/* !mainlandBlocks.isEmpty() && */(currentDistNo <= ndis)) {
+		for (int currentDistNo = 1; currentDistNo <= ndis; currentDistNo++) {
 			System.out.println("Building district " + currentDistNo);// TODO
 			// transform
 			// to
 			// LOG
 			// (log4j?)
 
-			// sort the blocks by density
-			Collections.sort(mainlandBlocks, new BlockDensityComparator());
+			Block firstBlock = findFirstBlock(mainlandBlocks);
 
 			District dist = new District(currentDistNo);
 			// add the most populated block
-			ArrayList<Block> expandFrom = new ArrayList<Block>();
-			dist.addBlock(mainlandBlocks.get(0));
-			expandFrom.add(mainlandBlocks.get(0));
-			mainlandBlocks.removeAll(expandFrom);// needed?
+			HashSet<Block> expandFrom = new HashSet<Block>();
+			dist.addBlock(firstBlock);
+			expandFrom.add(firstBlock);
 
 			// the condition here must be fixed
 			while (!expandFrom.isEmpty()
@@ -98,35 +96,17 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 
-				// System.out.println(candidates.size() + " candidates");
-
-				ArrayList<Block> blocksToAdd = chooseNeighbors(dist
+				HashSet<Block> blocksToAdd = chooseNeighbors(dist
 						.getPopulation(), candidates);
-
 				dist.addAllBlocks(blocksToAdd);
-
-				// System.out.println(dist.getPopulation());
-
-				// TEST
-				// System.out.println("District " + dist.getDistrictNo() + ": "
-				// + dist.getPopulation());
-
-				mainlandBlocks.removeAll(blocksToAdd);
-
 				expandFrom = blocksToAdd;
 			}
 
-			// System.out.println("District " + dist.getDistrictNo() + ": "
-			// + dist.getPopulation() + " (" + dist.getAllBlocks().size()
-			// + ")");
-
 			bg.addDistrict(dist);
-
-			currentDistNo++;
 		}
 
 		// TEST
-		double totPop = idealPopulation * ndis;
+		double totPop = bg.getPopulation();
 
 		for (District d : bg.getDistList()) {
 			System.out.println("District " + d.getDistrictNo()
@@ -142,9 +122,24 @@ public abstract class RedistrictingAlgorithm {
 		// stage3
 	}
 
-	private ArrayList<Block> chooseNeighbors(int basePop,
-			ArrayList<Block> blocks) {
-		ArrayList<Block> blocksToTake = new ArrayList<Block>();
+	/**
+	 * Returns the first unassigned block. The block list should be ordered by
+	 * density using the {@link BlockDensityComparator}.
+	 * 
+	 * @return
+	 */
+	private Block findFirstBlock(ArrayList<Block> list) {
+		for (Block b : list) {
+			if (b.getDistNo() == Block.UNASSIGNED) {
+				return b;
+			}
+		}
+
+		return null;
+	}
+
+	private HashSet<Block> chooseNeighbors(int basePop, ArrayList<Block> blocks) {
+		HashSet<Block> blocksToTake = new HashSet<Block>();
 
 		int[] population = new int[blocks.size()];
 

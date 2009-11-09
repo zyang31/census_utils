@@ -39,8 +39,13 @@ public class District extends Graph {
 	}
 
 	public void addBlock(Block b) {
-		super.addBlock(b);
-		b.setDistNo(districtNo);
+		if (!blocks.containsKey(b.getId())) {
+			super.addBlock(b);
+			b.setDistNo(districtNo);
+			//TEST
+			System.out.println("Block " + b.getId() + " added to district "
+					+ districtNo);
+		}
 	}
 
 	public void removeBlock(Block b) {
