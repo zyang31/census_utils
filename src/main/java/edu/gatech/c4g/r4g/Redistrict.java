@@ -20,6 +20,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import edu.gatech.c4g.r4g.redistricting.AustralianRedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.redistricting.RedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.util.AustralianLoader;
+import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
 
@@ -79,8 +80,8 @@ public class Redistrict {
 			String galFile = filename.substring(0, filename.length() - 4)
 					+ ".GAL";
 
-			//MapView mv = new MapView(source);
-			//mv.showShapefile();
+			MapView mv = new MapView(source);
+			mv.showShapefile();
 
 			RedistrictingAlgorithm ra = null;
 
