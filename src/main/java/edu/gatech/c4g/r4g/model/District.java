@@ -1,7 +1,5 @@
 package edu.gatech.c4g.r4g.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 
 /**

@@ -2,8 +2,6 @@ package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
 
-import org.geotools.feature.GeometryAttributeImpl;
-import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 
