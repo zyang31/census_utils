@@ -108,14 +108,17 @@ public abstract class RedistrictingAlgorithm {
 		// TEST
 		double totPop = bg.getPopulation();
 
+		int usedblocks = 0;
+		
 		for (District d : bg.getDistList()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
 					+ (d.getPopulation() / totPop) * 100 + "%) ("
 					+ d.getAllBlocks().size() + " blocks)");
+			usedblocks+=d.getAllBlocks().size();
 		}
-
-		System.out.println("Unassigned blocks: " + mainlandBlocks.size());
+		
+		System.out.println("Unassigned blocks: " + (mainlandBlocks.size() - usedblocks));
 
 		// stage2
 
