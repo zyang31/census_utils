@@ -1,13 +1,9 @@
 package edu.gatech.c4g.r4g.redistricting;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -54,7 +50,7 @@ public abstract class RedistrictingAlgorithm {
 	 * @param ndis
 	 *            number of districts to create
 	 */
-	public void redistrict(int ndis, double maxDeviation) {
+	public void initialExpansion(int ndis, double maxDeviation) {
 		// calculate ideal population
 		idealPopulation = bg.getPopulation() / ndis;
 		minPopulation = idealPopulation - idealPopulation * maxDeviation;
@@ -78,26 +74,28 @@ public abstract class RedistrictingAlgorithm {
 
 			District dist = new District(currentDistNo);
 			// add the most populated block
-			HashSet<Block> expandFrom = new HashSet<Block>();
+			ArrayList<Block> expandFrom = new ArrayList<Block>();
 			dist.addBlock(firstBlock);
 			expandFrom.add(firstBlock);
 
 			// the condition here must be fixed
 			while (!expandFrom.isEmpty()
-					&& dist.getPopulation() <= idealPopulation) {
+					&& dist.getPopulation() <= minPopulation * .8) {
 
-				ArrayList<Block> candidates = new ArrayList<Block>();
+				ArrayList<Block> neighborsList = new ArrayList<Block>();
 
 				for (Block b : expandFrom) {
 					for (Block n : b.neighbors) {
 						if (n.getDistNo() == Block.UNASSIGNED) {
-							candidates.add(n);
+							if(!neighborsList.contains(n)){
+								neighborsList.add(n);
+							}
 						}
 					}
 				}
 
-				HashSet<Block> blocksToAdd = chooseNeighbors(dist
-						.getPopulation(), candidates);
+				ArrayList<Block> blocksToAdd = chooseNeighborsToAdd(dist
+						.getPopulation(), minPopulation, neighborsList);
 				dist.addAllBlocks(blocksToAdd);
 				expandFrom = blocksToAdd;
 			}
@@ -141,16 +139,36 @@ public abstract class RedistrictingAlgorithm {
 		return null;
 	}
 
-	private HashSet<Block> chooseNeighbors(int basePop, ArrayList<Block> blocks) {
-		HashSet<Block> blocksToTake = new HashSet<Block>();
-
+	private ArrayList<Block> chooseNeighborsToAdd(int basePop, double upperBound
+			,ArrayList<Block> blocks) {
+		//HashSet<Block> blocksToTake = new HashSet<Block>();
+		ArrayList<Block> returnList = new ArrayList<Block>();
 		int[] population = new int[blocks.size()];
-
-		// generate random instance, items 1..N
+		int totalPop = basePop;
+		// populate the population array
 		for (int n = 0; n < blocks.size(); n++) {
 			population[n] = blocks.get(n).getPopulation();
+			totalPop += blocks.get(n).getPopulation();
 		}
-
+		if(totalPop<=upperBound){
+			//add all blocks
+			return blocks;
+		}else{
+			Collections.sort(blocks);
+			int position=blocks.size()-1;
+			totalPop=basePop;
+			totalPop += blocks.get(position).getPopulation();
+			while(totalPop<=upperBound){
+				returnList.add(blocks.get(position));
+				position--;
+				totalPop += blocks.get(position).getPopulation();
+			}
+			return returnList;
+		}
+		
+		
+		
+		/*
 		// opt[n] = population obtained by taking blocks 1..n
 		// sol[n] = does opt solution to pack items 1..n include item n?
 		int[] opt = new int[blocks.size()];
@@ -164,11 +182,11 @@ public abstract class RedistrictingAlgorithm {
 
 			if (n > 0) {
 				option1 = opt[n - 1];
-				if (population[n] + population[n - 1] <= maxPopulation)
+				if (population[n] + population[n - 1] <= upperBound)
 					option2 = population[n] + opt[n - 1];
 			} else {
 				option1 = basePop;
-				if (population[n] + basePop <= maxPopulation)
+				if (population[n] + basePop <= upperBound)
 					option2 = population[n] + basePop;
 			}
 
@@ -183,8 +201,8 @@ public abstract class RedistrictingAlgorithm {
 				blocksToTake.add(blocks.get(n));
 			}
 		}
-
 		return blocksToTake;
+		*/
 	}
 
 	protected class BlockDensityComparator implements Comparator<Block> {

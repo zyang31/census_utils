@@ -97,7 +97,7 @@ public class Redistrict {
 			}
 
 			System.out.println("Redistricting. You can have a coffee while you are waiting");
-			ra.redistrict(ndis, maxDeviation);
+			ra.initialExpansion(ndis, maxDeviation);
 
 		} else {
 			printUsage(options);

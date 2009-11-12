@@ -6,9 +6,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.geotools.data.FeatureSource;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
-import org.geotools.map.MapLayer;
 import org.geotools.swing.JMapFrame;
-import org.geotools.swing.MapLayerTableCellRenderer;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 

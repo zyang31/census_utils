@@ -1,9 +1,7 @@
 package edu.gatech.c4g.r4g.model;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Map;
 
 public abstract class Graph {
 
