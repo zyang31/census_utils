@@ -7,7 +7,7 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-public class Block {
+public class Block implements Comparable<Block> {
 	public static final String POPULATION_FIELD = "TURPOP2006"; // to be
 	// externalized
 	public static final int UNASSIGNED = -1;
@@ -67,6 +67,13 @@ public class Block {
 	
 	public SimpleFeature getFeature(){
 		return feature;
+	}
+
+	public int compareTo(Block other) {
+		//uses population to compare
+		Integer selfPop = this.getPopulation();
+		Integer otherPop = other.getPopulation();
+		return selfPop.compareTo(otherPop);		
 	}
 
 }
