@@ -64,13 +64,9 @@ public abstract class RedistrictingAlgorithm {
 		Collections.sort(mainlandBlocks, new BlockDensityComparator());
 
 		for (int currentDistNo = 1; currentDistNo <= ndis; currentDistNo++) {
-			System.out.println("Building district " + currentDistNo);// TODO
-			// transform
-			// to
-			// LOG
-			// (log4j?)
+			System.out.println("Building district " + currentDistNo);// TODO log4j?
 
-			Block firstBlock = findFirstBlock(mainlandBlocks);
+			Block firstBlock = findFirstUnassignedBlock(mainlandBlocks);
 
 			District dist = new District(currentDistNo);
 			// add the most populated block
@@ -87,7 +83,7 @@ public abstract class RedistrictingAlgorithm {
 				for (Block b : expandFrom) {
 					for (Block n : b.neighbors) {
 						if (n.getDistNo() == Block.UNASSIGNED) {
-							if(!neighborsList.contains(n)){
+							if (!neighborsList.contains(n)) {
 								neighborsList.add(n);
 							}
 						}
@@ -107,16 +103,17 @@ public abstract class RedistrictingAlgorithm {
 		double totPop = bg.getPopulation();
 
 		int usedblocks = 0;
-		
+
 		for (District d : bg.getDistList()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
 					+ (d.getPopulation() / totPop) * 100 + "%) ("
 					+ d.getAllBlocks().size() + " blocks)");
-			usedblocks+=d.getAllBlocks().size();
+			usedblocks += d.getAllBlocks().size();
 		}
-		
-		System.out.println("Unassigned blocks: " + (mainlandBlocks.size() - usedblocks));
+
+		System.out.println("Unassigned blocks: "
+				+ (mainlandBlocks.size() - usedblocks));
 
 		// stage2
 
@@ -129,7 +126,7 @@ public abstract class RedistrictingAlgorithm {
 	 * 
 	 * @return
 	 */
-	private Block findFirstBlock(ArrayList<Block> list) {
+	private Block findFirstUnassignedBlock(ArrayList<Block> list) {
 		for (Block b : list) {
 			if (b.getDistNo() == Block.UNASSIGNED) {
 				return b;
@@ -139,70 +136,36 @@ public abstract class RedistrictingAlgorithm {
 		return null;
 	}
 
-	private ArrayList<Block> chooseNeighborsToAdd(int basePop, double upperBound
-			,ArrayList<Block> blocks) {
-		//HashSet<Block> blocksToTake = new HashSet<Block>();
+	private ArrayList<Block> chooseNeighborsToAdd(int basePop,
+			double upperBound, ArrayList<Block> blocks) {
+		// HashSet<Block> blocksToTake = new HashSet<Block>();
 		ArrayList<Block> returnList = new ArrayList<Block>();
 		int[] population = new int[blocks.size()];
 		int totalPop = basePop;
+		
 		// populate the population array
 		for (int n = 0; n < blocks.size(); n++) {
 			population[n] = blocks.get(n).getPopulation();
 			totalPop += blocks.get(n).getPopulation();
 		}
-		if(totalPop<=upperBound){
-			//add all blocks
+		
+		if (totalPop <= upperBound) {
+			// add all blocks
 			return blocks;
-		}else{
+		} else {
 			Collections.sort(blocks);
-			int position=blocks.size()-1;
-			totalPop=basePop;
+			int position = blocks.size() - 1;
+			totalPop = basePop;
 			totalPop += blocks.get(position).getPopulation();
-			while(totalPop<=upperBound){
+		
+			while (totalPop <= upperBound) {
 				returnList.add(blocks.get(position));
 				position--;
 				totalPop += blocks.get(position).getPopulation();
 			}
+			
 			return returnList;
 		}
-		
-		
-		
-		/*
-		// opt[n] = population obtained by taking blocks 1..n
-		// sol[n] = does opt solution to pack items 1..n include item n?
-		int[] opt = new int[blocks.size()];
-		boolean[] sol = new boolean[blocks.size()];
-
-		for (int n = 0; n < blocks.size(); n++) {
-			// don't take block n
-			int option1;
-			// take item n
-			int option2 = Integer.MIN_VALUE;
-
-			if (n > 0) {
-				option1 = opt[n - 1];
-				if (population[n] + population[n - 1] <= upperBound)
-					option2 = population[n] + opt[n - 1];
-			} else {
-				option1 = basePop;
-				if (population[n] + basePop <= upperBound)
-					option2 = population[n] + basePop;
-			}
-
-			// select better of two options
-			opt[n] = Math.max(option1, option2);
-			sol[n] = (option2 >= option1);
-		}
-
-		// determine which items to take
-		for (int n = blocks.size() - 1; n >= 0; n--) {
-			if (sol[n]) {
-				blocksToTake.add(blocks.get(n));
-			}
-		}
-		return blocksToTake;
-		*/
 	}
 
 	protected class BlockDensityComparator implements Comparator<Block> {
