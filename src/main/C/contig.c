@@ -29,7 +29,7 @@
 #include "blockcont.h"
 #include "utlist.h"
  
-#define TRUNCATE_UPTO 	10
+#define TRUNCATE_UPTO 	100
 #define TOLERANCE 	0.05
  
 #define TRUNCATE(var, convert) { \
@@ -278,14 +278,17 @@ void generate_neighbor_table()
      {
         temp_next = (bucket_list *)temp->next_block;
         while(temp_next != NULL)
-        {
-            if(checkCont(temp->block, temp_next->block))
-            {
-                  Add_to_NList(temp->block->nShapeId, temp_next->block->nShapeId);
-                  Add_to_NList(temp_next->block->nShapeId, temp->block->nShapeId);
-            }
+	  {
+	    if(checkCont(temp->block, temp_next->block))
+	      {
+		if(queen_Contig(temp->block, temp_next->block))
+		  {
+		    Add_to_NList(temp->block->nShapeId, temp_next->block->nShapeId);
+		    Add_to_NList(temp_next->block->nShapeId, temp->block->nShapeId);
+		  }
+	      }
             temp_next = (bucket_list *)temp_next->next_block;
-        }
+	  }
         temp = (bucket_list *)temp->next_block;
       }
   }

@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "shapefil.h"
 #include "blockcont.h"
-#define DBL_TOLERANCE 0.000000001 //TODO: get this exact value
+#define DBL_TOLERANCE 0.0000001 //TODO: get this exact value
 #define TRUE 1
 #define FALSE 0
+#define QUEEN_TOLERANCE DBL_TOLERANCE
 
 //UTList * neighbors; //TODO: malloc an array of x pointers to linked lists where x = block count
 //TODO: the neighbor list  should be in the main code
@@ -142,3 +144,17 @@ void callOverlapTestCode()
 
 }
 
+int queen_Contig(SHPObject *a, SHPObject *b)
+{
+  int i,j;
+  for(i=0;i<a->nVertices;i++){
+    for(j=0;j<b->nVertices;j++){
+      if(fabs(a->padfX[i] - b->padfX[j]) < QUEEN_TOLERANCE
+	 && fabs(a->padfY[i] - b->padfY[j] < QUEEN_TOLERANCE)){
+	printf("a = %f\t%f\tb=%f\t%f\n", a->padfX[i], a->padfY[i], b->padfX[j], b->padfY[j]);
+	return TRUE;
+      }
+    }
+  }	
+  return FALSE;
+}

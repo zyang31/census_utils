@@ -1,4 +1,4 @@
-CFLAGS = -c -Wall -g -O0
+CFLAGS = -c -Wall -lm -g -O0
 #remove -g -O0 when not debugging
 
 default: contig display
@@ -17,6 +17,6 @@ display.o: display.c
 
 blockcont.o: blockcont.c
 	$(CC) $(CFLAGS) blockcont.c -o blockcont.o
-	
+
 clean: 
 	rm -f contig contig.o display display.o blockcont blockcont.o
