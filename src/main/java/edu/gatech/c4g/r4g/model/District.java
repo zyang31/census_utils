@@ -1,6 +1,5 @@
-package redistricting;
+package edu.gatech.c4g.r4g.model;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
@@ -25,34 +24,35 @@ import java.util.Hashtable;
  * 
  * 
  */
-public class District {
+public class District extends Graph {
 	private int districtNo;
-	private int pop;
-	private Hashtable<Integer, Block> blockTable;
 
 	public District(int districtNo) {
+		blocks = new Hashtable<Integer, Block>();
 		this.districtNo = districtNo;
-	}
-
-	public int getPopulation() {
-//		int sum = 0;
-//		for (Block b : blockTable) {
-//			sum += b.population;
-//		}
-//		return sum;
-		return pop;
 	}
 
 	public int getDistrictNo() {
 		return districtNo;
 	}
 
-	public boolean hasBlock(Block b) {
-		return blockTable.contains(b);
+	public void addBlock(Block b) {
+		if (!blocks.containsKey(b.getId())) {
+			super.addBlock(b);
+			b.setDistNo(districtNo);
+			//TEST
+			System.out.println("Block " + b.getId() + " added to district "
+					+ districtNo);
+		}
 	}
-	
-	public void addBlock(Block b){
-		blockTable.put(b.recordNo, b);
-		pop += b.population;
+
+	public void removeBlock(Block b) {
+		super.removeBlock(b);
+		b.setDistNo(Block.UNASSIGNED);
 	}
+
+	public boolean isInRange(double min, double max) {
+		return (population > min) && (population <= max);
+	}
+
 }
