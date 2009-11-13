@@ -125,7 +125,7 @@ public class Redistrict {
 						"Max deviation allowed for the population of a district from the ideal population")
 				.create("d");
 		Option file = OptionBuilder.withArgName("input_file").hasArgs(1)
-				.withDescription("Specify the input file (without extension)")
+				.withDescription("Specify the input file (with .shp extension)")
 				.create("i");
 
 		options = new Options();
