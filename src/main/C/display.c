@@ -296,12 +296,11 @@ int main(){
     //write paths from centroid to centroid
     fputs("\t</g>\n", svg);
     fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
-    //Sumanth - Debug
-    /*for(i=0; i<entityCount; i++){
+    for(i=0; i<entityCount; i++){
                
       svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
-    }*/  
-    svg_neighbors(*shapeList[20], NLIST[20], xCentList, yCentList, svg);
+    }
+    //svg_neighbors(*shapeList[20], NLIST[20], xCentList, yCentList, svg);
     printf("Contiguity paths drawn.\n");
        
     //Free NLIST
