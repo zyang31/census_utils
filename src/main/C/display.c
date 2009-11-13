@@ -72,20 +72,29 @@ int polyCentroid(double x[], double y[], int n,
   return 2;
 } //end Graphics Gems code
 
-void colorArrange(int* array, int n){
-  unsigned int array_size = n+1;
+void colorArrange(int* array, int n, int nDists, char* distFile){
+  unsigned int distarray_size = nDists+1;
+  unsigned int *distArray = malloc(nDist*sizeof(unsigned int));
+  FILE *fp;
+  int blockno;
+  int distno;
+  fp = fopen(distFile, "r");
   //Sumanth - Debug
   unsigned int min=0xffffff;
   unsigned int max=0xffffff;
   //int min=0x000000;
-  unsigned int diff=(max-min)/array_size;
+  unsigned int diff=(max-min)/distarray_size;
   int i;
   //  int arrayLim;
   unsigned int current = max;
   //check array size here
-  for(i=0; i<array_size; i++){
-    array[i]=current;
+  for(i=0; i<distarray_size; i++){
+    distArray[i]=current;
     current=current-diff;
+  }
+  int count=0;
+  while(fscanf(fp, "%i %i", &blockno, &distno) != EOF){
+    array[count]=distArray[distno];
   }
 }
 
@@ -181,12 +190,14 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  int use_gal = 1;
-  int use_dist = 0;
+  int use_gal = 0;
+  int use_dist = 1;
   //For josh
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for sumanth
-  char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+  //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+  //for alice
+  char sf_name[]= "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -229,7 +240,7 @@ int main(){
   printf("SVG header printed.\n");
   //Call colorArrange:
   int *colorArray = malloc(entityCount*sizeof(int));;
-  colorArrange(colorArray,entityCount);
+  colorArrange(colorArray,entityCount, distCount, "/home/altheacynara/Documents/fultonData/distFile.dst");
 
   //write individual polygons
   for(i=0; i<entityCount; i++){
