@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "shapefil.h"
 #include "blockcont.h"
-#define DBL_TOLERANCE 0.000000000001 //TODO: get this exact value
+#define DBL_TOLERANCE 0.000000001 //TODO: get this exact value
 #define TRUE 1
 #define FALSE 0
 
@@ -38,6 +38,7 @@ int checkCont(SHPObject *a, SHPObject *b)
             }
             for(h=b->panPartStart[k];h<hLim;h++){
               if( checkOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
+              if(a->nShapeId == 20 || b->nShapeId == 20) {printf("\n 20 contig returning true for %d and %d \n", a->nShapeId, b->nShapeId); }
                 return TRUE;
               }
             }

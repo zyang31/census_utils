@@ -29,8 +29,8 @@
 #include "blockcont.h"
 #include "utlist.h"
  
-#define TRUNCATE_UPTO 1000
-#define TOLERANCE 0.005
+#define TRUNCATE_UPTO 	10
+#define TOLERANCE 	0.05
  
 #define TRUNCATE(var, convert) { \
 int temp = var*TRUNCATE_UPTO; \
@@ -287,7 +287,7 @@ void generate_neighbor_table()
             temp_next = (bucket_list *)temp_next->next_block;
         }
         temp = (bucket_list *)temp->next_block;
-     }
+      }
   }
 }
  
@@ -324,11 +324,11 @@ void print_neighbor_table()
 void Output_To_GAL()
 {
   int i;
-  char *str_bc = calloc(10, sizeof(char));
-  char *ego_label = calloc(10, sizeof(char));
+  char *str_bc = calloc(100, sizeof(char));
+  char *ego_label = calloc(100, sizeof(char));
   char *n_count = calloc(100, sizeof(char));
-  char *n_list = calloc(100, sizeof(char)); /*having three char ptrs will make writing into the .gal file faster */
-  char *temp_str = calloc(10, sizeof(char));
+  char *n_list = calloc(10000, sizeof(char)); /*having three char ptrs will make writing into the .gal file faster */
+  char *temp_str = calloc(100, sizeof(char));
   struct neighbor_list *temp;
   int fn_len = strlen(sf_name);
   char gal_filename[fn_len];
@@ -421,7 +421,7 @@ int main(){
   sort_NTABLE();
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
-  print_neighbor_table();
+  //print_neighbor_table();
   Output_To_GAL();
  
   //free all the items in the HT
