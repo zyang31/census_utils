@@ -74,7 +74,7 @@ int polyCentroid(double x[], double y[], int n,
 
 void colorArrange(int* array, int n, int nDists, char* distFile){
   unsigned int distarray_size = nDists+1;
-  unsigned int *distArray = malloc(nDist*sizeof(unsigned int));
+  unsigned int *distArray = malloc(nDists*sizeof(unsigned int));
   FILE *fp;
   int blockno;
   int distno;
@@ -239,8 +239,9 @@ int main(){
   svg_header(svg);
   printf("SVG header printed.\n");
   //Call colorArrange:
+  int ndists=1;
   int *colorArray = malloc(entityCount*sizeof(int));;
-  colorArrange(colorArray,entityCount, distCount, "/home/altheacynara/Documents/fultonData/distFile.dst");
+  colorArrange(colorArray,entityCount,ndists, "/home/altheacynara/Documents/fultonData/distFile.dst");
 
   //write individual polygons
   for(i=0; i<entityCount; i++){
