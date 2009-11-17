@@ -112,25 +112,4 @@ public class BlockGraph extends Graph {
 		}
 	}
 
-	// private HashSet<Block> findIsland(Block startingBlock) {
-	// HashSet<Block> toAdd = new HashSet<Block>();
-	// toAdd.add(startingBlock);
-	//
-	// int oldSize = 0;
-	//
-	// while (oldSize < toAdd.size()) {
-	// oldSize = toAdd.size();
-	//
-	// HashSet<Block> newToAdd = new HashSet<Block>();
-	//
-	// for (Block b : toAdd) {
-	// newToAdd.addAll(b.neighbors);
-	// }
-	//
-	// toAdd.addAll(newToAdd);
-	// }
-	//
-	// return toAdd;
-	// }
-
 }

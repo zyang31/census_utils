@@ -80,8 +80,8 @@ public class Redistrict {
 			String galFile = filename.substring(0, filename.length() - 4)
 					+ ".GAL";
 
-			//MapView mv = new MapView(source);
-			//mv.showShapefile();
+			MapView mv = new MapView(source);
+			mv.showShapefile();
 
 			RedistrictingAlgorithm ra = null;
 
@@ -125,7 +125,7 @@ public class Redistrict {
 						"Max deviation allowed for the population of a district from the ideal population")
 				.create("d");
 		Option file = OptionBuilder.withArgName("input_file").hasArgs(1)
-				.withDescription("Specify the input file (without extension)")
+				.withDescription("Specify the input file (with .shp extension)")
 				.create("i");
 
 		options = new Options();
