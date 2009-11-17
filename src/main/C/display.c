@@ -81,8 +81,7 @@ void colorArrange(int* array, int n, int nDists, char* distFile){
   fp = fopen(distFile, "r");
   //Sumanth - Debug
   unsigned int min=0xffffff;
-  unsigned int max=0xffffff;
-  //int min=0x000000;
+  unsigned int max=0x000000;
   unsigned int diff=(max-min)/distarray_size;
   int i;
   //  int arrayLim;
@@ -96,6 +95,7 @@ void colorArrange(int* array, int n, int nDists, char* distFile){
   while(fscanf(fp, "%i %i", &blockno, &distno) != EOF){
     array[count]=distArray[distno];
   }
+  free(distArray);
 }
 
 void svg_header(FILE *svg){
@@ -239,7 +239,7 @@ int main(){
   svg_header(svg);
   printf("SVG header printed.\n");
   //Call colorArrange:
-  int ndists=1;
+  int ndists=3;
   int *colorArray = malloc(entityCount*sizeof(int));;
   colorArrange(colorArray,entityCount,ndists, "/home/altheacynara/Documents/fultonData/distFile.dst");
 
