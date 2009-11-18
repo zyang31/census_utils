@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.SortedSet;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -119,7 +120,36 @@ public abstract class RedistrictingAlgorithm {
 
 		// stage3
 	}
-
+	
+	public void secondaryExpansion(int ndis, double maxDeviation) {
+		SortedSet<Block> unassigned;
+		Block current;
+			//Argument: a SortedSet of unassigned blocks
+			SortedSet<Block> leftOver;
+			while (unassigned.size()>0) {
+				int district = -1;
+				current = unassigned.last();
+				unassigned.remove(current);
+				for (Block b : current.neighbors) {
+					if (b.getDistNo() != Block.UNASSIGNED && b.district.populations <= maxPopulation) {
+						if (district==-1) {
+							district = b.getDistNo();
+						} else if (b.district.population < district.population) {
+							district = b.getDistNo();
+						}
+					}
+				}
+				if (district == -1) {
+					leftOver.(addCurrent);
+				} else {
+					bg.getDisList().get(district).add(current);
+				}
+			}
+			//all blocks are either assigned or left over
+			unassigned = leftOver;
+			//either put this inside one more loop or:
+			//Stage2(leftOver) as a tail recursive call (but this could cause stack overflow)
+	}
 	/**
 	 * Returns the first unassigned block. The block list should be ordered by
 	 * density using the {@link BlockDensityComparator}.
