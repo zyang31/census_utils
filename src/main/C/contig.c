@@ -98,6 +98,9 @@ HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
 char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+int **Sub_Graph_Head = NULL;
+int sub_graph_count = 0;
+int *visited = NULL;
  
 struct neighbor_list **NTABLE = NULL;
  
@@ -376,6 +379,70 @@ void Output_To_GAL()
   free(n_count);
   free(n_list);
   free(temp_str);
+  return;
+}
+
+void add_to_sub_graph(int *head, int *insert_here, int block_no)
+{
+  struct neighbor_list *temp = NULL; 
+
+  if(visited[block_no] == 1)
+    return;
+
+  visited[block_no] = 1;
+
+  /*populate with the neighbors of block_no*/
+  temp = NTABLE[block_no];
+  while(temp!=NULL)
+  {
+     if(!visited[temp->index])
+     {
+       *insert_here = temp->index;
+       insert_here++;
+     }
+     temp = temp->next;
+  }
+  head++;
+  if(head != NULL)
+    add_to_sub_graph(head, insert_here, *head);
+
+  return;
+}
+
+/* compute_Sub_Graphs computes the subgraphs which are disconnected.
+ * It returns the number of subgraphs.
+ * Have array included_Blocks[blockCount]. Initialize all of them to 0.
+ * Do a breadth first on each node in the neibhbor list. If the node is not already included in any subgraph add it.
+ */
+
+void compute_Sub_Graphs()
+{
+  int i;
+  Sub_Graph_Head = malloc(block_count * sizeof(int *));
+  int included_Blocks[block_count];
+  bzero(included_Blocks, block_count);
+  visited = malloc(block_count * sizeof(int));
+
+  for(i=0;i<block_count;i++) 
+  {
+    /*do not traverse the block if it already traversed*/
+    if(visited[i] == 1)
+    {
+      printf("\n %d already traversed \n", i);
+    }
+    else
+    {
+      int *head, *next;
+      Sub_Graph_Head[sub_graph_count] = malloc(block_count * sizeof(int));
+      head = Sub_Graph_Head[sub_graph_count];
+      bzero(head, block_count);
+      head[0] = i; /* the first element of the subgraph is the block itself*/
+      next = head + 1;
+      add_to_sub_graph(head, next, i);
+      sub_graph_count++;
+    }
+  }
+
   return;
 }
  
