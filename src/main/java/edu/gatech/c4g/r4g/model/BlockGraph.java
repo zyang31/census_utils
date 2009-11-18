@@ -76,7 +76,7 @@ public class BlockGraph extends Graph {
 					% allBlocks.size();
 
 			Block firstBlock = allBlocks.get(start);
-			HashSet<Block> islandBlocks = new HashSet<Block>(); 
+			HashSet<Block> islandBlocks = new HashSet<Block>();
 			addToIsland(islandBlocks, firstBlock);
 			Island island = new Island(islandBlocks);
 
@@ -102,7 +102,7 @@ public class BlockGraph extends Graph {
 	}
 
 	private void addToIsland(HashSet<Block> island, Block b) {
-		if (!island.contains(b)) {
+		if (!island.contains(b) && b.getDistNo() == Block.UNASSIGNED) {
 			island.add(b);
 			for (Block bl : b.neighbors) {
 				if (!island.contains(bl)) {
