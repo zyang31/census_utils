@@ -74,7 +74,7 @@ int polyCentroid(double x[], double y[], int n,
 
 void colorArrange(int* array, int n, int nDists, char* distFile){
   unsigned int distarray_size = nDists+1;
-  unsigned int *distArray = malloc(nDists*sizeof(unsigned int));
+  unsigned int *distArray = malloc((nDists+1)*sizeof(unsigned int));
   FILE *fp;
   int blockno;
   int distno;
@@ -82,18 +82,21 @@ void colorArrange(int* array, int n, int nDists, char* distFile){
   //Sumanth - Debug
   unsigned int min=0xffffff;
   unsigned int max=0x000000;
-  unsigned int diff=(max-min)/distarray_size;
+  unsigned int diff=(min-max)/distarray_size;
+printf("min=%x max=%x distarray_size=%x diff=%x  ",min, max,distarray_size, diff);
   int i;
   //  int arrayLim;
   unsigned int current = max;
   //check array size here
   for(i=0; i<distarray_size; i++){
+printf("current=%x  ", current);
     distArray[i]=current;
-    current=current-diff;
+    current=current+diff;
   }
   int count=0;
   while(fscanf(fp, "%i %i", &blockno, &distno) != EOF){
     array[count]=distArray[distno];
+    printf("%xi   ",distArray[distno]);
   }
   free(distArray);
   fclose(fp);
@@ -240,7 +243,7 @@ int main(){
   svg_header(svg);
   printf("SVG header printed.\n");
   //Call colorArrange:
-  int ndists=4;
+  int ndists=3;
   int *colorArray = malloc(entityCount*sizeof(int));;
   colorArrange(colorArray,entityCount,ndists, "/home/altheacynara/Documents/fultonData/distFile.dst");
 
