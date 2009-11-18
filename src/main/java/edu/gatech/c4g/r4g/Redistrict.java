@@ -81,7 +81,7 @@ public class Redistrict {
 					+ ".GAL";
 
 			MapView mv = new MapView(source);
-			mv.showShapefile();
+			//mv.showShapefile();
 
 			RedistrictingAlgorithm ra = null;
 

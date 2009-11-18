@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -54,7 +55,7 @@ public class BlockGraph extends Graph {
 	}
 
 	public SortedSet<Block> getUnassigned() {
-		SortedSet<Block> unassigned = null;
+		SortedSet<Block> unassigned = new TreeSet<Block>();
 		for (Block b: blocks.values()) {
 			if(b.getDistNo() == -1)
 				unassigned.add(b);
