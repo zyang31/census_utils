@@ -96,6 +96,7 @@ void colorArrange(int* array, int n, int nDists, char* distFile){
     array[count]=distArray[distno];
   }
   free(distArray);
+  fclose(fp);
 }
 
 void svg_header(FILE *svg){
@@ -239,7 +240,7 @@ int main(){
   svg_header(svg);
   printf("SVG header printed.\n");
   //Call colorArrange:
-  int ndists=3;
+  int ndists=4;
   int *colorArray = malloc(entityCount*sizeof(int));;
   colorArrange(colorArray,entityCount,ndists, "/home/altheacynara/Documents/fultonData/distFile.dst");
 
