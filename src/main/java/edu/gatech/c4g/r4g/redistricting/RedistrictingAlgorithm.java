@@ -104,7 +104,7 @@ public abstract class RedistrictingAlgorithm {
 
 		int usedblocks = 0;
 
-		for (District d : bg.getDistList()) {
+		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
 					+ (d.getPopulation() / totPop) * 100 + "%) ("
