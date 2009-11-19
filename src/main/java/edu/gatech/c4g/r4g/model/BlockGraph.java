@@ -67,6 +67,9 @@ public class BlockGraph extends Graph {
 	}
 
 	public District getDistrict(int distNo) {
+		if (distNo == Block.UNASSIGNED){
+			return null;
+		}
 		return districts.get(new Integer(distNo));
 	}
 

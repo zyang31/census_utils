@@ -142,39 +142,44 @@ public abstract class RedistrictingAlgorithm {
 	public void secondaryExpansion(Island mainland) {		
 		ArrayList<Block> unassigned = mainland.getUnassigned();
 		
-		Block current;
 		// Argument: a SortedSet of unassigned blocks
-		int oldsize = 0;
-		int newsize = unassigned.size();
 		boolean ignorePopulation = false;
 		for (int i = 0; i < 2; i++) {
+			int oldsize = 0;
+			int newsize = unassigned.size();
+			
 			while (oldsize != newsize) {
-				do {
+				for (Block current : unassigned){
 					int district = Block.UNASSIGNED;
-					current = unassigned.get(unassigned.size() - 1);
-					
-					unassigned.remove(current);
 
+					if (current.neighbors.isEmpty()){
+						System.out.println("Block " + current.getId() + " has no neighbors!!");
+					}
+					
 					for (Block b : current.neighbors) {
-						if (b.getDistNo() != Block.UNASSIGNED
-								/*&& (ignorePopulation || bg.getDistrict(
-										b.getDistNo()).getPopulation() <= maxPopulation)*/) {
-							if (district == Block.UNASSIGNED
-									|| bg.getDistrict(b.getDistNo())
-											.getPopulation() < bg.getDistrict(
-											district).getPopulation()) {
-								district = b.getDistNo();
+						if (b.getDistNo() != Block.UNASSIGNED){
+							District d = bg.getDistrict(b.getDistNo());
+							int pop = d.getPopulation();
+							if (pop <= maxPopulation || ignorePopulation){
+								if (district == Block.UNASSIGNED){
+									district = b.getDistNo();
+								} else {
+									District currentD = bg.getDistrict(district);
+									int newPop = currentD.getPopulation();
+									district = pop < newPop ? b.getDistNo() : district; 
+								}
 							}
 						}
 					}
+					
 					if (district != Block.UNASSIGNED) {
 						bg.getDistrict(district).addBlock(current);
 	
 						//System.out.println(unassigned.size());
 					}
-				} while (!unassigned.isEmpty());
+				}
 				oldsize = newsize;
-				unassigned = bg.getUnassigned();
+				unassigned = mainland.getUnassigned();
 				newsize = unassigned.size();
 			}
 			ignorePopulation = true;
