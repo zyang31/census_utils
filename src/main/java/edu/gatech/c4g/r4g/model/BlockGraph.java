@@ -8,6 +8,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -52,6 +54,14 @@ public class BlockGraph extends Graph {
 		blocks.remove(b.getId());
 	}
 
+	public SortedSet<Block> getUnassigned() {
+		SortedSet<Block> unassigned = new TreeSet<Block>();
+		for (Block b: blocks.values()) {
+			if(b.getDistNo() == -1)
+				unassigned.add(b);
+		}
+		return unassigned;
+	}
 	public void addDistrict(District d) {
 		districts.put(d.getDistrictNo(),d);
 	}
