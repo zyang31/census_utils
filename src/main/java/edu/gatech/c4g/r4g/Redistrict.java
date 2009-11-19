@@ -20,6 +20,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import edu.gatech.c4g.r4g.redistricting.AustralianRedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.redistricting.RedistrictingAlgorithm;
 import edu.gatech.c4g.r4g.util.AustralianLoader;
+import edu.gatech.c4g.r4g.util.Saver;
 import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
@@ -98,6 +99,8 @@ public class Redistrict {
 
 			System.out.println("Redistricting. You can have a coffee while you are waiting");
 			ra.initialExpansion(ndis, maxDeviation);
+			
+			Saver.save(ra.getBlockGraph(), filename.substring(0, filename.length() - 4));
 
 		} else {
 			printUsage(options);

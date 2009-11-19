@@ -2,75 +2,115 @@ package edu.gatech.c4g.r4g.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+
+import org.geotools.data.DataAccess;
+import org.geotools.data.DataStore;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureStore;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.shapefile.ShpFiles;
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.dbf.DbaseFileWriter;
+import org.geotools.feature.FeatureIterator;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
+import com.sun.rowset.internal.Row;
 
 import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
 public class Saver {
+
 	public static void save(BlockGraph bg, String outputFile) {
 		// part 1 - add district to dbf
+		System.out.println("Writing new DBF file to " + outputFile + "_"
+				+ bg.getDistrictCount() + ".dbf");
 		saveDBF(bg, new File(outputFile + ".dbf"), new File(outputFile + "_"
 				+ bg.getDistrictCount() + ".dbf"));
 
 		// part 2 - write which blocks are in which district
+		System.out.println("Saving districting data to " + outputFile + ".dst");
 		saveDST(bg, new File(outputFile + ".dst"));
 	}
 
 	private static void saveDBF(BlockGraph bg, File original, File outFile) {
-		// ArrayList<DBFField> originalFields;
-		//
-		// FileInputStream fis;
-		// try {
-		// fis = new FileInputStream(original);
-		// DBFReader reader = new DBFReader(fis);
-		//
-		// // read existing fields
-		// int fcount = reader.getFieldCount();
-		// originalFields = new ArrayList<DBFField>(fcount);
-		//
-		// for (int i = 0; i < fcount; i++) {
-		// originalFields.add(reader.getField(i));
-		// }
-		//
-		// // create new district field
-		// DBFField distField = new DBFField();
-		// distField.setName("DISTRICT");
-		// distField.setDataType(DBFField.FIELD_TYPE_N);
-		// distField.setFieldLength(4);
-		//
-		// // initialize writer
-		// DBFWriter writer = new DBFWriter();
-		//
-		// // create and write records
-		// Object[] record;
-		// int currentBlock = 1;
-		// while ((record = reader.nextRecord()) != null) {
-		// Object[] newRecord = new Object[record.length + 1];
-		// System.arraycopy(record, 0, newRecord, 0, record.length);
-		// Block block = blockTable.get(new Integer(currentBlock));
-		// newRecord[record.length] = getBlockDistrictNo(block);
-		// writer.addRecord(newRecord);
-		// currentBlock++;
-		// }
-		//
-		// // write to file
-		// FileOutputStream fos = new FileOutputStream(outFile);
-		// writer.write(fos);
-		//
-		// fos.close();
-		// fis.close();
-		//
-		// } catch (FileNotFoundException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } catch (DBFException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		ArrayList<Block> blocks = new ArrayList<Block>(bg.getAllBlocks());
+		Collections.sort(blocks, new Comparator<Block>() {
+
+			public int compare(Block o1, Block o2) {
+				return o1.getId() - o2.getId();
+			}
+
+		});
+
+		FileChannel in;
+		FileChannel out;
+		try {
+			// read the original header
+			in = new FileInputStream(original).getChannel();
+			DbaseFileReader r = new DbaseFileReader(in, false, Charset
+					.defaultCharset());
+			DbaseFileHeader header = r.getHeader();
+
+			DbaseFileHeader newHeader = new DbaseFileHeader();
+
+			for (int i = 0; i < header.getNumFields(); i++) {
+				newHeader.addColumn(header.getFieldName(i), header
+						.getFieldType(i), header.getFieldLength(i), header
+						.getFieldDecimalCount(i));
+			}
+
+			newHeader.addColumn("DISTRICT", 'N', 4, 0);
+
+			out = new FileOutputStream(outFile).getChannel();
+			DbaseFileWriter w = new DbaseFileWriter(newHeader, out);
+
+			int currentBlock = 0;
+			while (r.hasNext()) {
+				DbaseFileReader.Row row = r.readRow();
+
+				for (int i = 0; i < header.getNumFields(); i++) { // do stuff
+					row.read(i);
+				}
+
+				Object[] record = r.readEntry();
+				Object[] newRecord = new Object[record.length + 1];
+				System.arraycopy(record, 0, newRecord, 0, record.length);
+				if (blocks.get(currentBlock).getId() == currentBlock) {
+					newRecord[record.length] = blocks.get(currentBlock)
+							.getDistNo();
+					currentBlock++;
+				} else {
+					newRecord[record.length] = Block.UNASSIGNED;
+				}
+				w.write(newRecord);
+
+			}
+
+			r.close();
+			w.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void saveDST(BlockGraph bg, File dstFile) {
@@ -80,7 +120,8 @@ public class Saver {
 			BufferedWriter out = new BufferedWriter(fstream);
 
 			// write block count and district count
-			out.write(bg.getAllBlocks().size() + " " + bg.getDistrictCount() + "\n");
+			out.write(bg.getAllBlocks().size() + " " + bg.getDistrictCount()
+					+ "\n");
 
 			for (Block b : bg.getAllBlocks()) {
 				out.write(b.getId() + " " + b.getDistNo() + "\n");

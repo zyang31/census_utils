@@ -168,6 +168,10 @@ public abstract class RedistrictingAlgorithm {
 		}
 	}
 
+	public BlockGraph getBlockGraph(){
+		return bg;
+	}
+	
 	protected class BlockDensityComparator implements Comparator<Block> {
 
 		public int compare(Block o1, Block o2) {
@@ -180,4 +184,5 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 	}
+	
 }
