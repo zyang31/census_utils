@@ -17,7 +17,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class BlockGraph extends Graph {
-	private Hashtable<Integer,District> districts;
+	private Hashtable<Integer, District> districts;
 
 	public BlockGraph(FeatureSource<SimpleFeatureType, SimpleFeature> source) {
 		this.blocks = new Hashtable<Integer, Block>();
@@ -54,30 +54,22 @@ public class BlockGraph extends Graph {
 		blocks.remove(b.getId());
 	}
 
-	public SortedSet<Block> getUnassigned() {
-		SortedSet<Block> unassigned = new TreeSet<Block>();
-		for (Block b: blocks.values()) {
-			if(b.getDistNo() == -1)
-				unassigned.add(b);
-		}
-		return unassigned;
-	}
 	public void addDistrict(District d) {
-		districts.put(d.getDistrictNo(),d);
+		districts.put(d.getDistrictNo(), d);
 	}
 
 	public int getDistrictCount() {
 		return districts.size();
 	}
 
-	public Collection<District> getAllDistricts(){
+	public Collection<District> getAllDistricts() {
 		return districts.values();
 	}
-	
-	public District getDistrict(int distNo){
+
+	public District getDistrict(int distNo) {
 		return districts.get(new Integer(distNo));
 	}
-	
+
 	/**
 	 * Returns a list containing all the islands in the graph sorted by number
 	 * of blocks.

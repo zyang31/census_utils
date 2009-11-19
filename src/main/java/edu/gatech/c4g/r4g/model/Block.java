@@ -1,6 +1,7 @@
 package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
@@ -10,7 +11,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 public class Block implements Comparable<Block> {
 	public static final String POPULATION_FIELD = "TURPOP2006"; // to be
 	// externalized
-	public static final int UNASSIGNED = -1;
+	public static final int UNASSIGNED = 0;
 	public static final String CATEGORY_WATER = "Water";
 	public static final String CATEGORY_SHIPPING = "Shipping";
 
@@ -20,7 +21,7 @@ public class Block implements Comparable<Block> {
 
 	private SimpleFeature feature;
 	private MultiPolygon polygon;
-	public ArrayList<Block> neighbors;
+	public HashSet<Block> neighbors;
 
 	public Block(SimpleFeature sf) {
 		feature = sf;
@@ -30,7 +31,7 @@ public class Block implements Comparable<Block> {
 		// GAL files
 		String fId = sf.getID();
 		id = Integer.parseInt(fId.substring(fId.lastIndexOf('.') + 1));
-		neighbors = new ArrayList<Block>();
+		neighbors = new HashSet<Block>();
 	}
 
 	public int getId() {
@@ -74,6 +75,14 @@ public class Block implements Comparable<Block> {
 		Integer selfPop = this.getPopulation();
 		Integer otherPop = other.getPopulation();
 		return selfPop.compareTo(otherPop);		
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Block){
+			return ((Block)obj).getId() == id;
+		}
+		return false;
 	}
 
 }

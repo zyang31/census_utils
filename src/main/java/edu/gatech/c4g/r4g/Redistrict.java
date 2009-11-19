@@ -62,9 +62,10 @@ public class Redistrict {
 				System.err.println("A shapefile must be selected!");
 				System.exit(1);
 			}
-			
-			double maxDeviation = Double.parseDouble(commandLine.getOptionValue('d')); 
-			if ((maxDeviation > 1) || (maxDeviation < 0)){
+
+			double maxDeviation = Double.parseDouble(commandLine
+					.getOptionValue('d'));
+			if ((maxDeviation > 1) || (maxDeviation < 0)) {
 				System.err.println("Max Deviation must be between 0 and 1!");
 				System.exit(1);
 			}
@@ -82,7 +83,7 @@ public class Redistrict {
 					+ ".GAL";
 
 			MapView mv = new MapView(source);
-			//mv.showShapefile();
+			// mv.showShapefile();
 
 			RedistrictingAlgorithm ra = null;
 
@@ -97,10 +98,12 @@ public class Redistrict {
 				System.exit(1);
 			}
 
-			System.out.println("Redistricting. You can have a coffee while you are waiting");
+			System.out
+					.println("Redistricting. You can have a coffee while you are waiting");
 			ra.initialExpansion(ndis, maxDeviation);
-			
-			Saver.save(ra.getBlockGraph(), filename.substring(0, filename.length() - 4));
+
+			Saver.save(source, ra.getBlockGraph(), filename.substring(0,
+					filename.length() - 4));
 
 		} else {
 			printUsage(options);
@@ -127,7 +130,9 @@ public class Redistrict {
 				.withDescription(
 						"Max deviation allowed for the population of a district from the ideal population")
 				.create("d");
-		Option file = OptionBuilder.withArgName("input_file").hasArgs(1)
+		Option file = OptionBuilder
+				.withArgName("input_file")
+				.hasArgs(1)
 				.withDescription("Specify the input file (with .shp extension)")
 				.create("i");
 
