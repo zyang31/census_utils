@@ -1,6 +1,9 @@
 package edu.gatech.c4g.r4g.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 /**
  * Copyright (C) 2009
@@ -36,7 +39,34 @@ public class District extends Graph {
 			b.setDistNo(districtNo);
 		}
 	}
+	
+	public Hashtable<Integer, Block> getBorderingBlocks(){
+		Hashtable<Integer,Block> neighbors = new Hashtable<Integer, Block>();
+		for (Block b:blocks.values()){
+			Iterator<Block> i = b.neighbors.iterator();
+			while(i.hasNext()) {
+				Block a = i.next();
+				if (a.getDistNo() != b.getDistNo()){
+					neighbors.put(a.getDistNo(), a);
+				}
+			}
+		}
+		return neighbors;
+	}
+	
+	public ArrayList<Block> getUnassigned() {
+		ArrayList<Block> unassigned = new ArrayList<Block>();
 
+		for (Block b : blocks.values()) {
+			
+			if (b.getDistNo() == Block.UNASSIGNED)
+				unassigned.add(b);
+		}
+		
+		Collections.sort(unassigned);
+		return unassigned;
+	}
+	
 	public void removeBlock(Block b) {
 		super.removeBlock(b);
 		b.setDistNo(Block.UNASSIGNED);
