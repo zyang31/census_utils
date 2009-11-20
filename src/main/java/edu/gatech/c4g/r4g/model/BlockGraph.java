@@ -2,11 +2,14 @@ package edu.gatech.c4g.r4g.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -14,11 +17,11 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class BlockGraph extends Graph {
-	private ArrayList<District> distList;
+	private Hashtable<Integer, District> districts;
 
 	public BlockGraph(FeatureSource<SimpleFeatureType, SimpleFeature> source) {
 		this.blocks = new Hashtable<Integer, Block>();
-		this.distList = new ArrayList<District>();
+		this.districts = new Hashtable<Integer, District>();
 
 		try {
 			FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source
@@ -52,15 +55,22 @@ public class BlockGraph extends Graph {
 	}
 
 	public void addDistrict(District d) {
-		distList.add(d);
+		districts.put(d.getDistrictNo(), d);
 	}
 
 	public int getDistrictCount() {
-		return distList.size();
+		return districts.size();
 	}
 
-	public ArrayList<District> getDistList() {
-		return distList;
+	public Collection<District> getAllDistricts() {
+		return districts.values();
+	}
+
+	public District getDistrict(int distNo) {
+		if (distNo == Block.UNASSIGNED){
+			return null;
+		}
+		return districts.get(new Integer(distNo));
 	}
 
 	/**
@@ -76,7 +86,7 @@ public class BlockGraph extends Graph {
 					% allBlocks.size();
 
 			Block firstBlock = allBlocks.get(start);
-			HashSet<Block> islandBlocks = new HashSet<Block>(); 
+			HashSet<Block> islandBlocks = new HashSet<Block>();
 			addToIsland(islandBlocks, firstBlock);
 			Island island = new Island(islandBlocks);
 
@@ -102,7 +112,7 @@ public class BlockGraph extends Graph {
 	}
 
 	private void addToIsland(HashSet<Block> island, Block b) {
-		if (!island.contains(b)) {
+		if (!island.contains(b) && b.getDistNo() == Block.UNASSIGNED) {
 			island.add(b);
 			for (Block bl : b.neighbors) {
 				if (!island.contains(bl)) {

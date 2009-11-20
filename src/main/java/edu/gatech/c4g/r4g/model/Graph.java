@@ -1,6 +1,8 @@
 package edu.gatech.c4g.r4g.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 
 public abstract class Graph {
@@ -48,5 +50,18 @@ public abstract class Graph {
 	
 	public boolean hasBlock(Block b){
 		return blocks.contains(b);
+	}
+	
+	public ArrayList<Block> getUnassigned() {
+		ArrayList<Block> unassigned = new ArrayList<Block>();
+
+		for (Block b : blocks.values()) {
+			
+			if (b.getDistNo() == Block.UNASSIGNED)
+				unassigned.add(b);
+		}
+		
+		Collections.sort(unassigned);
+		return unassigned;
 	}
 }

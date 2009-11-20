@@ -1,9 +1,13 @@
 package edu.gatech.c4g.r4g.redistricting;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.SortedSet;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -58,13 +62,15 @@ public abstract class RedistrictingAlgorithm {
 
 		// STAGE 1
 		// redistrict mainland
+		Island mainland = islands.get(0);
 		ArrayList<Block> mainlandBlocks = new ArrayList<Block>();
-		mainlandBlocks.addAll(islands.get(0).getAllBlocks());
+		mainlandBlocks.addAll(mainland.getAllBlocks());
 		// sort the blocks by density
 		Collections.sort(mainlandBlocks, new BlockDensityComparator());
 
 		for (int currentDistNo = 1; currentDistNo <= ndis; currentDistNo++) {
-			System.out.println("Building district " + currentDistNo);// TODO log4j?
+			System.out.println("Building district " + currentDistNo);// TODO
+			// log4j?
 
 			Block firstBlock = findFirstUnassignedBlock(mainlandBlocks);
 
@@ -104,7 +110,7 @@ public abstract class RedistrictingAlgorithm {
 
 		int usedblocks = 0;
 
-		for (District d : bg.getDistList()) {
+		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
 					+ (d.getPopulation() / totPop) * 100 + "%) ("
@@ -116,8 +122,69 @@ public abstract class RedistrictingAlgorithm {
 				+ (mainlandBlocks.size() - usedblocks));
 
 		// stage2
+		secondaryExpansion(mainland);
 
+		usedblocks = 0;
+
+		for (District d : bg.getAllDistricts()) {
+			System.out.println("District " + d.getDistrictNo()
+					+ ": population " + d.getPopulation() + "("
+					+ (d.getPopulation() / totPop) * 100 + "%) ("
+					+ d.getAllBlocks().size() + " blocks)");
+			usedblocks += d.getAllBlocks().size();
+		}
+
+		System.out.println("Unassigned blocks: "
+				+ (mainlandBlocks.size() - usedblocks));
 		// stage3
+	}
+
+	public void secondaryExpansion(Island mainland) {		
+		ArrayList<Block> unassigned = mainland.getUnassigned();
+		
+		// Argument: a SortedSet of unassigned blocks
+		boolean ignorePopulation = false;
+		for (int i = 0; i < 2; i++) {
+			int oldsize = 0;
+			int newsize = unassigned.size();
+			
+			while (oldsize != newsize) {
+				for (Block current : unassigned){
+					int district = Block.UNASSIGNED;
+
+					if (current.neighbors.isEmpty()){
+						System.out.println("Block " + current.getId() + " has no neighbors!!");
+					}
+					
+					for (Block b : current.neighbors) {
+						if (b.getDistNo() != Block.UNASSIGNED){
+							District d = bg.getDistrict(b.getDistNo());
+							int pop = d.getPopulation();
+							if (pop <= maxPopulation || ignorePopulation){
+								if (district == Block.UNASSIGNED){
+									district = b.getDistNo();
+								} else {
+									District currentD = bg.getDistrict(district);
+									int newPop = currentD.getPopulation();
+									district = pop < newPop ? b.getDistNo() : district; 
+								}
+							}
+						}
+					}
+					
+					if (district != Block.UNASSIGNED) {
+						bg.getDistrict(district).addBlock(current);
+	
+						//System.out.println(unassigned.size());
+					}
+				}
+				oldsize = newsize;
+				unassigned = mainland.getUnassigned();
+				newsize = unassigned.size();
+			}
+			ignorePopulation = true;
+		}
+
 	}
 
 	/**
@@ -142,13 +209,13 @@ public abstract class RedistrictingAlgorithm {
 		ArrayList<Block> returnList = new ArrayList<Block>();
 		int[] population = new int[blocks.size()];
 		int totalPop = basePop;
-		
+
 		// populate the population array
 		for (int n = 0; n < blocks.size(); n++) {
 			population[n] = blocks.get(n).getPopulation();
 			totalPop += blocks.get(n).getPopulation();
 		}
-		
+
 		if (totalPop <= upperBound) {
 			// add all blocks
 			return blocks;
@@ -157,15 +224,19 @@ public abstract class RedistrictingAlgorithm {
 			int position = blocks.size() - 1;
 			totalPop = basePop;
 			totalPop += blocks.get(position).getPopulation();
-		
+
 			while (totalPop <= upperBound) {
 				returnList.add(blocks.get(position));
 				position--;
 				totalPop += blocks.get(position).getPopulation();
 			}
-			
+
 			return returnList;
 		}
+	}
+
+	public BlockGraph getBlockGraph() {
+		return bg;
 	}
 
 	protected class BlockDensityComparator implements Comparator<Block> {
@@ -180,4 +251,5 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 	}
+
 }
