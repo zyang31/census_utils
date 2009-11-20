@@ -17,14 +17,12 @@ import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import edu.gatech.c4g.r4g.redistricting.AustralianRedistrictingAlgorithm;
-import edu.gatech.c4g.r4g.redistricting.RedistrictingAlgorithm;
-import edu.gatech.c4g.r4g.util.AustralianLoader;
-import edu.gatech.c4g.r4g.util.Saver;
+import edu.gatech.c4g.r4g.redistricting.*;
+import edu.gatech.c4g.r4g.util.*;
 import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
-
+	public static String POPULATION_FIELD;
 	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -d <max_deviation> -i <input_file>";
 	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
 			+ GeoTools.getVersion() + ")";
@@ -89,10 +87,13 @@ public class Redistrict {
 
 			if (alg.equals("australia")) {
 				// run the algorithm
+				POPULATION_FIELD = "TURPOP2006";
 				ra = new AustralianRedistrictingAlgorithm(
 						new AustralianLoader(), source, galFile);
 			} else if (alg.equals("usa")) {
-				// ra = american algorithm
+				POPULATION_FIELD = "POP100";
+				ra = new AmericanRedistrictingAlgorithm(
+						new AmericanLoader(), source, galFile);
 			} else {
 				System.err.println("Algorithm type not recognized!");
 				System.exit(1);

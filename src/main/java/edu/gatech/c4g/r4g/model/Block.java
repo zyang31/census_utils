@@ -8,9 +8,10 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
+import edu.gatech.c4g.r4g.util.Loader;
+import edu.gatech.c4g.r4g.Redistrict;
+
 public class Block implements Comparable<Block> {
-	public static final String POPULATION_FIELD = "TURPOP2006"; // to be
-	// externalized
 	public static final int UNASSIGNED = 0;
 	public static final String CATEGORY_WATER = "Water";
 	public static final String CATEGORY_SHIPPING = "Shipping";
@@ -39,7 +40,7 @@ public class Block implements Comparable<Block> {
 	}
 
 	public int getPopulation() {
-		Property population = feature.getProperty(POPULATION_FIELD);
+		Property population = feature.getProperty(Redistrict.POPULATION_FIELD);
 		return (int)Double.parseDouble(population.getValue().toString());
 	}
 

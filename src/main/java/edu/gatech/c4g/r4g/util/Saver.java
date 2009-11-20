@@ -82,7 +82,7 @@ public class Saver {
 		for (Block b : bg.getAllBlocks()) {
 			sfb.init(b.getFeature());
 			sfb.set("DISTRICT", b.getDistNo());
-			SimpleFeature sf = sfb.buildFeature(""+b.getId());
+			SimpleFeature sf = sfb.buildFeature("" + b.getId());
 			newCollection.add(sf);
 		}
 
@@ -150,7 +150,17 @@ public class Saver {
 			// write block count and district count
 			out.write(bg.getAllBlocks().size() + " " + bg.getDistrictCount()
 					+ "\n");
-
+			
+			ArrayList<Block> blocks = new ArrayList<Block>(bg.getAllBlocks());
+			Collections.sort(blocks, new Comparator<Block>(){
+				public int compare(Block o1, Block o2) {
+					Integer id1 = o1.getId();
+					Integer id2 = o2.getId();
+					return id1.compareTo(id2);
+				};
+			});
+			
+			
 			for (Block b : bg.getAllBlocks()) {
 				out.write(b.getId() + " " + b.getDistNo() + "\n");
 			}

@@ -11,7 +11,7 @@ import edu.gatech.c4g.r4g.model.BlockGraph;
 //import edu.gatech.c4g.r4g.model.Island;
 
 public class AustralianLoader extends Loader {
-
+	
 	//private static final String NATURAL_BORDER_WATER = "Water";
 
 	@Override

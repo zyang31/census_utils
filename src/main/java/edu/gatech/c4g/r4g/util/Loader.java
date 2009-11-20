@@ -18,6 +18,8 @@ import edu.gatech.c4g.r4g.model.BlockGraph;
 
 public abstract class Loader {
 
+	public static String POPULATION_FIELD;
+	
 	/**
 	 * 
 	 * @param source
