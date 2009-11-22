@@ -23,8 +23,11 @@ import edu.gatech.c4g.r4g.view.MapView;
 
 public class Redistrict {
 	public static String POPULATION_FIELD;
-	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -d <max_deviation> -i <input_file>";
-	private static final String HEADER = "Redistricting4Good - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
+	public static boolean GRAPHICS_ENABLED = true;
+	
+	
+	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -d <max_deviation> -i <input_file> [-nographics]";
+	private static final String HEADER = "OpenRedistricting - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
 			+ GeoTools.getVersion() + ")";
 	private static final String FOOTER = "\nCopyright 2009 - Aaron Ciaghi, Stephen Long, Joshua Justice";
 	private static Options options;
@@ -46,11 +49,17 @@ public class Redistrict {
 		if (commandLine.hasOption('a') && commandLine.hasOption('n')
 				&& commandLine.hasOption('d')) {
 			File file = null;
+			
+			if (commandLine.hasOption("nographics")){
+				GRAPHICS_ENABLED = false;
+			}
 
 			if (!commandLine.hasOption('i')) {
-				file = JFileDataStoreChooser.showOpenFile("shp", null);
-				if (file == null) {
-					return;
+				if (GRAPHICS_ENABLED) {
+					file = JFileDataStoreChooser.showOpenFile("shp", null);
+					if (file == null) {
+						return;
+					}
 				}
 			} else {
 				file = new File(commandLine.getOptionValue('i'));
@@ -92,8 +101,8 @@ public class Redistrict {
 						new AustralianLoader(), source, galFile);
 			} else if (alg.equals("usa")) {
 				POPULATION_FIELD = "POP100";
-				ra = new AmericanRedistrictingAlgorithm(
-						new AmericanLoader(), source, galFile);
+				ra = new AmericanRedistrictingAlgorithm(new AmericanLoader(),
+						source, galFile);
 			} else {
 				System.err.println("Algorithm type not recognized!");
 				System.exit(1);
@@ -102,6 +111,10 @@ public class Redistrict {
 			System.out
 					.println("Redistricting. You can have a coffee while you are waiting");
 			ra.initialExpansion(ndis, maxDeviation);
+			
+			if (GRAPHICS_ENABLED){
+				//TODO show map view
+			}
 
 			Saver.save(source, ra.getBlockGraph(), filename.substring(0,
 					filename.length() - 4));
@@ -136,6 +149,8 @@ public class Redistrict {
 				.hasArgs(1)
 				.withDescription("Specify the input file (with .shp extension)")
 				.create("i");
+		Option nographics = OptionBuilder.withDescription(
+				"Disable graphic elements").create("nographics");
 
 		options = new Options();
 		options.addOption(help);
@@ -143,6 +158,7 @@ public class Redistrict {
 		options.addOption(ndists);
 		options.addOption(deviation);
 		options.addOption(file);
+		options.addOption(nographics);
 	}
 
 	private static void printUsage(Options options) {
