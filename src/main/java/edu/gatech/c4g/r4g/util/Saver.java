@@ -48,6 +48,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import com.sun.rowset.internal.Row;
 
+import edu.gatech.c4g.r4g.Redistrict;
 import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
@@ -56,7 +57,7 @@ public class Saver {
 	public static void save(
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			BlockGraph bg, String outputFile) {
-		// part 1 - add district to dbf
+		// part 1 - save new shapefile
 		System.out.println("Saving new Shapefile");
 		saveShapefile(source, bg, new File(outputFile + "_"
 				+ bg.getDistrictCount()));
@@ -89,7 +90,14 @@ public class Saver {
 		/*
 		 * Get an output file name and create the new shapefile
 		 */
-		File newFile = getNewShapeFile(outFile);
+		File newFile;
+		if (Redistrict.GRAPHICS_ENABLED) {
+			newFile = getNewShapeFile(outFile);
+		} else {
+			String path = outFile.getAbsolutePath();
+			String newPath = path + ".shp";
+			newFile = new File(newPath);
+		}
 
 		DataStoreFactorySpi dataStoreFactory = new ShapefileDataStoreFactory();
 
@@ -150,17 +158,16 @@ public class Saver {
 			// write block count and district count
 			out.write(bg.getAllBlocks().size() + " " + bg.getDistrictCount()
 					+ "\n");
-			
+
 			ArrayList<Block> blocks = new ArrayList<Block>(bg.getAllBlocks());
-			Collections.sort(blocks, new Comparator<Block>(){
+			Collections.sort(blocks, new Comparator<Block>() {
 				public int compare(Block o1, Block o2) {
 					Integer id1 = o1.getId();
 					Integer id2 = o2.getId();
 					return id1.compareTo(id2);
 				};
 			});
-			
-			
+
 			for (Block b : bg.getAllBlocks()) {
 				out.write(b.getId() + " " + b.getDistNo() + "\n");
 			}
@@ -179,7 +186,7 @@ public class Saver {
 	 */
 	private static File getNewShapeFile(File f) {
 		String path = f.getAbsolutePath();
-		String newPath = path.substring(0, path.length() - 4) + ".shp";
+		String newPath = path + ".shp";
 
 		JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
 		chooser.setDialogTitle("Save shapefile");

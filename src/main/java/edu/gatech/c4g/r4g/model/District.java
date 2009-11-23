@@ -39,34 +39,34 @@ public class District extends Graph {
 			b.setDistNo(districtNo);
 		}
 	}
-	
-	public Hashtable<Integer, Block> getBorderingBlocks(){
-		Hashtable<Integer,Block> neighbors = new Hashtable<Integer, Block>();
-		for (Block b:blocks.values()){
+
+	public Hashtable<Integer, Block> getBorderingBlocks() {
+		Hashtable<Integer, Block> neighbors = new Hashtable<Integer, Block>();
+		for (Block b : blocks.values()) {
 			Iterator<Block> i = b.neighbors.iterator();
-			while(i.hasNext()) {
-				Block a = i.next();
-				if (a.getDistNo() != b.getDistNo()){
-					neighbors.put(a.getDistNo(), a);
+			while (i.hasNext()) {
+				Block current = i.next();
+				if (current.getDistNo() != b.getDistNo()) {
+					neighbors.put(current.getDistNo(), current);
 				}
 			}
 		}
 		return neighbors;
 	}
-	
+
 	public ArrayList<Block> getUnassigned() {
 		ArrayList<Block> unassigned = new ArrayList<Block>();
 
 		for (Block b : blocks.values()) {
-			
+
 			if (b.getDistNo() == Block.UNASSIGNED)
 				unassigned.add(b);
 		}
-		
+
 		Collections.sort(unassigned);
 		return unassigned;
 	}
-	
+
 	public void removeBlock(Block b) {
 		super.removeBlock(b);
 		b.setDistNo(Block.UNASSIGNED);

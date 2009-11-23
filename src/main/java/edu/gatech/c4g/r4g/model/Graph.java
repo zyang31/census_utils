@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+
 public abstract class Graph {
 
 	protected int population = 0;
@@ -63,5 +66,9 @@ public abstract class Graph {
 		
 		Collections.sort(unassigned);
 		return unassigned;
+	}
+	
+	protected double calculateDistance(Coordinate c, Block b) {
+		return c.distance(b.getPolygon().getCentroid().getCoordinate());
 	}
 }

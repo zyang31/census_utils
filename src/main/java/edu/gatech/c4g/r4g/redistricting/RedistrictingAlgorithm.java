@@ -21,6 +21,7 @@ import edu.gatech.c4g.r4g.util.Loader;
 
 public abstract class RedistrictingAlgorithm {
 
+	int ndis;
 	double idealPopulation;
 	double minPopulation;
 	double maxPopulation;
@@ -42,37 +43,76 @@ public abstract class RedistrictingAlgorithm {
 		islands = bg.toIslands();
 		System.out.println("Found " + islands.size() + " islands");
 
-		// TEST
-		// for (Island i : islands){
-		// System.out.println(i.getPopulation());
-		// }
 	}
 
-	/**
-	 * TODO THIS DOES NOT WORK!! (WHY?)
-	 * 
-	 * @param ndis
-	 *            number of districts to create
-	 */
-	public void initialExpansion(int ndis, double maxDeviation) {
+	public void redistrict(int ndis, double maxDeviation) {
 		// calculate ideal population
+		this.ndis = ndis;
 		idealPopulation = bg.getPopulation() / ndis;
 		minPopulation = idealPopulation - idealPopulation * maxDeviation;
 		maxPopulation = idealPopulation + idealPopulation * maxDeviation;
+		
+		// stage 1
+		initialExpansion();
 
-		// STAGE 1
-		// redistrict mainland
-		Island mainland = islands.get(0);
-		ArrayList<Block> mainlandBlocks = new ArrayList<Block>();
-		mainlandBlocks.addAll(mainland.getAllBlocks());
+		// TEST
+		double totPop = bg.getPopulation();
+
+		int usedblocks = 0;
+
+		System.out.println("\n=============\n"+
+						   "After Stage 1\n"+
+						   "=============\n");
+		for (District d : bg.getAllDistricts()) {
+			System.out.println("District " + d.getDistrictNo()
+					+ ": population " + d.getPopulation() + "("
+					+ (d.getPopulation() / totPop) * 100 + "%) ("
+					+ d.getAllBlocks().size() + " blocks)");
+			usedblocks += d.getAllBlocks().size();
+		}
+
+		System.out.println("Unassigned blocks: "
+				+ (bg.getAllBlocks().size() - usedblocks));
+		
+		//--------------------------------------
+		// stage2
+		secondaryExpansion();
+
+		usedblocks = 0;
+		
+		System.out.println("\n=============\n"+
+				   "After Stage 2\n"+
+				   "=============\n");
+		for (District d : bg.getAllDistricts()) {
+			System.out.println("District " + d.getDistrictNo()
+					+ ": population " + d.getPopulation() + "("
+					+ (d.getPopulation() / totPop) * 10 + "%) ("
+					+ d.getAllBlocks().size() + " blocks)");
+			usedblocks += d.getAllBlocks().size();
+		}
+
+		System.out.println("Unassigned blocks: "
+				+ (bg.getAllBlocks().size() - usedblocks));
+
+		//--------------------------------------
+		// stage3
+		populationBalancing();
+	}
+
+	protected void initialExpansion() {
+		// Island mainland = islands.get(0);
+		// ArrayList<Block> mainlandBlocks = new ArrayList<Block>();
+		// mainlandBlocks.addAll(mainland.getAllBlocks());
+
+		ArrayList<Block> allBlocks = new ArrayList<Block>();
+		allBlocks.addAll(bg.getAllBlocks());
 		// sort the blocks by density
-		Collections.sort(mainlandBlocks, new BlockDensityComparator());
+		Collections.sort(allBlocks, new BlockDensityComparator());
 
 		for (int currentDistNo = 1; currentDistNo <= ndis; currentDistNo++) {
-			System.out.println("Building district " + currentDistNo);// TODO
-			// log4j?
+			System.out.println("Building district " + currentDistNo);
 
-			Block firstBlock = findFirstUnassignedBlock(mainlandBlocks);
+			Block firstBlock = findFirstUnassignedBlock(allBlocks);
 
 			District dist = new District(currentDistNo);
 			// add the most populated block
@@ -80,7 +120,6 @@ public abstract class RedistrictingAlgorithm {
 			dist.addBlock(firstBlock);
 			expandFrom.add(firstBlock);
 
-			// the condition here must be fixed
 			while (!expandFrom.isEmpty()
 					&& dist.getPopulation() <= minPopulation * .8) {
 
@@ -105,86 +144,61 @@ public abstract class RedistrictingAlgorithm {
 			bg.addDistrict(dist);
 		}
 
-		// TEST
-		double totPop = bg.getPopulation();
-
-		int usedblocks = 0;
-
-		for (District d : bg.getAllDistricts()) {
-			System.out.println("District " + d.getDistrictNo()
-					+ ": population " + d.getPopulation() + "("
-					+ (d.getPopulation() / totPop) * 100 + "%) ("
-					+ d.getAllBlocks().size() + " blocks)");
-			usedblocks += d.getAllBlocks().size();
-		}
-
-		System.out.println("Unassigned blocks: "
-				+ (mainlandBlocks.size() - usedblocks));
-
-		// stage2
-		secondaryExpansion(mainland);
-
-		usedblocks = 0;
-
-		for (District d : bg.getAllDistricts()) {
-			System.out.println("District " + d.getDistrictNo()
-					+ ": population " + d.getPopulation() + "("
-					+ (d.getPopulation() / totPop) * 100 + "%) ("
-					+ d.getAllBlocks().size() + " blocks)");
-			usedblocks += d.getAllBlocks().size();
-		}
-
-		System.out.println("Unassigned blocks: "
-				+ (mainlandBlocks.size() - usedblocks));
-		// stage3
 	}
 
-	public void secondaryExpansion(Island mainland) {		
-		ArrayList<Block> unassigned = mainland.getUnassigned();
-		
+	protected void secondaryExpansion() {
+		ArrayList<Block> unassigned = bg.getUnassigned();
+
 		// Argument: a SortedSet of unassigned blocks
 		boolean ignorePopulation = false;
 		for (int i = 0; i < 2; i++) {
 			int oldsize = 0;
 			int newsize = unassigned.size();
-			
+
 			while (oldsize != newsize) {
-				for (Block current : unassigned){
+				for (Block current : unassigned) {
 					int district = Block.UNASSIGNED;
 
-					if (current.neighbors.isEmpty()){
-						System.out.println("Block " + current.getId() + " has no neighbors!!");
+					if (current.neighbors.isEmpty()) {
+						System.out.println("Block " + current.getId()
+								+ " has no neighbors!!");
 					}
-					
+
 					for (Block b : current.neighbors) {
-						if (b.getDistNo() != Block.UNASSIGNED){
+						if (b.getDistNo() != Block.UNASSIGNED) {
 							District d = bg.getDistrict(b.getDistNo());
 							int pop = d.getPopulation();
-							if (pop <= maxPopulation || ignorePopulation){
-								if (district == Block.UNASSIGNED){
+							if (pop <= maxPopulation || ignorePopulation) {
+								if (district == Block.UNASSIGNED) {
 									district = b.getDistNo();
 								} else {
-									District currentD = bg.getDistrict(district);
+									District currentD = bg
+											.getDistrict(district);
 									int newPop = currentD.getPopulation();
-									district = pop < newPop ? b.getDistNo() : district; 
+									district = pop < newPop ? b.getDistNo()
+											: district;
 								}
 							}
 						}
 					}
-					
+
 					if (district != Block.UNASSIGNED) {
 						bg.getDistrict(district).addBlock(current);
-	
-						//System.out.println(unassigned.size());
+
+						// System.out.println(unassigned.size());
 					}
 				}
 				oldsize = newsize;
-				unassigned = mainland.getUnassigned();
+				unassigned = bg.getUnassigned();
 				newsize = unassigned.size();
 			}
 			ignorePopulation = true;
 		}
 
+	}
+	
+	protected void populationBalancing(){
+		//TODO
 	}
 
 	/**

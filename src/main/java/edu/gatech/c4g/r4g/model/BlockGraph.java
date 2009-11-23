@@ -16,6 +16,11 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+
 public class BlockGraph extends Graph {
 	private Hashtable<Integer, District> districts;
 
@@ -44,6 +49,7 @@ public class BlockGraph extends Graph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 
 	public void removeBlock(Block b) {
@@ -67,7 +73,7 @@ public class BlockGraph extends Graph {
 	}
 
 	public District getDistrict(int distNo) {
-		if (distNo == Block.UNASSIGNED){
+		if (distNo == Block.UNASSIGNED) {
 			return null;
 		}
 		return districts.get(new Integer(distNo));
@@ -108,6 +114,18 @@ public class BlockGraph extends Graph {
 
 		});
 
+		Island mainland = islands.get(0);
+
+		System.out.println("\tFinding coastline");
+		HashSet<Block> coastLine = mainland.findBoundaryBlocks();
+
+		System.out.println("\tLinking islands with mainland");
+		for (Island i : islands) {
+			if (i != mainland) {
+				linkIsland(i, coastLine);
+			}
+		}
+
 		return islands;
 	}
 
@@ -119,6 +137,26 @@ public class BlockGraph extends Graph {
 					addToIsland(island, bl);
 				}
 			}
+		}
+	}
+
+	private void linkIsland(Island island, HashSet<Block> coastLine) {
+		Coordinate islandCenter = island.getCenter();
+		Block islandRepresentative = island.getRepresentative();
+		Block coastBlock = null;
+
+		double dist = Double.MAX_VALUE;
+		for (Block b : coastLine) {
+			double newDist = calculateDistance(islandCenter, b);
+			if (newDist < dist) {
+				dist = newDist;
+				coastBlock = b;
+			}
+		}
+
+		if (coastBlock != null) {
+			coastBlock.neighbors.add(islandRepresentative);
+			islandRepresentative.neighbors.add(coastBlock);
 		}
 	}
 

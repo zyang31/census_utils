@@ -110,7 +110,7 @@ public class Redistrict {
 
 			System.out
 					.println("Redistricting. You can have a coffee while you are waiting");
-			ra.initialExpansion(ndis, maxDeviation);
+			ra.redistrict(ndis, maxDeviation);
 			
 			if (GRAPHICS_ENABLED){
 				//TODO show map view
