@@ -46,7 +46,7 @@ public abstract class RedistrictingAlgorithm {
 		idealPopulation = bg.getPopulation() / ndis;
 		minPopulation = idealPopulation - idealPopulation * maxDeviation;
 		maxPopulation = idealPopulation + idealPopulation * maxDeviation;
-		
+
 		// stage 1
 		initialExpansion();
 
@@ -55,9 +55,8 @@ public abstract class RedistrictingAlgorithm {
 
 		int usedblocks = 0;
 
-		System.out.println("\n=============\n"+
-						   "After Stage 1\n"+
-						   "=============\n");
+		System.out.println("\n=============\n" + "After Stage 1\n"
+				+ "=============\n");
 		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
@@ -68,20 +67,19 @@ public abstract class RedistrictingAlgorithm {
 
 		System.out.println("Unassigned blocks: "
 				+ (bg.getAllBlocks().size() - usedblocks));
-		
-		//--------------------------------------
+
+		// --------------------------------------
 		// stage2
 		secondaryExpansion();
 
 		usedblocks = 0;
-		
-		System.out.println("\n=============\n"+
-				   "After Stage 2\n"+
-				   "=============\n");
+
+		System.out.println("\n=============\n" + "After Stage 2\n"
+				+ "=============\n");
 		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
-					+ (d.getPopulation() / totPop) * 10 + "%) ("
+					+ (d.getPopulation() / totPop) * 100 + "%) ("
 					+ d.getAllBlocks().size() + " blocks)");
 			usedblocks += d.getAllBlocks().size();
 		}
@@ -89,7 +87,7 @@ public abstract class RedistrictingAlgorithm {
 		System.out.println("Unassigned blocks: "
 				+ (bg.getAllBlocks().size() - usedblocks));
 
-		//--------------------------------------
+		// --------------------------------------
 		// stage3
 		populationBalancing();
 	}
@@ -191,9 +189,9 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 	}
-	
-	protected void populationBalancing(){
-		//TODO
+
+	protected void populationBalancing() {
+		// TODO
 	}
 
 	/**
@@ -205,7 +203,16 @@ public abstract class RedistrictingAlgorithm {
 	private Block findFirstUnassignedBlock(ArrayList<Block> list) {
 		for (Block b : list) {
 			if (b.getDistNo() == Block.UNASSIGNED) {
-				return b;
+				int countAssigned = 0;
+				for (Block n : b.neighbors) {
+					if (n.getDistNo() != Block.UNASSIGNED) {
+						countAssigned++;
+					}
+				}
+
+				if (countAssigned < b.neighbors.size()) {
+					return b;
+				}
 			}
 		}
 
