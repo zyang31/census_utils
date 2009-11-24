@@ -369,7 +369,8 @@ void Output_To_GAL()
     sprintf(n_count, "%i", num_neighbors);
     strcat(n_count,"\n\0");
     fputs(n_count, fp);
-    strcat(n_list,"\n\n");
+    //strcat(n_list,"\n\n");
+    strcat(n_list,"\n");
     fputs(n_list, fp);
     bzero(n_list, sizeof(n_list));
   }
