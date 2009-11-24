@@ -195,9 +195,9 @@ int main(){
   //For josh
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for sumanth
-  //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+  char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
   //for alice
-  char sf_name[]= "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
+  //char sf_name[]= "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -241,7 +241,7 @@ int main(){
   //Call colorArrange:
   int ndists=3;
   int *colorArray = malloc(entityCount*sizeof(int));;
-  colorArrange(colorArray,entityCount,ndists, "/home/altheacynara/Documents/fultonData/distFile.dst");
+  colorArrange(colorArray,entityCount,ndists, "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp");
 
   //write individual polygons
   for(i=0; i<entityCount; i++){
