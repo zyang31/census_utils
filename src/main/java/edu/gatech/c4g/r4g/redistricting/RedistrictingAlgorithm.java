@@ -57,18 +57,9 @@ public abstract class RedistrictingAlgorithm {
 
 		int usedblocks = 0;
 
-		System.out.println("\n=============\n" + "After Stage 1\n"
-				+ "=============\n");
-		for (District d : bg.getAllDistricts()) {
-			System.out.println("District " + d.getDistrictNo()
-					+ ": population " + d.getPopulation() + "("
-					+ (d.getPopulation() / totPop) * 100 + "%) ("
-					+ d.getAllBlocks().size() + " blocks)");
-			usedblocks += d.getAllBlocks().size();
-		}
-
-		System.out.println("Unassigned blocks: "
-				+ (bg.getAllBlocks().size() - usedblocks));
+		// System.out.println("\n=============\n" + "After Stage 1\n"
+		// + "=============\n");
+		// System.out.println(bg.districtStatistics());
 
 		// --------------------------------------
 		// stage2
@@ -79,20 +70,16 @@ public abstract class RedistrictingAlgorithm {
 
 		System.out.println("\n=============\n" + "After Stage 2\n"
 				+ "=============\n");
-		for (District d : bg.getAllDistricts()) {
-			System.out.println("District " + d.getDistrictNo()
-					+ ": population " + d.getPopulation() + "("
-					+ (d.getPopulation() / totPop) * 100 + "%) ("
-					+ d.getAllBlocks().size() + " blocks)");
-			usedblocks += d.getAllBlocks().size();
-		}
+		System.out.println(bg.districtStatistics());
 
-		System.out.println("Unassigned blocks: "
-				+ (bg.getAllBlocks().size() - usedblocks));
+//		for (District d : bg.getAllDistricts()) {
+//			System.out.println("District " + d.getDistrictNo()
+//					+ " compactness: " + d.getCompactness());
+//		}
 
 		// --------------------------------------
 		// stage3
-		populationBalancing();
+		// populationBalancing();
 	}
 
 	protected void initialExpansion() {
