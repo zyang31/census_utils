@@ -92,7 +92,6 @@ public abstract class RedistrictingAlgorithm {
 
 		// --------------------------------------
 		// stage3
-		populationBalancing();
 	}
 
 	protected void initialExpansion() {
@@ -188,6 +187,7 @@ public abstract class RedistrictingAlgorithm {
 		}
 
 	}
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 
 	protected void populationBalancing() {
 		finalizeDistricts();
@@ -196,13 +196,23 @@ public abstract class RedistrictingAlgorithm {
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
 	protected void finalizeDistricts() {
 		// Get the under-apportioned Districts
+=======
+	
+	//First part to stage 3 or stage 2.5 or whatever you want to call it
+	protected void finalizeDistricts() {
+		//Get the under-apportioned Districts
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 		ArrayList<District> undAppDists = new ArrayList<District>();
 		for (District d : bg.getAllDistricts()) {
 			if (d.getPopulation() < minPopulation) {
 				undAppDists.add(d);
 			}
 		}
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 		// Get their neighboring districts
+=======
+		//Get their neighboring districts
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 		for (District d : undAppDists) {
 			ArrayList<Integer> n = d.getNeighboringDistricts();
 			ArrayList<District> nDists = new ArrayList<District>();
@@ -213,12 +223,18 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 			}
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 			// find out which neighboring districts have too many people and get
 			// the bordering blocks from those districts one at a time.
+=======
+			//find out which neighboring districts have too many people and get
+			//the bordering blocks from those districts one at a time.
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 			for (int i = 0; i < nDists.size(); i++) {
 				while ((d.getPopulation() < minPopulation)
 						&& (nDists.get(i).getPopulation() > maxPopulation)) {
 					District nDist = nDists.get(i);
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 					// The bordering blocks to be moved over.
 					Hashtable<Integer, Block> bBlocks = d
 							.getBorderingBlocks(nDist.getDistrictNo());
@@ -230,6 +246,16 @@ public abstract class RedistrictingAlgorithm {
 						Block b;
 						Enumeration<Integer> enume = bBlocks.keys();
 						if (enume.hasMoreElements()) {
+=======
+					//The bordering blocks to be moved over.
+					Hashtable<Integer,Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
+					while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > maxPopulation) && (!bBlocks.isEmpty())) {
+						//get Enumeration and remove value based off of the enumerated values
+						Block b;
+						Enumeration<Integer> enume = bBlocks.keys();
+						if(enume.hasMoreElements()){
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 							b = bBlocks.remove(enume.nextElement());
 							bg.getDistrict(b.getDistNo()).removeBlock(b);
 							b.setDistNo(d.getDistrictNo());
@@ -246,7 +272,11 @@ public abstract class RedistrictingAlgorithm {
 				undAppDists.add(d);
 			}
 		}
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 		// Get their neighboring districts
+=======
+		//Get their neighboring districts
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 		for (District d : undAppDists) {
 			ArrayList<Integer> n = d.getNeighboringDistricts();
 			ArrayList<District> nDists = new ArrayList<District>();
@@ -257,12 +287,18 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 			}
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 			// find out which neighboring districts have too many people and get
 			// the bordering blocks from those districts one at a time.
+=======
+			//find out which neighboring districts have too many people and get
+			//the bordering blocks from those districts one at a time.
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 			for (int i = 0; i < nDists.size(); i++) {
 				while ((d.getPopulation() < minPopulation)
 						&& (nDists.get(i).getPopulation() > idealPopulation)) {
 					District nDist = nDists.get(i);
+<<<<<<< HEAD:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 					// The bordering blocks to be moved over.
 					Hashtable<Integer, Block> bBlocks = d
 							.getBorderingBlocks(nDist.getDistrictNo());
@@ -274,6 +310,16 @@ public abstract class RedistrictingAlgorithm {
 						Block b;
 						Enumeration<Integer> enume = bBlocks.keys();
 						if (enume.hasMoreElements()) {
+=======
+					//The bordering blocks to be moved over.
+					Hashtable<Integer,Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
+					while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > idealPopulation) && (!bBlocks.isEmpty())) {
+						//get Enumeration and remove value based off of the enumerated values
+						Block b;
+						Enumeration<Integer> enume = bBlocks.keys();
+						if(enume.hasMoreElements()){
+>>>>>>> 6138b800197133022ac2920462d2c00a60a2646d:src/main/java/edu/gatech/c4g/r4g/redistricting/RedistrictingAlgorithm.java
 							b = bBlocks.remove(enume.nextElement());
 							bg.getDistrict(b.getDistNo()).removeBlock(b);
 							b.setDistNo(d.getDistrictNo());
