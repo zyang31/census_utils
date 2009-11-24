@@ -2,6 +2,7 @@ package edu.gatech.c4g.r4g.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -48,6 +49,39 @@ public class District extends Graph {
 				Block current = i.next();
 				if (current.getDistNo() != b.getDistNo()) {
 					neighbors.put(current.getDistNo(), current);
+				}
+			}
+		}
+		return neighbors;
+	}
+	
+	public ArrayList<Integer> getNeighboringDistricts() {
+		ArrayList<Integer> neighbors = new ArrayList<Integer>();
+		Hashtable<Integer,Block> neighborBlks = new Hashtable<Integer, Block>();
+		for (Block b:blocks.values()){
+			Iterator<Block> i = b.neighbors.iterator();
+			while(i.hasNext()) {
+				Block a = i.next();
+				if (a.getDistNo() != b.getDistNo()){
+					neighborBlks.put(a.getDistNo(), a);
+				}
+			}
+		}
+		Enumeration<Integer> DistNo = neighborBlks.keys();
+		while (DistNo.hasMoreElements()) {
+			neighbors.add(DistNo.nextElement());
+		}
+		return neighbors;
+	}
+	
+	public Hashtable<Integer, Block> getBorderingBlocks(int DistNo){
+		Hashtable<Integer,Block> neighbors = new Hashtable<Integer, Block>();
+		for (Block b:blocks.values()){
+			Iterator<Block> i = b.neighbors.iterator();
+			while(i.hasNext()) {
+				Block a = i.next();
+				if (a.getDistNo() == DistNo){
+					neighbors.put(a.getDistNo(), a);
 				}
 			}
 		}

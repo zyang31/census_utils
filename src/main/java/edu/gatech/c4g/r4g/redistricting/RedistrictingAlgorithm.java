@@ -3,6 +3,8 @@ package edu.gatech.c4g.r4g.redistricting;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -46,7 +48,7 @@ public abstract class RedistrictingAlgorithm {
 		idealPopulation = bg.getPopulation() / ndis;
 		minPopulation = idealPopulation - idealPopulation * maxDeviation;
 		maxPopulation = idealPopulation + idealPopulation * maxDeviation;
-		
+
 		// stage 1
 		initialExpansion();
 
@@ -55,9 +57,8 @@ public abstract class RedistrictingAlgorithm {
 
 		int usedblocks = 0;
 
-		System.out.println("\n=============\n"+
-						   "After Stage 1\n"+
-						   "=============\n");
+		System.out.println("\n=============\n" + "After Stage 1\n"
+				+ "=============\n");
 		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
@@ -68,16 +69,15 @@ public abstract class RedistrictingAlgorithm {
 
 		System.out.println("Unassigned blocks: "
 				+ (bg.getAllBlocks().size() - usedblocks));
-		
-		//--------------------------------------
+
+		// --------------------------------------
 		// stage2
 		secondaryExpansion();
 
 		usedblocks = 0;
-		
-		System.out.println("\n=============\n"+
-				   "After Stage 2\n"+
-				   "=============\n");
+
+		System.out.println("\n=============\n" + "After Stage 2\n"
+				+ "=============\n");
 		for (District d : bg.getAllDistricts()) {
 			System.out.println("District " + d.getDistrictNo()
 					+ ": population " + d.getPopulation() + "("
@@ -89,9 +89,8 @@ public abstract class RedistrictingAlgorithm {
 		System.out.println("Unassigned blocks: "
 				+ (bg.getAllBlocks().size() - usedblocks));
 
-		//--------------------------------------
+		// --------------------------------------
 		// stage3
-		populationBalancing();
 	}
 
 	protected void initialExpansion() {
@@ -192,8 +191,91 @@ public abstract class RedistrictingAlgorithm {
 
 	}
 	
-	protected void populationBalancing(){
-		//TODO
+	//First part to stage 3 or stage 2.5 or whatever you want to call it
+	protected void finalizeDistricts() {
+		//Get the under-apportioned Districts
+		ArrayList<District> undAppDists = new ArrayList<District>();
+		for (District d : bg.getAllDistricts()) {
+			if (d.getPopulation() < minPopulation) {
+				undAppDists.add(d);
+			}
+		}
+		//Get their neighboring districts
+		for (District d : undAppDists) {
+			ArrayList<Integer> n = d.getNeighboringDistricts();
+			ArrayList<District> nDists = new ArrayList<District>();
+			for (District t : bg.getAllDistricts()) {
+				for (int i : n) {
+					if (t.getDistrictNo() == n.get(i)) {
+						nDists.add(t);
+					}
+				}
+			}
+			//find out which neighboring districts have too many people and get
+			//the bordering blocks from those districts one at a time.
+			for (int i = 0; i < nDists.size(); i++) {
+				while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > maxPopulation)) {
+					District nDist = nDists.get(i);
+					//The bordering blocks to be moved over.
+					Hashtable<Integer,Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
+					while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > maxPopulation) && (!bBlocks.isEmpty())) {
+						//get Enumeration and remove value based off of the enumerated values
+						Block b;
+						Enumeration<Integer> enume = bBlocks.keys();
+						if(enume.hasMoreElements()){
+							b = bBlocks.remove(enume.nextElement());
+							bg.getDistrict(b.getDistNo()).removeBlock(b);
+							b.setDistNo(d.getDistrictNo());
+							d.addBlock(b);
+						}
+					}
+				}
+
+			}
+		}
+		undAppDists = new ArrayList<District>();
+		for (District d : bg.getAllDistricts()) {
+			if (d.getPopulation() < minPopulation) {
+				undAppDists.add(d);
+			}
+		}
+		//Get their neighboring districts
+		for (District d : undAppDists) {
+			ArrayList<Integer> n = d.getNeighboringDistricts();
+			ArrayList<District> nDists = new ArrayList<District>();
+			for (District t : bg.getAllDistricts()) {
+				for (int i : n) {
+					if (t.getDistrictNo() == n.get(i)) {
+						nDists.add(t);
+					}
+				}
+			}
+			//find out which neighboring districts have too many people and get
+			//the bordering blocks from those districts one at a time.
+			for (int i = 0; i < nDists.size(); i++) {
+				while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > idealPopulation)) {
+					District nDist = nDists.get(i);
+					//The bordering blocks to be moved over.
+					Hashtable<Integer,Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
+					while ((d.getPopulation() < minPopulation)
+						&& (nDists.get(i).getPopulation() > idealPopulation) && (!bBlocks.isEmpty())) {
+						//get Enumeration and remove value based off of the enumerated values
+						Block b;
+						Enumeration<Integer> enume = bBlocks.keys();
+						if(enume.hasMoreElements()){
+							b = bBlocks.remove(enume.nextElement());
+							bg.getDistrict(b.getDistNo()).removeBlock(b);
+							b.setDistNo(d.getDistrictNo());
+							d.addBlock(b);
+						}
+					}
+				}
+
+			}
+		}
 	}
 
 	/**
