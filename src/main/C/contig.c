@@ -100,7 +100,7 @@ int block_count;
 char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
 int **Sub_Graph_Head = NULL;
 int sub_graph_count = 0;
-int *visited = NULL;
+int *visited = NULL, *centroid_list_SG;
  
 struct neighbor_list **NTABLE = NULL;
  
@@ -369,7 +369,8 @@ void Output_To_GAL()
     sprintf(n_count, "%i", num_neighbors);
     strcat(n_count,"\n\0");
     fputs(n_count, fp);
-    strcat(n_list,"\n\n");
+    //strcat(n_list,"\n\n");
+    strcat(n_list,"\n");
     fputs(n_list, fp);
     bzero(n_list, sizeof(n_list));
   }
@@ -382,29 +383,57 @@ void Output_To_GAL()
   return;
 }
 
-void add_to_sub_graph(int *head, int *insert_here, int block_no)
+/* Checks to see if the block is already inserted in the SG.
+ * If it is already inserted, returns 0.
+ */
+
+int not_inserted_in_SG(int *SG_head, int block_no)
+{
+  int *temp = SG_head;
+
+  while(*temp != -1)
+  {
+    if(*temp == block_no)
+       return 0;
+    temp++;
+  }
+
+  return 1;
+}
+
+/* SG_head: head of the subgraph
+ * head: node whose neighbor table has to be traversed
+ * insert_here: position in the array where the next neighbor has to be inserted
+ * block_no: block id of the head 
+ */
+
+void add_to_sub_graph(int *SG_head, int *head, int *insert_here, int block_no)
 {
   struct neighbor_list *temp = NULL; 
 
-  if(visited[block_no] == 1)
-    return;
-
-  visited[block_no] = 1;
-
-  /*populate with the neighbors of block_no*/
-  temp = NTABLE[block_no];
-  while(temp!=NULL)
+  if(visited[block_no] != 1)
   {
-     if(!visited[temp->index])
-     {
-       *insert_here = temp->index;
-       insert_here++;
-     }
-     temp = temp->next;
+    visited[block_no] = 1;
+
+    /* populate with the neighbors of block_no */
+    temp = NTABLE[block_no];
+    while(temp!=NULL)
+    {
+       if(!visited[temp->index] && not_inserted_in_SG(SG_head, temp->index))
+       { 
+         *insert_here = temp->index;
+         insert_here++;
+	 *insert_here = -1;
+       }
+       temp = temp->next;
+    }
   }
   head++;
-  if(head != NULL)
-    add_to_sub_graph(head, insert_here, *head);
+  if(*head != -1)
+  {
+    //printf("\n calling add_to_sub_graph with value %d", *head);
+    add_to_sub_graph(SG_head, head, insert_here, *head);
+  }
 
   return;
 }
@@ -417,7 +446,7 @@ void add_to_sub_graph(int *head, int *insert_here, int block_no)
 
 void compute_Sub_Graphs()
 {
-  int i;
+  int i, j;
   Sub_Graph_Head = malloc(block_count * sizeof(int *));
   int included_Blocks[block_count];
   bzero(included_Blocks, block_count);
@@ -428,7 +457,7 @@ void compute_Sub_Graphs()
     /*do not traverse the block if it already traversed*/
     if(visited[i] == 1)
     {
-      printf("\n %d already traversed \n", i);
+      //printf("\n %d already traversed \n", i);
     }
     else
     {
@@ -437,13 +466,44 @@ void compute_Sub_Graphs()
       head = Sub_Graph_Head[sub_graph_count];
       bzero(head, block_count);
       head[0] = i; /* the first element of the subgraph is the block itself*/
+      head[1] = -1; /* to identify the end of the array */
       next = head + 1;
-      add_to_sub_graph(head, next, i);
+      add_to_sub_graph(head, head, next, i);
       sub_graph_count++;
     }
   }
 
+  printf("\n Printing Subgraphs:\nNumber of subgraphs: %d\n", sub_graph_count);
+  for(i=0;i<sub_graph_count;i++)
+  {
+     printf("Subgraph %d:\n", i);
+     for(j=0;Sub_Graph_Head[i][j]!=-1;j++)
+	printf("%d\t", Sub_Graph_Head[i][j]);
+     printf("\n");
+  }
+
   return;
+}
+
+void Join_Sub_Graphs()
+{
+  /* compute the centroids of each SG.
+ */
+
+  int i, j, temp;
+  int min_x, max_x, min_y, max_y;
+
+  printf("\n Join_Sub_Graphs");
+  centroid_list_SG = malloc(sub_graph_count * sizeof(int));
+  for(i=0; i<sub_graph_count; i++)
+  {
+    min_x = max_x = min_y = max_y = Sub_Graph_Head[i][0];
+    for(j=1; Sub_Graph_Head[i][j] != -1; j++)
+    {
+      temp = Sub_Graph_Head[i][j];
+      //TODO: compute the centroid of each block and update min_x, min_y, max_x, max_y accordingly.
+    }
+  }
 }
  
 //This function can be called to test on the hash table
@@ -489,6 +549,8 @@ int main(){
   generate_neighbor_table();
  
   sort_NTABLE();
+  //compute_Sub_Graphs();
+  //Join_Sub_Graphs();
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
   //print_neighbor_table();

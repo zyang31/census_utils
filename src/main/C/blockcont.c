@@ -40,7 +40,7 @@ int checkCont(SHPObject *a, SHPObject *b)
             }
             for(h=b->panPartStart[k];h<hLim;h++){
               if( checkOverlap(a->padfX[j], a->padfY[j], a->padfX[j+1],a->padfY[j+1],b->padfX[h], b->padfY[h], b->padfX[h+1],b->padfY[h+1])){
-              if(a->nShapeId == 20 || b->nShapeId == 20) {printf("\n 20 contig returning true for %d and %d \n", a->nShapeId, b->nShapeId); }
+              //if(a->nShapeId == 20 || b->nShapeId == 20) {printf("\n 20 contig returning true for %d and %d \n", a->nShapeId, b->nShapeId); }
                 return TRUE;
               }
             }
@@ -151,7 +151,7 @@ int queen_Contig(SHPObject *a, SHPObject *b)
     for(j=0;j<b->nVertices;j++){
       if(fabs(a->padfX[i] - b->padfX[j]) < QUEEN_TOLERANCE
 	 && fabs(a->padfY[i] - b->padfY[j] < QUEEN_TOLERANCE)){
-	printf("a = %f\t%f\tb=%f\t%f\n", a->padfX[i], a->padfY[i], b->padfX[j], b->padfY[j]);
+	//printf("a = %f\t%f\tb=%f\t%f\n", a->padfX[i], a->padfY[i], b->padfX[j], b->padfY[j]);
 	return TRUE;
       }
     }
