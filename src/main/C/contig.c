@@ -548,7 +548,7 @@ int main(){
   generate_neighbor_table();
  
   sort_NTABLE();
-  compute_Sub_Graphs();
+  //compute_Sub_Graphs();
   //Join_Sub_Graphs();
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
