@@ -160,4 +160,30 @@ public class BlockGraph extends Graph {
 		}
 	}
 
+	/**
+	 * Returns some useful stats about the districts.
+	 * 
+	 * @return
+	 */
+	public String districtStatistics() {
+		int usedblocks = 0;
+		String stat = "";
+
+		for (District d : districts.values()) {
+			stat += "District "
+					+ d.getDistrictNo()
+					+ ": population "
+					+ d.getPopulation()
+					+ "("
+					+ ((double) d.getPopulation() / (double) this
+							.getPopulation()) * 100 + "%) ("
+					+ d.getAllBlocks().size() + " blocks)\n";
+			usedblocks += d.getAllBlocks().size();
+		}
+
+		stat += "Unassigned blocks: " + (blocks.size() - usedblocks);
+
+		return stat;
+	}
+
 }

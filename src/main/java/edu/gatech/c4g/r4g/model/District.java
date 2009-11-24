@@ -6,6 +6,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+
 /**
  * Copyright (C) 2009
  * 
@@ -141,6 +144,31 @@ public class District extends Graph {
 
 	public boolean isInRange(double min, double max) {
 		return (population > min) && (population <= max);
+	}
+
+	/**
+	 * Returns the inverse of difference of the convex hull of this district
+	 * with its area. This value is a metric for compactness.
+	 * WARNING! This function is very expensive.
+	 * 
+	 * @return
+	 */
+	public double getCompactness() {
+		Geometry distPoly = null;
+
+		for (Block b : blocks.values()) {
+			if (distPoly == null) {
+				distPoly = b.getPolygon();
+			} else {
+				distPoly = distPoly.union(b.getPolygon());
+			}
+		}
+
+		Geometry convexHull = distPoly.convexHull();
+		
+		//System.out.println("Compactness of " + districtNo + ": " + (1/(convexHull.getArea() - distPoly.getArea())));
+
+		return 1 / (convexHull.getArea() - distPoly.getArea());
 	}
 
 }

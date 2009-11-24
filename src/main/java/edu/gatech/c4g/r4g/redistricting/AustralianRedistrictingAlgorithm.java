@@ -12,11 +12,6 @@ public class AustralianRedistrictingAlgorithm extends RedistrictingAlgorithm {
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			String galFile) {
 		super(loader, source, galFile);
-		//removeNB();
-		//islands();
-		//initialExpansion();
-		//completeAssignment();
-		//reassignment();
 	}
 
 }
