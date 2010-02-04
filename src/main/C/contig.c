@@ -97,7 +97,7 @@ sprintf(retstr, "%i", num);
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
-char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
+char sf_name[] = "/home/zimu/Documents/FultonCounty/Fultoncombinednd.shp";//"/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
 int **Sub_Graph_Head = NULL;
 int sub_graph_count = 0;
 int *visited = NULL, *centroid_list_SG;

@@ -197,14 +197,14 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  int use_gal = 0;
-  int use_dist = 1;
+  int use_gal = 1;
+  int use_dist = 0;
   //For josh
   //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
   //for sumanth
   //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
   //for alice
-  char sf_name[]= "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
+  char sf_name[]= "/home/zimu/Documents/FultonCounty/Fultoncombinednd.shp";//"/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
