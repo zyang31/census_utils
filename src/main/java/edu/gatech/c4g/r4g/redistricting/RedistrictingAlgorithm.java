@@ -182,32 +182,42 @@ public abstract class RedistrictingAlgorithm {
 
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
 	protected void finalizeDistricts() {
-		
+
 		//Get the over-apportioned Districts overAppDists
-		Arraylist<District> overAppDists = new ArrayList<District>();
+		ArrayList<District> overAppDists = new ArrayList<District>();
 		for (District e : bg.getAllDistricts()){
 			if (e.getPopulation() > maxPopulation){
 				overAppDists.add(e);
 			}
 		}
 		
-		//Get the neighboring districts for overpopulated districts and call it noDists
+		//Get the neighboring districts call them noDists
 		
 		for (District e : overAppDists){
 			ArrayList<Integer> m = e.getNeighboringDistricts();
 			ArrayList<District> noDists = new ArrayList<District>();
 			for (District u : bg.getAllDistricts()){
 				for (int j : m){
-					if (u.getDistrctNo() == m.get(j)){
+					if (u.getDistrictNo() == m.get(j)){
 						noDists.add(u);
 					}
 				}
 			}
-			//find out which neighboring districts have few people and get the bordering blocks from those districts one at a time
+			//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
 			for (int i = 0; i<noDists.size(); i++){
-				while((e.getPopulation() > maxPopulation) && 
-						(noDists.get(i).getPopulation() < minPopulation)) {
+				while((e.getPopulation() > maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)) {
 					District noDist = noDists.get(i);
+					Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
+					while((e.getPopulation()>maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)){
+						Block b;
+						Enumeration<Integer> enume = bBlocks.keys();
+						if (enume.hasMoreElements()){
+							b = bBlocks.remove(enume.nextElement());
+							bg.getDistrict(b.getDistNo()).removeBlock(b);
+							b.setDistNo(noDist.getDistrictNo());
+							noDist.addBlock(b);
+						}
+					}
 				}
 			}
 		}
@@ -235,9 +245,7 @@ public abstract class RedistrictingAlgorithm {
 						&& (nDists.get(i).getPopulation() > maxPopulation)) {
 					District nDist = nDists.get(i);
 					// The bordering blocks to be moved over. 
-					//ASK QUESTIONS ABOUT THIS PART ZIMU FROM HERE
-					Hashtable<Integer, Block> bBlocks = d
-							.getBorderingBlocks(nDist.getDistrictNo());  //TO HERE
+					Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());  //TO HERE
 					while ((d.getPopulation() < minPopulation)
 							&& (nDists.get(i).getPopulation() > maxPopulation)
 							&& (!bBlocks.isEmpty())) {
@@ -256,7 +264,7 @@ public abstract class RedistrictingAlgorithm {
 
 			}
 		}
-		undAppDists = new ArrayList<District>();
+		/*undAppDists = new ArrayList<District>();
 		for (District d : bg.getAllDistricts()) {
 			if (d.getPopulation() < minPopulation) {
 				undAppDists.add(d);
@@ -280,8 +288,7 @@ public abstract class RedistrictingAlgorithm {
 						&& (nDists.get(i).getPopulation() > idealPopulation)) {
 					District nDist = nDists.get(i);
 					// The bordering blocks to be moved over.
-					Hashtable<Integer, Block> bBlocks = d
-							.getBorderingBlocks(nDist.getDistrictNo());
+					Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
 					while ((d.getPopulation() < minPopulation)
 							&& (nDists.get(i).getPopulation() > idealPopulation)
 							&& (!bBlocks.isEmpty())) {
@@ -299,7 +306,7 @@ public abstract class RedistrictingAlgorithm {
 				}
 
 			}
-		}
+		}*/
 	}
 
 	/**
