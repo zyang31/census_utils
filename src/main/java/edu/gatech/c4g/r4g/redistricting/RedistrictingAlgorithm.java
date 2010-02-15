@@ -177,7 +177,12 @@ public abstract class RedistrictingAlgorithm {
 	}//end second expansion
 
 	protected void populationBalancing() {
-		finalizeDistricts();
+		for (District d: bg.getAllDistricts()){
+			if (d.getPopulation()>maxPopulation || d.getPopulation()<minPopulation){
+				finalizeDistricts();
+				//insert code here to reset d back to its initial value
+			}
+		}
 	}
 
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
@@ -203,20 +208,44 @@ public abstract class RedistrictingAlgorithm {
 					}
 				}
 			}
-			//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
 			for (int i = 0; i<noDists.size(); i++){
-				while((e.getPopulation() > maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)) {
-					District noDist = noDists.get(i);
-					Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
-					while((e.getPopulation()>maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)){
+				District noDist = noDists.get(i);
+				//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
+				if (noDists.get(i).getPopulation() < minPopulation){
+					while((e.getPopulation() > maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)) {
+						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
+						while((e.getPopulation()>maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)){
+							Block b;
+							Enumeration<Integer> enume = bBlocks.keys();
+							if (enume.hasMoreElements()){
+								b = bBlocks.remove(enume.nextElement());
+								bg.getDistrict(b.getDistNo()).removeBlock(b);
+								b.setDistNo(noDist.getDistrictNo());
+								noDist.addBlock(b);
+							}
+						}
+					}
+				}
+				//find out if adding a bordering block to a neighboring district that is not over the maxPopulation 
+				//will push it over the threshold and add blocks to them one at a time
+				else{
+					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){
+						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
 						Block b;
 						Enumeration<Integer> enume = bBlocks.keys();
 						if (enume.hasMoreElements()){
 							b = bBlocks.remove(enume.nextElement());
-							bg.getDistrict(b.getDistNo()).removeBlock(b);
-							b.setDistNo(noDist.getDistrictNo());
 							noDist.addBlock(b);
-						}
+							if (noDist.getPopulation() > maxPopulation){
+						//now that noDist has an extra block added, check to see if its population is now greater than the max.
+								bg.getDistrict(b.getDistNo()).removeBlock(b);
+								b.setDistNo(noDist.getDistrictNo());
+							}
+							else{
+								noDist.removeBlock(b);
+								break;
+							}
+						}						
 					}
 				}
 			}
@@ -241,72 +270,52 @@ public abstract class RedistrictingAlgorithm {
 			}
 			// find out which neighboring districts have too many people and get the bordering blocks from those districts one at a time.
 			for (int i = 0; i < nDists.size(); i++) {
-				while ((d.getPopulation() < minPopulation)
+				District nDist = nDists.get(i);
+				if (nDist.getPopulation() > maxPopulation){
+					while ((d.getPopulation() < minPopulation)
 						&& (nDists.get(i).getPopulation() > maxPopulation)) {
-					District nDist = nDists.get(i);
-					// The bordering blocks to be moved over. 
-					Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());  //TO HERE
-					while ((d.getPopulation() < minPopulation)
-							&& (nDists.get(i).getPopulation() > maxPopulation)
-							&& (!bBlocks.isEmpty())) {
+						// The bordering blocks to be moved over. 
+						Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());  //TO HERE
+						while ((d.getPopulation() < minPopulation)
+								&& (nDists.get(i).getPopulation() > maxPopulation)
+								&& (!bBlocks.isEmpty())) {
 						// get Enumeration and remove value based off of the
 						// enumerated values
-						Block b;
-						Enumeration<Integer> enume = bBlocks.keys();
-						if (enume.hasMoreElements()) {
-							b = bBlocks.remove(enume.nextElement());
-							bg.getDistrict(b.getDistNo()).removeBlock(b);
-							b.setDistNo(d.getDistrictNo());
-							d.addBlock(b);
+							Block b;
+							Enumeration<Integer> enume = bBlocks.keys();
+							if (enume.hasMoreElements()) {
+								b = bBlocks.remove(enume.nextElement());
+								bg.getDistrict(b.getDistNo()).removeBlock(b);
+								b.setDistNo(d.getDistrictNo());
+								d.addBlock(b);
+							
 						}
 					}
 				}
-
 			}
-		}
-		/*undAppDists = new ArrayList<District>();
-		for (District d : bg.getAllDistricts()) {
-			if (d.getPopulation() < minPopulation) {
-				undAppDists.add(d);
-			}
-		}
-		// Get their neighboring districts
-		for (District d : undAppDists) {
-			ArrayList<Integer> n = d.getNeighboringDistricts();
-			ArrayList<District> nDists = new ArrayList<District>();
-			for (District t : bg.getAllDistricts()) {
-				for (int i : n) {
-					if (t.getDistrictNo() == n.get(i)) {
-						nDists.add(t);
-					}
-				}
-			}
-			// find out which neighboring districts have too many people and get
-			// the bordering blocks from those districts one at a time.
-			for (int i = 0; i < nDists.size(); i++) {
-				while ((d.getPopulation() < minPopulation)
-						&& (nDists.get(i).getPopulation() > idealPopulation)) {
-					District nDist = nDists.get(i);
-					// The bordering blocks to be moved over.
-					Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
-					while ((d.getPopulation() < minPopulation)
-							&& (nDists.get(i).getPopulation() > idealPopulation)
-							&& (!bBlocks.isEmpty())) {
-						// get Enumeration and remove value based off of the
-						// enumerated values
-						Block b;
-						Enumeration<Integer> enume = bBlocks.keys();
-						if (enume.hasMoreElements()) {
-							b = bBlocks.remove(enume.nextElement());
-							bg.getDistrict(b.getDistNo()).removeBlock(b);
-							b.setDistNo(d.getDistrictNo());
-							d.addBlock(b);
+				//find out which neighboring districts have an acceptable range but transfer blocks anyway and see if they
+				//fall below acceptable limits
+					else{
+						while ((d.getPopulation() < minPopulation) && (nDist.getPopulation() > minPopulation)){
+							Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
+							Block b;
+							Enumeration<Integer> enume = bBlocks.keys();
+							if (enume.hasMoreElements()){
+								b = bBlocks.remove(enume.nextElement());
+								d.addBlock(b);
+								if (d.getPopulation() > minPopulation){
+									bg.getDistrict(b.getDistNo()).removeBlock(b);
+									b.setDistNo(d.getDistrictNo());
+								}
+								else{
+									d.removeBlock(b);
+									break;
+								}
+							}
 						}
 					}
 				}
-
 			}
-		}*/
 	}
 
 	/**
