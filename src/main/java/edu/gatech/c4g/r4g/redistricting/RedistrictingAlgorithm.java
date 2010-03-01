@@ -79,7 +79,10 @@ public abstract class RedistrictingAlgorithm {
 
 		// --------------------------------------
 		// stage3
-		// populationBalancing();
+		 populationBalancing();
+		 System.out.println("\n=============\n" + "After Stage 3\n"
+					+ "=============\n");
+		 System.out.println(bg.districtStatistics());
 	}
 
 	protected void initialExpansion() {
@@ -177,12 +180,9 @@ public abstract class RedistrictingAlgorithm {
 	}//end second expansion
 
 	protected void populationBalancing() {
-		for (District d: bg.getAllDistricts()){
-			if (d.getPopulation()>maxPopulation || d.getPopulation()<minPopulation){
+
 				finalizeDistricts();
-				//insert code here to reset d back to its initial value
-			}
-		}
+	
 	}
 
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
@@ -203,7 +203,7 @@ public abstract class RedistrictingAlgorithm {
 			ArrayList<District> noDists = new ArrayList<District>();
 			for (District u : bg.getAllDistricts()){
 				for (int j : m){
-					if (u.getDistrictNo() == m.get(j)){
+					if (u.getDistrictNo() == j){
 						noDists.add(u);
 					}
 				}
@@ -263,7 +263,7 @@ public abstract class RedistrictingAlgorithm {
 			ArrayList<District> nDists = new ArrayList<District>();
 			for (District t : bg.getAllDistricts()) {
 				for (int i : n) {
-					if (t.getDistrictNo() == n.get(i)) {
+					if (t.getDistrictNo() == i) {
 						nDists.add(t);
 					}
 				}
@@ -289,10 +289,10 @@ public abstract class RedistrictingAlgorithm {
 								b.setDistNo(d.getDistrictNo());
 								d.addBlock(b);
 							
+							}
 						}
 					}
 				}
-			}
 				//find out which neighboring districts have an acceptable range but transfer blocks anyway and see if they
 				//fall below acceptable limits
 					else{
@@ -314,8 +314,8 @@ public abstract class RedistrictingAlgorithm {
 							}
 						}
 					}
-				}
 			}
+		}
 	}
 
 	/**
