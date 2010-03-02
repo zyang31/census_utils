@@ -229,6 +229,7 @@ public abstract class RedistrictingAlgorithm {
 				//find out if adding a bordering block to a neighboring district that is not over the maxPopulation 
 				//will push it over the threshold and add blocks to them one at a time
 				else{
+					search1:
 					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
 						Block b;
@@ -243,9 +244,11 @@ public abstract class RedistrictingAlgorithm {
 							}
 							else{
 								noDist.removeBlock(b);
-								break;
-							}
-						}						
+								break search1;							}
+						}
+						else{
+							break search1;
+						}
 					}
 				}
 			}
@@ -296,6 +299,7 @@ public abstract class RedistrictingAlgorithm {
 				//find out which neighboring districts have an acceptable range but transfer blocks anyway and see if they
 				//fall below acceptable limits
 					else{
+						search2:
 						while ((d.getPopulation() < minPopulation) && (nDist.getPopulation() > minPopulation)){
 							Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());
 							Block b;
@@ -309,8 +313,11 @@ public abstract class RedistrictingAlgorithm {
 								}
 								else{
 									d.removeBlock(b);
-									break;
+									break search2;
 								}
+							}
+							else{
+								break search2;
 							}
 						}
 					}
