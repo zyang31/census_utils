@@ -180,7 +180,6 @@ public abstract class RedistrictingAlgorithm {
 	}//end second expansion
 
 	protected void populationBalancing() {
-
 				finalizeDistricts();
 	
 	}
@@ -204,17 +203,22 @@ public abstract class RedistrictingAlgorithm {
 			for (District u : bg.getAllDistricts()){
 				for (int j : m){
 					if (u.getDistrictNo() == j){
+						System.out.println("overpopulated district");
+						System.out.println(e.getDistrictNo());
+						System.out.println("overpopulated district's neighbors");
+						System.out.println(u.getDistrictNo());
 						noDists.add(u);
 					}
 				}
 			}
 			for (int i = 0; i<noDists.size(); i++){
 				District noDist = noDists.get(i);
+				System.out.println(noDist.getDistrictNo());
 				//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
 				if (noDists.get(i).getPopulation() < minPopulation){
 					while((e.getPopulation() > maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)) {
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e.getDistrictNo());
-						while((e.getPopulation()>maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)){
+						while ((!bBlocks.isEmpty())) {
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
 							if (enume.hasMoreElements()){
@@ -236,16 +240,15 @@ public abstract class RedistrictingAlgorithm {
 						Enumeration<Integer> enume = bBlocks.keys();
 						if (enume.hasMoreElements()){
 							b = bBlocks.remove(enume.nextElement());
+							bg.getDistrict(b.getDistNo()).removeBlock(b);
+							b.setDistNo(noDist.getDistrictNo());
 							noDist.addBlock(b);
-							if (noDist.getPopulation() > maxPopulation){
-						//now that noDist has an extra block added, check to see if its population is now greater than the max.
+							if (noDist.getPopulation() > maxPopulation){//now that noDist has an extra block added, check to see if its population is now greater than the max.
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
-								b.setDistNo(noDist.getDistrictNo());
+								b.setDistNo(e.getDistrictNo());
+								e.addBlock(b);
+								break search1;
 							}
-							else{
-								noDist.removeBlock(b);
-								break search1;							}
-						}
 						else{
 							break search1;
 						}
@@ -267,6 +270,10 @@ public abstract class RedistrictingAlgorithm {
 			for (District t : bg.getAllDistricts()) {
 				for (int i : n) {
 					if (t.getDistrictNo() == i) {
+						/*System.out.println("underpopulated district");
+						System.out.println(d.getDistrictNo());
+						System.out.println("underpopulated district's neighbors");
+						System.out.println(t.getDistrictNo());*/
 						nDists.add(t);
 					}
 				}
@@ -279,9 +286,7 @@ public abstract class RedistrictingAlgorithm {
 						&& (nDists.get(i).getPopulation() > maxPopulation)) {
 						// The bordering blocks to be moved over. 
 						Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist.getDistrictNo());  //TO HERE
-						while ((d.getPopulation() < minPopulation)
-								&& (nDists.get(i).getPopulation() > maxPopulation)
-								&& (!bBlocks.isEmpty())) {
+						while ((!bBlocks.isEmpty())) {
 						// get Enumeration and remove value based off of the
 						// enumerated values
 							Block b;
@@ -306,13 +311,19 @@ public abstract class RedistrictingAlgorithm {
 							Enumeration<Integer> enume = bBlocks.keys();
 							if (enume.hasMoreElements()){
 								b = bBlocks.remove(enume.nextElement());
-								d.addBlock(b);
-								if (d.getPopulation() > minPopulation){
-									bg.getDistrict(b.getDistNo()).removeBlock(b);
+								//System.out.println(b.getDistNo());
+								bg.getDistrict(b.getDistNo()).removeBlock(b);
+								if (nDist.getPopulation() >= minPopulation){
+									d.addBlock(b);
 									b.setDistNo(d.getDistrictNo());
+									/*System.out.println(nDist.getPopulation());
+									System.out.println(d.getPopulation());
+									System.out.println(nDist);
+									System.out.println(d);*/
 								}
 								else{
-									d.removeBlock(b);
+									nDist.addBlock(b);
+									b.setDistNo(nDist.getDistrictNo());
 									break search2;
 								}
 							}
@@ -321,8 +332,17 @@ public abstract class RedistrictingAlgorithm {
 							}
 						}
 					}
+				}
 			}
 		}
+		/*for (District e : bg.getAllDistricts()){
+			if (e.getPopulation() > maxPopulation || e.getPopulation() < minPopulation){
+				finalizeDistricts();
+			}
+			else{
+				return;
+			}
+		}*/
 	}
 
 	/**

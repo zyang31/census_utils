@@ -97,7 +97,7 @@ sprintf(retstr, "%i", num);
 HT_Struct_For_Block *HT_Blocks = NULL;
 SHPObject **block_list = NULL;
 int block_count;
-char sf_name[] = "/home/zimu/Documents/FultonCounty/Fultoncombinednd.shp"; //"/home/zimu/Documents/state/Utahdnd.shp";//
+char sf_name[] = "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd_5.shp"; //"/home/zimu/Documents/state/Utahdnd.shp";//
 int **Sub_Graph_Head = NULL;
 int sub_graph_count = 0;
 int *visited = NULL, *centroid_list_SG;

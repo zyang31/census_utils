@@ -204,7 +204,7 @@ int main(){
   //for sumanth
   //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
   //for alice
-  char sf_name[]= "/home/zimu/Documents/FultonCounty/Fultoncombinednd.shp";//"/home/zimu/Documents/state/Utahdnd.shp"
+  char sf_name[]= "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd_5.shp";//"/home/zimu/Documents/state/Utahdnd.shp"
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
