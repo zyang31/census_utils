@@ -335,14 +335,15 @@ public abstract class RedistrictingAlgorithm {
 				}
 			}
 		}
-		/*for (District e : bg.getAllDistricts()){
+		
+		for (District e : bg.getAllDistricts()){
 			if (e.getPopulation() > maxPopulation || e.getPopulation() < minPopulation){
 				finalizeDistricts();
 			}
 			else{
 				return;
 			}
-		}*/
+		}
 	}
 
 	/**
