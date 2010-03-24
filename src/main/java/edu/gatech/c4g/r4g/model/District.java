@@ -238,11 +238,8 @@ public class District extends Graph {
 			}
 		}*/
 		if(neighbors.size()==neighborsCompare.size()){	
-			System.out.println(2);
 			return true;
 		}
-		System.out.println("neighbors size:" + neighbors.size());
-		System.out.println("neighborsCompare size:" + neighborsCompare.size());
 		return false;
 	}
 	/**

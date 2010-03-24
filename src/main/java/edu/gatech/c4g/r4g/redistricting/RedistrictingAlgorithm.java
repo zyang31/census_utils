@@ -383,49 +383,51 @@ public abstract class RedistrictingAlgorithm {
 					if (!flags.contains(y)){
 						neighbors.add(y);
 						if(z.getPopulation()-idealPopulation>0){
-							Hashtable<Integer, Block> bBlocks = y.getBorderingBlocks(z);
 							Block b;
 							loop2:
-							while((z.getPopulation() > minPopulation) && (y.getPopulation() < maxPopulation)
-								&&(!bBlocks.isEmpty())) {
-								Enumeration<Integer> enume = bBlocks.keys();
-								if (enume.hasMoreElements()){
-									b = bBlocks.remove(enume.nextElement());
-									bg.getDistrict(b.getDistNo()).removeBlock(b);
-									b.setDistNo(y.getDistrictNo());
-									y.addBlock(b);
-									if(y.getPopulation()>maxPopulation || z.getPopulation()<minPopulation){
+							while((z.getPopulation() > minPopulation) && (y.getPopulation() < maxPopulation)) {
+								Hashtable<Integer, Block> bBlocks = y.getBorderingBlocks(z);
+								while(!bBlocks.isEmpty()){
+									Enumeration<Integer> enume = bBlocks.keys();
+									if (enume.hasMoreElements()){
+										b = bBlocks.remove(enume.nextElement());
 										bg.getDistrict(b.getDistNo()).removeBlock(b);
-										b.setDistNo(z.getDistrictNo());
-										z.addBlock(b);
-										break loop2;
-									}
-									else{
-										numbers.add(1);
+										b.setDistNo(y.getDistrictNo());
+										y.addBlock(b);
+										if(y.getPopulation()>maxPopulation || z.getPopulation()<minPopulation){
+											bg.getDistrict(b.getDistNo()).removeBlock(b);
+											b.setDistNo(z.getDistrictNo());
+											z.addBlock(b);
+											break loop2;
+										}
+										else{
+											numbers.add(1);
+										}
 									}
 								}
 							}
 						}
 						else{
-							Hashtable<Integer, Block> bBlocks = z.getBorderingBlocks(y);
 							Block b;
 							loop3:
-							while((z.getPopulation() < maxPopulation) && (y.getPopulation() > minPopulation)
-								&&(!bBlocks.isEmpty())) {
+							while((z.getPopulation() < maxPopulation) && (y.getPopulation() > minPopulation)) {
+								Hashtable<Integer, Block> bBlocks = z.getBorderingBlocks(y);
+								while((!bBlocks.isEmpty())){
 								Enumeration<Integer> enume = bBlocks.keys();
-								if (enume.hasMoreElements()){
-									b = bBlocks.remove(enume.nextElement());
-									bg.getDistrict(b.getDistNo()).removeBlock(b);
-									b.setDistNo(z.getDistrictNo());
-									z.addBlock(b);
-									if(y.getPopulation()<minPopulation || z.getPopulation() > maxPopulation){
+									if (enume.hasMoreElements()){
+										b = bBlocks.remove(enume.nextElement());
 										bg.getDistrict(b.getDistNo()).removeBlock(b);
-										b.setDistNo(y.getDistrictNo());
-										y.addBlock(b);
-										break loop3;
-									}
-									else{
-										numbers.add(1);
+										b.setDistNo(z.getDistrictNo());
+										z.addBlock(b);
+										if(y.getPopulation()<minPopulation || z.getPopulation() > maxPopulation){
+											bg.getDistrict(b.getDistNo()).removeBlock(b);
+											b.setDistNo(y.getDistrictNo());
+											y.addBlock(b);
+											break loop3;
+										}
+										else{
+											numbers.add(1);
+										}
 									}
 								}
 							}
