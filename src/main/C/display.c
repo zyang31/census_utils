@@ -6,7 +6,7 @@
 #define SVG_SCALE 5000
 /*
   Code to display Census shapefiles.
-  Copyright (C) <2009>  <Joshua Justice>
+  Copyright (C) <2009>  <Joshua Justice, Alice Wang>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,8 +36,6 @@
   with Gems - authors, editors, publishers, or webmasters - are to be held responsible. 
   Basically, don't be a jerk, and remember that anything free comes with no guarantee. 
 */
-
-
 
 /*  
     polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
@@ -81,25 +79,22 @@ void colorArrange(int* array, int n, int nDists, char *distFile){
   fp = fopen(distFile, "r");
   if(fp==NULL){
     printf("Error- could not open district file\n");
-    printf("Filename:  %s\n", distFile);	
+    printf("Filename:  %s\n", distFile);
+	exit(-1);
   }
-  //Sumanth - Debug
   unsigned int min=0xffffff;
   unsigned int max=0x000000;
   unsigned int diff=(min-max)/distarray_size;
-printf("min=%x max=%x distarray_size=%x diff=%x  ",min, max,distarray_size, diff);
   int i;
   //  int arrayLim;
   unsigned int current = max;
   //check array size here
   for(i=0; i<distarray_size; i++){
-printf("current=%x  ", current);
     distArray[i]=current;
     current=current+diff;
   }
   while(fscanf(fp, "%i %i", &blockno, &distno) != EOF){
-    array[blockno]=distArray[distno];
-    printf("%xi   ",distArray[distno]);
+    array[blockno-1]=distArray[distno];
   }
   free(distArray);
   fclose(fp);
@@ -110,8 +105,8 @@ void svg_header(FILE *svg){
   fputs("<svg\n\txmlns:svg=\"http://www.w3.org/2000/svg\"\n", svg);
   fputs("\txmlns=\"http://www.w3.org/2000/svg\"\n", svg);
   fputs("\tversion=\"1.0\"\n", svg);
-  fputs("\twidth=\"360000\"\n", svg);
-  fputs("\theight=\"180000\"\n", svg);
+  fprintf(svg, "\twidth=\"%d\"\n", 360*SVG_SCALE);
+  fprintf(svg, "\theight=\"%d\"\n", 180*SVG_SCALE);
   fputs("\tid=\"svg2\">\n", svg);
   fputs("\t<defs\n\t\tid=\"defs1\" />\n", svg);
   fputs("\t<g\n\t\tid=\"layer1\">\n", svg);
@@ -144,7 +139,7 @@ void svg_polygon(SHPObject block, FILE *svg, int use_dist, int* colorArray){
   if(use_dist){
     fprintf(svg,"\t\t\tstyle=\"fill:#%x;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
   }else{
-    fprintf(svg,"\t\t\tstyle=\"fill:#%x;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>", colorArray[block.nShapeId]);
+    fprintf(svg,"\t\t\tstyle=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\"/>");
   }
   return;
 }
@@ -156,7 +151,7 @@ void svg_neighbors(SHPObject block, struct neighbor_list neighbor_list,
   //for each neighbor to the block, print the path between the centroids
     
   //Sumanth - Debug
-  printf("\n blockid = %d \n", block.nShapeId);
+  //printf("\n blockid = %d \n", block.nShapeId);
  
   int current, i;
   double bx, by, nx, ny;
@@ -197,14 +192,14 @@ int main(){
   double padfMinBound[4];
   double padfMaxBound[4];
   int i;
-  int use_gal = 1;
-  int use_dist = 0;
+  int use_gal = 0;
+  int use_dist = 1;
   //For josh
-  //char sf_name[] = "/home/josh/Desktop/FultonCoData/Fultoncombinednd.shp";
+  char sf_name[] = "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd.shp";
   //for sumanth
   //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
   //for alice
-  char sf_name[]= "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd_5.shp";//"/home/zimu/Documents/state/Utahdnd.shp"
+  //char sf_name[]= "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
   //Eventually, this won't be hardcoded
 
   SHPHandle handle = SHPOpen(sf_name, "rb");
@@ -253,7 +248,6 @@ int main(){
   //Call colorArrange:
   int ndists=5;
   int *colorArray = malloc(entityCount*sizeof(int));
-  printf("The filename is %s\n compared to %s\n", dst_filename, gal_filename);
   colorArrange(colorArray,entityCount,ndists, dst_filename);
 
   //write individual polygons
@@ -261,18 +255,25 @@ int main(){
     svg_polygon(*shapeList[i], svg, use_dist, colorArray);
   }
   printf("Polygons all printed.\n");
+
+
   if(use_gal){
     FILE *gal;
     int block, num_neigh, nblocks, temp_neigh;
     int count=0;
-    printf("The name of the file is: %s\n", gal_filename);
     gal= fopen(gal_filename, "r");
     if(gal==NULL){
       printf("Error: Could not open GAL file.\n");
       return -1;
     }
     fscanf(gal, "%d", &nblocks);
-    printf("GAL block count matches shapefile block count. Proceeding...\n");
+    
+    if(nblocks==entityCount){
+       printf("GAL block count matches shapefile block count. Proceeding...\n");
+    }else{
+      printf("GAL block count does not match. Exiting...\n");
+      exit(EXIT_FAILURE);
+    }
 	  
     NLIST = malloc(nblocks * sizeof(struct neighbor_list));
 	  
@@ -318,26 +319,29 @@ int main(){
 			    xCentList+i, yCentList+i, areaList+i);
     }
     printf("Centroids calculated.\n");
+
     //write paths from centroid to centroid
     fputs("\t</g>\n", svg);
     fputs("\t<g\n\t\tid=\"layer2\">\n", svg);
     for(i=0; i<entityCount; i++){
-               
       svg_neighbors(*shapeList[i], NLIST[i], xCentList, yCentList, svg);
     }
     //svg_neighbors(*shapeList[20], NLIST[20], xCentList, yCentList, svg);
     printf("Contiguity paths drawn.\n");
-       
+
+    //this is the section that's screwing up
     //Free NLIST
     for(i=0; i<entityCount; i++)
       {
-	free(NLIST[i].neighbors);
-	NLIST[i].neighbors = NULL;
+        printf("i is %d\n", i);
+        printf("NLIST[i]\n");
+        free(NLIST[i].neighbors);
+        NLIST[i].neighbors = NULL;
       }
     free(NLIST);
     NLIST = NULL;
-
     fclose(gal);
+    //end section that's screwing up
   }
   
   //write footer

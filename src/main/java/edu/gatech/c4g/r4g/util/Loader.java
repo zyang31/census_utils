@@ -1,3 +1,22 @@
+/*
+  Redistricting application
+  Copyright (C) <2009>  <Aaron Ciaghi, Stephen Long, Joshua Justice>
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 package edu.gatech.c4g.r4g.util;
 
 import java.io.BufferedReader;
@@ -16,10 +35,18 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
+/**
+ * Generic loader. It calls {@link BlockGraph#BlockGraph(FeatureSource)} to
+ * create the graph from a shapefile and reads contiguity information from a GAL
+ * file.
+ * 
+ * @author aaron
+ * 
+ */
 public abstract class Loader {
 
 	public static String POPULATION_FIELD;
-	
+
 	/**
 	 * 
 	 * @param source
@@ -50,6 +77,11 @@ public abstract class Loader {
 
 	}
 
+	/**
+	 * Adds the edges to the input {@link BlockGraph}
+	 * @param bg
+	 * @param filename
+	 */
 	private void parseGal(BlockGraph bg, String filename) {
 		File galFile = new File(filename);
 
@@ -108,8 +140,10 @@ public abstract class Loader {
 
 					// System.out.println("Adding " + neighbor_id +
 					// " to the neighbors of " + current_block_id);
+					
 					currentBlock.neighbors.add(bg.getBlock(neighbor_id));
 					bg.getBlock(neighbor_id).neighbors.add(currentBlock);
+
 				}
 			}
 

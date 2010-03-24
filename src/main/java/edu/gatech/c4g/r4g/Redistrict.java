@@ -1,3 +1,22 @@
+/*
+  Redistricting application
+  Copyright (C) <2009>  <Aaron Ciaghi, Stephen Long, Joshua Justice>
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 package edu.gatech.c4g.r4g;
 
 import java.io.File;
@@ -27,7 +46,7 @@ public class Redistrict {
 	
 	
 	private static final String USAGE = "[-h] -a <algorithm> -n <number_of_districts> -d <max_deviation> -i <input_file> [-nographics]";
-	private static final String HEADER = "OpenRedistricting - A bunch of algorithms to (fairly?) redistrict Australia (with GeoTools "
+	private static final String HEADER = "OpenRedistricting - A bunch of algorithms to (fairly?) redistrict (with GeoTools "
 			+ GeoTools.getVersion() + ")";
 	private static final String FOOTER = "\nCopyright 2009 - Aaron Ciaghi, Stephen Long, Joshua Justice";
 	private static Options options;
@@ -89,9 +108,6 @@ public class Redistrict {
 			String galFile = filename.substring(0, filename.length() - 4)
 					+ ".GAL";
 
-			MapView mv = new MapView(source);
-			// mv.showShapefile();
-
 			RedistrictingAlgorithm ra = null;
 
 			if (alg.equals("australia")) {
@@ -111,13 +127,14 @@ public class Redistrict {
 			System.out
 					.println("Redistricting. You can have a coffee while you are waiting");
 			ra.redistrict(ndis, maxDeviation);
+
+			File districtedShapefile = Saver.save(source, ra.getBlockGraph(), filename.substring(0,
+					filename.length() - 4));
 			
 			if (GRAPHICS_ENABLED){
-				//TODO show map view
+				MapView mv = new MapView(districtedShapefile);
+				mv.showShapefile();
 			}
-
-			Saver.save(source, ra.getBlockGraph(), filename.substring(0,
-					filename.length() - 4));
 
 		} else {
 			printUsage(options);

@@ -1,73 +1,97 @@
+/*
+  Redistricting application
+  Copyright (C) <2009>  <Aaron Ciaghi, Stephen Long, Joshua Justice>
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 package edu.gatech.c4g.r4g.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import javax.activation.DataSource;
-
-import org.geotools.data.DataAccess;
-import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
-import org.geotools.data.FileDataStore;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.data.shapefile.ShpFiles;
-import org.geotools.data.shapefile.dbf.DbaseFileHeader;
-import org.geotools.data.shapefile.dbf.DbaseFileReader;
-import org.geotools.data.shapefile.dbf.DbaseFileWriter;
-import org.geotools.factory.FactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-
-import com.sun.rowset.internal.Row;
 
 import edu.gatech.c4g.r4g.Redistrict;
 import edu.gatech.c4g.r4g.model.Block;
 import edu.gatech.c4g.r4g.model.BlockGraph;
 
+/**
+ * Saver utility class that provides the functions to output the result of the
+ * redistricting algorithm to a shapefile and to a DST file.
+ * 
+ * @author aaron
+ * 
+ */
 public class Saver {
 
-	public static void save(
+	/**
+	 * Saves the input {@link BlockGraph} with district information to a
+	 * shapefile and to a DST file.
+	 * 
+	 * @param source the original {@link FeatureSource} from which bg was created
+	 * @param bg
+	 * @param outputFile the name of the output file (without extension)
+	 * 
+	 * @return the file that contains the new shapefile (for display purposes)
+	 */
+	public static File save(
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			BlockGraph bg, String outputFile) {
 		// part 1 - save new shapefile
 		System.out.println("Saving new Shapefile");
-		saveShapefile(source, bg, new File(outputFile + "_"
-				+ bg.getDistrictCount()));
+		
+		File newShapefile = new File(outputFile + "_" + bg.getDistrictCount());	
+		File redistrictedShapefile = saveShapefile(source, bg, newShapefile);
 
 		// part 2 - write which blocks are in which district
-		System.out.println("Saving districting data to " + outputFile + ".dst");
-		saveDST(bg, new File(outputFile + ".dst"));
+		System.out.println("Saving districting data to " + outputFile + "_" + bg.getDistrictCount() + ".dst");
+		saveDST(bg, new File(outputFile + "_" + bg.getDistrictCount() + ".dst"));
+		return redistrictedShapefile; 
+
 	}
 
-	private static void saveShapefile(
+	/**
+	 * Saves a {@link BlockGraph} to a shapefile, adding district information
+	 * @param source
+	 * @param bg
+	 * @param outFile
+	 */
+	private static File saveShapefile(
 			FeatureSource<SimpleFeatureType, SimpleFeature> source,
 			BlockGraph bg, File outFile) {
 		SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
@@ -147,6 +171,7 @@ public class Saver {
 			e1.printStackTrace();
 		}
 
+		return newFile;
 	}
 
 	private static void saveDST(BlockGraph bg, File dstFile) {
