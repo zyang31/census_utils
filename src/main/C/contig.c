@@ -99,7 +99,7 @@ SHPObject **block_list = NULL;
 int block_count;
 //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
 //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
-char sf_name[] = "/home/zimu/census_utils/Fultoncounty/Fultoncombined.shp";
+char sf_name[] = "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd.shp";
 //char sf_name[]="/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
 int **Sub_Graph_Head = NULL;
 int sub_graph_count = 0;

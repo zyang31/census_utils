@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
@@ -54,7 +55,6 @@ public abstract class RedistrictingAlgorithm {
 
 		// stage 1
 		initialExpansion();
-
 		// LOG INFO
 		double totPop = bg.getPopulation();
 
@@ -92,6 +92,7 @@ public abstract class RedistrictingAlgorithm {
 		 System.out.println(minPopulation);
 		 System.out.println("maxPopulation:");
 		 System.out.println(maxPopulation);
+		 checkConnectivity();
 	}
 
 	protected void initialExpansion() {
@@ -214,6 +215,7 @@ public abstract class RedistrictingAlgorithm {
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
 	protected void finalizeDistricts() {
 		numbers.clear();
+		// System.out.println(bg.districtStatistics());
 
 		//Get the over-apportioned Districts overAppDists
 		ArrayList<District> overAppDists = new ArrayList<District>();
@@ -222,7 +224,8 @@ public abstract class RedistrictingAlgorithm {
 				overAppDists.add(e);
 			}
 		}
-		
+		// System.out.println(1);
+
 		//Get the neighboring districts call them noDists
 		
 		for (District e : overAppDists){
@@ -235,17 +238,25 @@ public abstract class RedistrictingAlgorithm {
 
 					}
 				}
-			}
-			for (int i = 0; i<noDists.size(); i++){
+			} 		// System.out.println(2);
+
+			for (int i = 0; i<noDists.size(); i++){ 		 
+				//System.out.println(3);
 				District noDist = noDists.get(i);
 				//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
-				if (noDists.get(i).getPopulation() < minPopulation){
-					while((e.getPopulation() > maxPopulation) && (noDists.get(i).getPopulation() < minPopulation)) {
+				if (noDist.getPopulation() < minPopulation){ 		 
+				//	System.out.println(4);
+					while((e.getPopulation() > maxPopulation) && (noDist.getPopulation() < minPopulation)) { 		 
+						//System.out.println(5);
+						//System.out.println("original District population:" + e.getPopulation());
+						//System.out.println("neighbor's population:" + noDists.get(i).getPopulation());Fultoncombinednd_5.shp
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
+						//System.out.println("bBlocksSize:"+bBlocks.size());
 						while ((!bBlocks.isEmpty())) {
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
-							if (enume.hasMoreElements()){
+							if (enume.hasMoreElements()){ 		 
+								//System.out.println(6);
 								numbers.add(1);
 								b = bBlocks.remove(enume.nextElement());
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
@@ -259,17 +270,25 @@ public abstract class RedistrictingAlgorithm {
 				//will push it over the threshold and add blocks to them one at a time
 				else{
 					search1:
-					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){
+					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){ 		
+						//System.out.println(7);
+
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
-						while(!bBlocks.isEmpty()){
+						while(!bBlocks.isEmpty()){ 		
+							// System.out.println(8);
+
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
-							if (enume.hasMoreElements()){
+							if (enume.hasMoreElements()){ 		
+								// System.out.println(9);
+
 								b = bBlocks.remove(enume.nextElement());
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
 								b.setDistNo(noDist.getDistrictNo());
 								noDist.addBlock(b);
 								if (noDist.getPopulation() > maxPopulation){//now that noDist has an extra block added, check to see if its population is now greater than the max.
+									 //System.out.println(10);
+
 									bg.getDistrict(b.getDistNo()).removeBlock(b);
 									b.setDistNo(e.getDistrictNo());
 									e.addBlock(b);
@@ -287,6 +306,7 @@ public abstract class RedistrictingAlgorithm {
 				}
 			}
 		}
+
 		// Get the under-apportioned Districts undAppDists
 		ArrayList<District> undAppDists = new ArrayList<District>();
 		for (District d : bg.getAllDistricts()) {
@@ -440,6 +460,51 @@ public abstract class RedistrictingAlgorithm {
 						}
 					}		
 				}
+			}
+		}
+	}
+	
+	protected void checkConnectivity(){
+		ArrayList<Block> allBlocks = new ArrayList<Block>();
+		Hashtable<Integer, Block> temp = new Hashtable<Integer, Block>();
+		for (District d : bg.getAllDistricts()){
+			Hashtable<Integer, Block> neighbors = new Hashtable<Integer, Block>();
+			int count = 1;
+			allBlocks.addAll(d.getAllBlocks());
+			Collections.sort(allBlocks, new BlockDensityComparator());
+			Block a = allBlocks.get(0);
+			neighbors.put(0, a);
+			Iterator<Block> h = a.neighbors.iterator();
+			while(h.hasNext()){
+				Block b = h.next();
+				if(b.getDistNo()== a.getDistNo()){
+					neighbors.put(count, b);
+					temp.put(count, b);
+					count = count + 1;
+				}
+			}
+			while(!temp.isEmpty()){
+				Enumeration<Integer> enume = temp.keys();
+				if(enume.hasMoreElements()){
+					Block c = temp.remove(enume.nextElement());
+					Iterator<Block> i = c.neighbors.iterator();
+					while(i.hasNext()){
+						Block e = i.next();
+						if((e.getDistNo()==a.getDistNo()) && !neighbors.containsValue(e)){
+							neighbors.put(count, e);
+							temp.put(count, e);
+							count = count + 1;
+						}
+					}
+				}
+			}
+			if(neighbors.size()==d.size()){
+				System.out.println("District:"+ d.getDistrictNo() + " possesses connectivity");
+				System.out.println("District's supposed size:" + d.size() + "tree's size:" + neighbors.size());
+			}
+			else{
+				System.out.println("District:" + d.getDistrictNo() + " does not possess connectivity");
+				System.out.println("District's supposed size:" + d.size() + "tree's size:" + neighbors.size());
 			}
 		}
 	}

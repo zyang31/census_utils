@@ -97,7 +97,11 @@ public class District extends Graph {
 			Iterator<Block> i = b.neighbors.iterator();
 			while (i.hasNext()) {
 				Block a = i.next();
+			//	System.out.println("a's district Number:" + a.getDistNo());
+			//	System.out.println("Dist's district Number:" + Dist.getDistrictNo());
+			//	System.out.println("is Contigous a, Dist?:" + isContiguous(a,Dist));
 				if ((a.getDistNo() == Dist.getDistrictNo())&& (isContiguous(a,Dist)) ) {
+				//	System.out.println("true");
 					neighbors.put(a.getDistNo(), a);
 					break label;
 					//System.out.println("District:" + Dist.getDistrictNo() + "border:" + neighbors);
@@ -203,6 +207,9 @@ public class District extends Graph {
 				}
 			}
 		}
+	//	System.out.println("neighbors size:" + neighbors.size());
+		//System.out.println("neighborsCompare size:" + neighborsCompare.size());
+
 		/*label:
 		while(h.hasNext()){
 			Block c = h.next();
