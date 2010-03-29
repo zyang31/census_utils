@@ -17,6 +17,8 @@ import edu.gatech.c4g.r4g.model.District;
 import edu.gatech.c4g.r4g.model.Island;
 import edu.gatech.c4g.r4g.util.Loader;
 
+//import com.vividsolutions.jts.geom.Geometry;
+
 public abstract class RedistrictingAlgorithm {
 
 	int ndis;
@@ -93,6 +95,7 @@ public abstract class RedistrictingAlgorithm {
 		 System.out.println("maxPopulation:");
 		 System.out.println(maxPopulation);
 		 checkConnectivity();
+		 //getCompactnesses();
 	}
 
 	protected void initialExpansion() {
@@ -235,28 +238,21 @@ public abstract class RedistrictingAlgorithm {
 				for (int j : m){
 					if (u.getDistrictNo() == j){
 						noDists.add(u);
-
 					}
 				}
-			} 		// System.out.println(2);
+			} 		
 
-			for (int i = 0; i<noDists.size(); i++){ 		 
-				//System.out.println(3);
+			for (int i = 0; i<noDists.size(); i++){ 
 				District noDist = noDists.get(i);
+				//Geometry currentHull = noDist.getShape(); 
 				//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
-				if (noDist.getPopulation() < minPopulation){ 		 
-				//	System.out.println(4);
+				if (noDist.getPopulation() < minPopulation){ 		
 					while((e.getPopulation() > maxPopulation) && (noDist.getPopulation() < minPopulation)) { 		 
-						//System.out.println(5);
-						//System.out.println("original District population:" + e.getPopulation());
-						//System.out.println("neighbor's population:" + noDists.get(i).getPopulation());Fultoncombinednd_5.shp
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
-						//System.out.println("bBlocksSize:"+bBlocks.size());
 						while ((!bBlocks.isEmpty())) {
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
 							if (enume.hasMoreElements()){ 		 
-								//System.out.println(6);
 								numbers.add(1);
 								b = bBlocks.remove(enume.nextElement());
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
@@ -271,23 +267,20 @@ public abstract class RedistrictingAlgorithm {
 				else{
 					search1:
 					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){ 		
-						//System.out.println(7);
 
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
 						while(!bBlocks.isEmpty()){ 		
-							// System.out.println(8);
 
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
 							if (enume.hasMoreElements()){ 		
-								// System.out.println(9);
 
 								b = bBlocks.remove(enume.nextElement());
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
 								b.setDistNo(noDist.getDistrictNo());
 								noDist.addBlock(b);
-								if (noDist.getPopulation() > maxPopulation){//now that noDist has an extra block added, check to see if its population is now greater than the max.
-									 //System.out.println(10);
+								if (noDist.getPopulation() > maxPopulation){
+									//now that noDist has an extra block added, check to see if its population is now greater than the max.
 
 									bg.getDistrict(b.getDistNo()).removeBlock(b);
 									b.setDistNo(e.getDistrictNo());
@@ -316,6 +309,7 @@ public abstract class RedistrictingAlgorithm {
 		}
 		// Get their neighboring districts nDists
 		for (District d : undAppDists) {
+			//Geometry currentHull = d.getShape(); 
 			ArrayList<Integer> n = d.getNeighboringDistricts();
 			ArrayList<District> nDists = new ArrayList<District>();
 			for (District t : bg.getAllDistricts()) {
@@ -403,6 +397,7 @@ public abstract class RedistrictingAlgorithm {
 					if (!flags.contains(y)){
 						neighbors.add(y);
 						if(z.getPopulation()-idealPopulation>0){
+							//Geometry currentHull = y.getShape(); 
 							Block b;
 							loop2:
 							while((z.getPopulation() > minPopulation) && (y.getPopulation() < maxPopulation)) {
@@ -428,6 +423,7 @@ public abstract class RedistrictingAlgorithm {
 							}
 						}
 						else{
+							//Geometry currentHull = z.getShape(); 
 							Block b;
 							loop3:
 							while((z.getPopulation() < maxPopulation) && (y.getPopulation() > minPopulation)) {
@@ -463,11 +459,15 @@ public abstract class RedistrictingAlgorithm {
 			}
 		}
 	}
-	
+	protected void getCompactnesses(){
+		for(District d : bg.getAllDistricts()){
+			System.out.println("District: "+ d + "'s compactness:" + d.getCompactness());
+		}
+	}
 	protected void checkConnectivity(){
-		ArrayList<Block> allBlocks = new ArrayList<Block>();
-		Hashtable<Integer, Block> temp = new Hashtable<Integer, Block>();
 		for (District d : bg.getAllDistricts()){
+			ArrayList<Block> allBlocks = new ArrayList<Block>();
+			Hashtable<Integer, Block> temp = new Hashtable<Integer, Block>();
 			Hashtable<Integer, Block> neighbors = new Hashtable<Integer, Block>();
 			int count = 1;
 			allBlocks.addAll(d.getAllBlocks());
@@ -577,6 +577,8 @@ public abstract class RedistrictingAlgorithm {
 			return returnList;
 		}
 	}
+	
+	
 
 	public BlockGraph getBlockGraph() {
 		return bg;
