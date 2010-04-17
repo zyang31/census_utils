@@ -102,10 +102,16 @@ public class District extends Graph {
 					Dist.hull = Dist.hull.difference(a.hull);
 					if ((a.getDistNo() == Dist.getDistrictNo()) && (isContiguous(a,Dist))) {
 						if(this.getCompactness()>thisHull){
+							System.out.println("transfer");
+							System.out.println("before compactness:"+thisHull);
+							System.out.println("after compactness:"+this.getCompactness());
 							neighbors.put(a.getDistNo(), a);
 							break label;
 						}
 						else{
+							System.out.println("no transfer");
+							System.out.println("before compactness:"+thisHull);
+							System.out.println("after compactness:"+this.getCompactness());
 							this.hull=this.hull.difference(a.hull);
 							Dist.hull = Dist.hull.union(a.hull);
 						}
@@ -180,7 +186,7 @@ public class District extends Graph {
 		return (population > min) && (population <= max);
 	}
 	public boolean isContiguous(Block a, District Dist){
-	//int z =2;
+		//int z =2;
 		int count = 0;
 		int count1 = 1;
 		Hashtable<Integer, Block> temp = new Hashtable<Integer, Block>();
@@ -193,45 +199,47 @@ public class District extends Graph {
 				neighbors.put(count, b);
 				count = count + 1;
 			}
-			Iterator<Block> j = b.neighbors.iterator();
-			while(j.hasNext()){
-				Block c = j.next();
-				if(c.getDistNo()==a.getDistNo() && !(neighbors.containsValue(c)) && !(c==a)){
-					neighbors.put(count, c);
-					count = count + 1;
-				}
-			}
+			 Iterator<Block> j = b.neighbors.iterator();
+             while(j.hasNext()){
+                     Block c = j.next();
+                     if(c.getDistNo()==a.getDistNo() && !(neighbors.containsValue(c)) && !(c==a)){
+                             neighbors.put(count, c);
+                             count = count + 1;
+                     }
+             }
+
 		}
 		Block d = neighbors.get(0);
-		neighborsCompare.put(0, d);
-		Iterator<Block> k = d.neighbors.iterator();
-		while(k.hasNext()){
-			Block e = k.next();
-			if (e.getDistNo()==a.getDistNo() && !(e==a) && !(neighborsCompare.containsValue(e)) && neighbors.containsValue(e)){
-				neighborsCompare.put(count1, e);
-				temp.put(count1, e);
-				count1 = count1 + 1;
-			}
-		}
-		while(!temp.isEmpty()){
-			Enumeration<Integer> enume = temp.keys();
-			if(enume.hasMoreElements()){
-				Block f = temp.remove(enume.nextElement());
-				Iterator<Block> l = f.neighbors.iterator();
-				while(l.hasNext()){
-					Block g = l.next();
-					if((g.getDistNo()==a.getDistNo()) && !(g==a) && !(neighborsCompare.containsValue(g)) && neighbors.containsValue(g)){
-						neighborsCompare.put(count1, g);
-						temp.put(count1, g);
-						count1 = count1+1;
-					}
-				}
-			}
-		}
-		if(neighbors.size()==neighborsCompare.size()){
-			return true;
-		}
+        neighborsCompare.put(0, d);
+        Iterator<Block> k = d.neighbors.iterator();
+        while(k.hasNext()){
+                Block e = k.next();
+                if (e.getDistNo()==a.getDistNo() && !(e==a) && !(neighborsCompare.containsValue(e)) && neighbors.containsValue(e)){
+                        neighborsCompare.put(count1, e);
+                        temp.put(count1, e);
+                        count1 = count1 + 1;
+                }
+        }
+        while(!temp.isEmpty()){
+                Enumeration<Integer> enume = temp.keys();
+                if(enume.hasMoreElements()){
+                        Block f = temp.remove(enume.nextElement());
+                        Iterator<Block> l = f.neighbors.iterator();
+                        while(l.hasNext()){
+                                Block g = l.next();
+                                if((g.getDistNo()==a.getDistNo()) && !(g==a) && !(neighborsCompare.containsValue(g)) && neighbors.containsValue(g)){
+                                        neighborsCompare.put(count1, g);
+                                        temp.put(count1, g);
+                                        count1 = count1+1;
+                                }
+                        }
+                }
+        }
+        if(neighbors.size()==neighborsCompare.size()){
+            return true;
+        }
 		return false;
+			
 	}
 	/**
 	* Calculates a compactness score for this district. The score is the
@@ -242,7 +250,6 @@ public class District extends Graph {
 	* @return
 	*/
 	public double getCompactness() {
-	
 		return this.hull.getArea() / this.hull.convexHull().getArea();
 	}
 	 
