@@ -98,7 +98,6 @@ public class District extends Graph {
 				while (i.hasNext()) {
 					Block a = i.next();
 					double thisHull = this.getCompactness();
-					double distHull = Dist.getCompactness();
 					this.hull = this.hull.union(a.hull);
 					Dist.hull = Dist.hull.difference(a.hull);
 					if ((a.getDistNo() == Dist.getDistrictNo()) && (isContiguous(a,Dist))) {

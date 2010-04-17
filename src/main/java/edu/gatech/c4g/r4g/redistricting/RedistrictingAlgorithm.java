@@ -134,7 +134,12 @@ public abstract class RedistrictingAlgorithm {
 						.getPopulation(), minPopulation, neighborsList);
 				dist.addAllBlocks(blocksToAdd);
 				for(Block b:blocksToAdd){
-					dist.hull.union(b.hull);
+					if(dist.hull == null){
+						dist.hull = b.hull;
+					}
+					else{
+						dist.hull.union(b.hull);
+					}
 				}
 				expandFrom = blocksToAdd;
 			}
