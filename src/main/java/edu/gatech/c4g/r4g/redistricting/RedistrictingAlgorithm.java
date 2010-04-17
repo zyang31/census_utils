@@ -32,10 +32,10 @@ public abstract class RedistrictingAlgorithm {
 	public BlockGraph bg;
 	ArrayList<Island> islands;
 	Loader loader;
-
+	
 	public RedistrictingAlgorithm(Loader loader,
-			FeatureSource<SimpleFeatureType, SimpleFeature> source,
-			String galFile) {
+	FeatureSource<SimpleFeatureType, SimpleFeature> source,
+	String galFile) {
 		this.loader = loader;
 
 		System.out.println("Loading files");
@@ -49,55 +49,55 @@ public abstract class RedistrictingAlgorithm {
 	}
 
 	public void redistrict(int ndis, double maxDeviation) {
-		// calculate ideal population
+	// calculate ideal population
 		this.ndis = ndis;
 		idealPopulation = bg.getPopulation() / ndis;
 		minPopulation = idealPopulation - idealPopulation * maxDeviation;
 		maxPopulation = idealPopulation + idealPopulation * maxDeviation;
-
-		// stage 1
+	
+	// stage 1
 		initialExpansion();
-		// LOG INFO
+	// LOG INFO
 		double totPop = bg.getPopulation();
-
+	
 		int usedblocks = 0;
-
-		// System.out.println("\n=============\n" + "After Stage 1\n"
-		// + "=============\n");
-		// System.out.println(bg.districtStatistics());
-
-		// --------------------------------------
-		// stage2
+	
+	// System.out.println("\n=============\n" + "After Stage 1\n"
+	// + "=============\n");
+	// System.out.println(bg.districtStatistics());
+	
+	// --------------------------------------
+	// stage2
 		secondaryExpansion();
-
-		// LOG INFO
+	
+	// LOG INFO
 		usedblocks = 0;
-
+	
 		System.out.println("\n=============\n" + "After Stage 2\n"
-				+ "=============\n");
+		+ "=============\n");
 		System.out.println(bg.districtStatistics());
-
-//		for (District d : bg.getAllDistricts()) {
-//			System.out.println("District " + d.getDistrictNo()
-//					+ " compactness: " + d.getCompactness());
-//		}
-
-		// --------------------------------------
-		// stage3
+	
+	// for (District d : bg.getAllDistricts()) {
+	// System.out.println("District " + d.getDistrictNo()
+	// + " compactness: " + d.getCompactness());
+	// }
+	
+	// --------------------------------------
+	// stage3
 	
 		populationBalancing();
 		
-		 System.out.println("\n=============\n" + "After Stage 3.2\n"
-					+ "=============\n");
-		 System.out.println(bg.districtStatistics());
-		 System.out.println("minPopulation:");
-		 System.out.println(minPopulation);
-		 System.out.println("maxPopulation:");
-		 System.out.println(maxPopulation);
-		 checkConnectivity();
-		 //getCompactnesses();
+		System.out.println("\n=============\n" + "After Stage 3.2\n"
+		+ "=============\n");
+		System.out.println(bg.districtStatistics());
+		System.out.println("minPopulation:");
+		System.out.println(minPopulation);
+		System.out.println("maxPopulation:");
+		System.out.println(maxPopulation);
+		checkConnectivity();
+	//getCompactnesses();
 	}
-
+	
 	protected void initialExpansion() {
 		ArrayList<Block> allBlocks = new ArrayList<Block>();
 		allBlocks.addAll(bg.getAllBlocks());
@@ -106,20 +106,20 @@ public abstract class RedistrictingAlgorithm {
 		//the blocks are being added by population here
 		for (int currentDistNo = 1; currentDistNo <= ndis; currentDistNo++) {
 			System.out.println("Building district " + currentDistNo);
-
+			
 			Block firstBlock = findFirstUnassignedBlock(allBlocks);
-
+			
 			District dist = new District(currentDistNo);
 			// add the most populated block
 			ArrayList<Block> expandFrom = new ArrayList<Block>();
 			dist.addBlock(firstBlock);
 			expandFrom.add(firstBlock);
-
+			
 			while (!expandFrom.isEmpty()
-					&& dist.getPopulation() <= minPopulation * .8) {
-
+			&& dist.getPopulation() <= minPopulation * .8) {
+	
 				ArrayList<Block> neighborsList = new ArrayList<Block>();
-
+	
 				for (Block b : expandFrom) {
 					for (Block n : b.neighbors) {
 						if (n.getDistNo() == Block.UNASSIGNED) {
@@ -129,36 +129,39 @@ public abstract class RedistrictingAlgorithm {
 						}
 					}
 				}
-
+	
 				ArrayList<Block> blocksToAdd = chooseNeighborsToAdd(dist
 						.getPopulation(), minPopulation, neighborsList);
 				dist.addAllBlocks(blocksToAdd);
+				for(Block b:blocksToAdd){
+					dist.hull.union(b.hull);
+				}
 				expandFrom = blocksToAdd;
 			}
-
+	
 			bg.addDistrict(dist);
 		}
-
+	
 	}
-
+	
 	protected void secondaryExpansion() {
 		ArrayList<Block> unassigned = bg.getUnassigned();
-
-		// Argument: a SortedSet of unassigned blocks
+	
+	// Argument: a SortedSet of unassigned blocks
 		boolean ignorePopulation = false;
 		for (int i = 0; i < 2; i++) {
 			int oldsize = 0;
 			int newsize = unassigned.size();
-
+	
 			while (oldsize != newsize) {
 				for (Block current : unassigned) {
 					int district = Block.UNASSIGNED;
-
+	
 					if (current.neighbors.isEmpty()) {
 						System.out.println("Block " + current.getId()
-								+ " has no neighbors!!");
+						+ " has no neighbors!!");
 					}
-
+	
 					for (Block b : current.neighbors) {
 						if (b.getDistNo() != Block.UNASSIGNED) {
 							District d = bg.getDistrict(b.getDistNo());
@@ -168,7 +171,7 @@ public abstract class RedistrictingAlgorithm {
 									district = b.getDistNo();
 								} else {
 									District currentD = bg
-											.getDistrict(district);
+									.getDistrict(district);
 									int newPop = currentD.getPopulation();
 									district = pop < newPop ? b.getDistNo()
 											: district;
@@ -176,10 +179,10 @@ public abstract class RedistrictingAlgorithm {
 							}
 						}
 					}
-
+	
 					if (district != Block.UNASSIGNED) {
 						bg.getDistrict(district).addBlock(current);
-
+						bg.getDistrict(district).hull.union(current.hull);
 						// System.out.println(unassigned.size());
 					}
 				}
@@ -189,9 +192,9 @@ public abstract class RedistrictingAlgorithm {
 			}
 			ignorePopulation = true;
 		}
-
+	
 	}//end second expansion
-
+	
 	protected void populationBalancing() {
 		numbers.add(1);
 		while(!numbers.isEmpty()){
@@ -214,23 +217,25 @@ public abstract class RedistrictingAlgorithm {
 	
 	//this method takes care of the case where a district is under/over populated and its neighbors are unable to swap blocks with it.
 	
-
+	
 	// First part to stage 3 or stage 2.5 or whatever you want to call it
 	protected void finalizeDistricts() {
 		numbers.clear();
-		// System.out.println(bg.districtStatistics());
-
-		//Get the over-apportioned Districts overAppDists
+	// System.out.println(bg.districtStatistics());
+	
+	//Get the over-apportioned Districts overAppDists
 		ArrayList<District> overAppDists = new ArrayList<District>();
 		for (District e : bg.getAllDistricts()){
 			if (e.getPopulation() > maxPopulation){
 				overAppDists.add(e);
 			}
 		}
-		// System.out.println(1);
-
-		//Get the neighboring districts call them noDists
+		Collections.sort(overAppDists, new districtCompactnessComparator());
 		
+	// System.out.println(1);
+	
+	//Get the neighboring districts call them noDists
+	
 		for (District e : overAppDists){
 			ArrayList<Integer> m = e.getNeighboringDistricts();
 			ArrayList<District> noDists = new ArrayList<District>();
@@ -240,19 +245,19 @@ public abstract class RedistrictingAlgorithm {
 						noDists.add(u);
 					}
 				}
-			} 		
-
-			for (int i = 0; i<noDists.size(); i++){ 
+			}
+	
+			for (int i = 0; i<noDists.size(); i++){
 				District noDist = noDists.get(i);
-				//Geometry currentHull = noDist.getShape(); 
-				//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
-				if (noDist.getPopulation() < minPopulation){ 		
-					while((e.getPopulation() > maxPopulation) && (noDist.getPopulation() < minPopulation)) { 		 
+	//Geometry currentHull = noDist.getShape();
+	//find out which neighboring districts have few people and get the bordering blocks to those districts one at a time
+				if (noDist.getPopulation() < minPopulation){
+					while((e.getPopulation() > maxPopulation) && (noDist.getPopulation() < minPopulation)) {
 						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
 						while ((!bBlocks.isEmpty())) {
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
-							if (enume.hasMoreElements()){ 		 
+							if (enume.hasMoreElements()){
 								numbers.add(1);
 								b = bBlocks.remove(enume.nextElement());
 								bg.getDistrict(b.getDistNo()).removeBlock(b);
@@ -262,76 +267,76 @@ public abstract class RedistrictingAlgorithm {
 						}
 					}
 				}
-				//find out if adding a bordering block to a neighboring district that is not over the maxPopulation 
-				//will push it over the threshold and add blocks to them one at a time
+	//find out if adding a bordering block to a neighboring district that is not over the maxPopulation
+	//will push it over the threshold and add blocks to them one at a time
 				else{
 					search1:
-					while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){ 		
-
-						Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
-						while(!bBlocks.isEmpty()){ 		
-
-							Block b;
-							Enumeration<Integer> enume = bBlocks.keys();
-							if (enume.hasMoreElements()){ 		
-
-								b = bBlocks.remove(enume.nextElement());
-								bg.getDistrict(b.getDistNo()).removeBlock(b);
-								b.setDistNo(noDist.getDistrictNo());
-								noDist.addBlock(b);
-								if (noDist.getPopulation() > maxPopulation){
-									//now that noDist has an extra block added, check to see if its population is now greater than the max.
-
+						while ((noDist.getPopulation() < maxPopulation) && (e.getPopulation() > maxPopulation)){
+	
+							Hashtable<Integer, Block> bBlocks = noDist.getBorderingBlocks(e);
+							while(!bBlocks.isEmpty()){
+	
+								Block b;
+								Enumeration<Integer> enume = bBlocks.keys();
+								if (enume.hasMoreElements()){
+	
+									b = bBlocks.remove(enume.nextElement());
 									bg.getDistrict(b.getDistNo()).removeBlock(b);
-									b.setDistNo(e.getDistrictNo());
-									e.addBlock(b);
-									break search1;
+									b.setDistNo(noDist.getDistrictNo());
+									noDist.addBlock(b);
+									if (noDist.getPopulation() > maxPopulation){
+	//now that noDist has an extra block added, check to see if its population is now greater than the max.
+	
+										bg.getDistrict(b.getDistNo()).removeBlock(b);
+										b.setDistNo(e.getDistrictNo());
+										e.addBlock(b);
+										break search1;
+									}
+									else{
+										numbers.add(1);
+									}
 								}
 								else{
-									numbers.add(1);
+									break search1;
 								}
 							}
-							else{
-								break search1;
-							}
 						}
-					}
 				}
 			}
 		}
-
-		// Get the under-apportioned Districts undAppDists
+	
+	// Get the under-apportioned Districts undAppDists
 		ArrayList<District> undAppDists = new ArrayList<District>();
 		for (District d : bg.getAllDistricts()) {
 			if (d.getPopulation() < minPopulation) {
 				undAppDists.add(d);
 			}
 		}
-		// Get their neighboring districts nDists
+	// Get their neighboring districts nDists
 		for (District d : undAppDists) {
-			//Geometry currentHull = d.getShape(); 
+	//Geometry currentHull = d.getShape();
 			ArrayList<Integer> n = d.getNeighboringDistricts();
 			ArrayList<District> nDists = new ArrayList<District>();
 			for (District t : bg.getAllDistricts()) {
 				for (int i : n) {
 					if (t.getDistrictNo() == i) {
 						nDists.add(t);
-						/*System.out.println("underPopulated District:" + d.getDistrictNo());
-						System.out.println("District's neighbors:" + t.getDistrictNo());*/
+	/*System.out.println("underPopulated District:" + d.getDistrictNo());
+	System.out.println("District's neighbors:" + t.getDistrictNo());*/
 					}
 				}
 			}
-			// find out which neighboring districts have too many people and get the bordering blocks from those districts one at a time.
+	// find out which neighboring districts have too many people and get the bordering blocks from those districts one at a time.
 			for (int i = 0; i < nDists.size(); i++) {
 				District nDist = nDists.get(i);
 				if (nDist.getPopulation() > maxPopulation){
 					while ((d.getPopulation() < minPopulation)
-						&& (nDists.get(i).getPopulation() > maxPopulation)) {
-						// The bordering blocks to be moved over. 
-						Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist);  //TO HERE
+							&& (nDists.get(i).getPopulation() > maxPopulation)) {
+	// The bordering blocks to be moved over.
+						Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist); //TO HERE
 						while ((!bBlocks.isEmpty())) {
-						// get Enumeration and remove value based off of the
-						// enumerated values
+	// get Enumeration and remove value based off of the
+	// enumerated values
 							Block b;
 							Enumeration<Integer> enume = bBlocks.keys();
 							if (enume.hasMoreElements()) {
@@ -344,32 +349,32 @@ public abstract class RedistrictingAlgorithm {
 						}
 					}
 				}
-				//find out which neighboring districts have an acceptable range but transfer blocks anyway and see if they
-				//fall below acceptable limits
+	//find out which neighboring districts have an acceptable range but transfer blocks anyway and see if they
+	//fall below acceptable limits
 				else{
 					search2:
-					while ((d.getPopulation() < minPopulation) && (nDist.getPopulation() > minPopulation)){
-						Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist);
-						Block b;
-						Enumeration<Integer> enume = bBlocks.keys();
-						if (enume.hasMoreElements()){
-							b = bBlocks.remove(enume.nextElement());
-							bg.getDistrict(b.getDistNo()).removeBlock(b);
-							if (nDist.getPopulation() >= minPopulation){
-								d.addBlock(b);									
-								b.setDistNo(d.getDistrictNo());
-								numbers.add(1);
+						while ((d.getPopulation() < minPopulation) && (nDist.getPopulation() > minPopulation)){
+							Hashtable<Integer, Block> bBlocks = d.getBorderingBlocks(nDist);
+							Block b;
+							Enumeration<Integer> enume = bBlocks.keys();
+							if (enume.hasMoreElements()){
+								b = bBlocks.remove(enume.nextElement());
+								bg.getDistrict(b.getDistNo()).removeBlock(b);
+								if (nDist.getPopulation() >= minPopulation){
+									d.addBlock(b);
+									b.setDistNo(d.getDistrictNo());
+									numbers.add(1);
+								}
+								else{
+									nDist.addBlock(b);
+									b.setDistNo(nDist.getDistrictNo());
+									break search2;
+								}
 							}
 							else{
-								nDist.addBlock(b);
-								b.setDistNo(nDist.getDistrictNo());
 								break search2;
 							}
 						}
-						else{
-							break search2;
-						}
-					}
 				}
 			}
 		}
@@ -377,84 +382,84 @@ public abstract class RedistrictingAlgorithm {
 	
 	protected void distantNeighborTransfers(District d){
 		numbers.clear();
-		//neighbors is the current set of neighbors to check on
+	//neighbors is the current set of neighbors to check on
 		ArrayList<District> neighbors = new ArrayList<District>();
-		//flags indicate which districts have already have their neighbors checked
+	//flags indicate which districts have already have their neighbors checked
 		ArrayList<District> flags = new ArrayList<District>();
-		//this is for under populated districts
+	//this is for under populated districts
 		ArrayList<Integer> m = d.getNeighboringDistricts();
 		neighbors = getNeighbors(m);
 		flags.add(d);
 		loop1:
-		while(!neighbors.isEmpty()){
-			for (int i=0; i<neighbors.size(); i++){
-				District z = neighbors.get(i);					
-				flags.add(z);
-				neighbors.remove(z);
-				ArrayList<Integer> n = z.getNeighboringDistricts();
-				ArrayList<District> newNeighbors = getNeighbors(n);
-				for (District y : newNeighbors){
-					if (!flags.contains(y)){
-						neighbors.add(y);
-						if(z.getPopulation()-idealPopulation>0){
-							//Geometry currentHull = y.getShape(); 
-							Block b;
-							loop2:
-							while((z.getPopulation() > minPopulation) && (y.getPopulation() < maxPopulation)) {
-								Hashtable<Integer, Block> bBlocks = y.getBorderingBlocks(z);
-								while(!bBlocks.isEmpty()){
-									Enumeration<Integer> enume = bBlocks.keys();
-									if (enume.hasMoreElements()){
-										b = bBlocks.remove(enume.nextElement());
-										bg.getDistrict(b.getDistNo()).removeBlock(b);
-										b.setDistNo(y.getDistrictNo());
-										y.addBlock(b);
-										if(y.getPopulation()>maxPopulation || z.getPopulation()<minPopulation){
-											bg.getDistrict(b.getDistNo()).removeBlock(b);
-											b.setDistNo(z.getDistrictNo());
-											z.addBlock(b);
-											break loop2;
-										}
-										else{
-											numbers.add(1);
-										}
-									}
-								}
-							}
-						}
-						else{
-							//Geometry currentHull = z.getShape(); 
-							Block b;
-							loop3:
-							while((z.getPopulation() < maxPopulation) && (y.getPopulation() > minPopulation)) {
-								Hashtable<Integer, Block> bBlocks = z.getBorderingBlocks(y);
-								while((!bBlocks.isEmpty())){
-								Enumeration<Integer> enume = bBlocks.keys();
-									if (enume.hasMoreElements()){
-										b = bBlocks.remove(enume.nextElement());
-										bg.getDistrict(b.getDistNo()).removeBlock(b);
-										b.setDistNo(z.getDistrictNo());
-										z.addBlock(b);
-										if(y.getPopulation()<minPopulation || z.getPopulation() > maxPopulation){
-											bg.getDistrict(b.getDistNo()).removeBlock(b);
-											b.setDistNo(y.getDistrictNo());
-											y.addBlock(b);
-											break loop3;
-										}
-										else{
-											numbers.add(1);
+			while(!neighbors.isEmpty()){
+				for (int i=0; i<neighbors.size(); i++){
+					District z = neighbors.get(i);
+					flags.add(z);
+					neighbors.remove(z);
+					ArrayList<Integer> n = z.getNeighboringDistricts();
+					ArrayList<District> newNeighbors = getNeighbors(n);
+					for (District y : newNeighbors){
+						if (!flags.contains(y)){
+							neighbors.add(y);
+							if(z.getPopulation()-idealPopulation>0){
+	//Geometry currentHull = y.getShape();
+								Block b;
+								loop2:
+									while((z.getPopulation() > minPopulation) && (y.getPopulation() < maxPopulation)) {
+										Hashtable<Integer, Block> bBlocks = y.getBorderingBlocks(z);
+										while(!bBlocks.isEmpty()){
+											Enumeration<Integer> enume = bBlocks.keys();
+											if (enume.hasMoreElements()){
+												b = bBlocks.remove(enume.nextElement());
+												bg.getDistrict(b.getDistNo()).removeBlock(b);
+												b.setDistNo(y.getDistrictNo());
+												y.addBlock(b);
+												if(y.getPopulation()>maxPopulation || z.getPopulation()<minPopulation){
+													bg.getDistrict(b.getDistNo()).removeBlock(b);
+													b.setDistNo(z.getDistrictNo());
+													z.addBlock(b);
+													break loop2;
+												}
+												else{
+													numbers.add(1);
+												}
+											}
 										}
 									}
-								}
+							}
+							else{
+	//Geometry currentHull = z.getShape();
+								Block b;
+								loop3:
+									while((z.getPopulation() < maxPopulation) && (y.getPopulation() > minPopulation)) {
+										Hashtable<Integer, Block> bBlocks = z.getBorderingBlocks(y);
+										while((!bBlocks.isEmpty())){
+											Enumeration<Integer> enume = bBlocks.keys();
+											if (enume.hasMoreElements()){
+												b = bBlocks.remove(enume.nextElement());
+												bg.getDistrict(b.getDistNo()).removeBlock(b);
+												b.setDistNo(z.getDistrictNo());
+												z.addBlock(b);
+												if(y.getPopulation()<minPopulation || z.getPopulation() > maxPopulation){
+													bg.getDistrict(b.getDistNo()).removeBlock(b);
+													b.setDistNo(y.getDistrictNo());
+													y.addBlock(b);
+													break loop3;
+												}
+												else{
+													numbers.add(1);
+												}
+											}
+										}
+									}
+							}
+							while(!numbers.isEmpty()){
+								finalizeDistricts();
+							}
+							if (d.getPopulation()>=minPopulation && d.getPopulation()<=maxPopulation){
+								break loop1;
 							}
 						}
-						while(!numbers.isEmpty()){
-							finalizeDistricts();
-						}
-						if (d.getPopulation()>=minPopulation && d.getPopulation()<=maxPopulation){
-							break loop1;
-						}
-					}		
 				}
 			}
 		}
@@ -508,14 +513,14 @@ public abstract class RedistrictingAlgorithm {
 			}
 		}
 	}
-
-
+	
+	
 	/**
-	 * Returns the first unassigned block. The block list should be ordered by
-	 * density using the {@link BlockDensityComparator}.
-	 * 
-	 * @return
-	 */
+	* Returns the first unassigned block. The block list should be ordered by
+	* density using the {@link BlockDensityComparator}.
+	*
+	* @return
+	*/
 	private Block findFirstUnassignedBlock(ArrayList<Block> list) {
 		for (Block b : list) {
 			if (b.getDistNo() == Block.UNASSIGNED) {
@@ -525,17 +530,17 @@ public abstract class RedistrictingAlgorithm {
 						countAssigned++;
 					}
 				}
-
+	
 				if (countAssigned < b.neighbors.size()) {
 					return b;
 				}
 			}
 		}
-
+	
 		return null;
 	}
 	public ArrayList<District> getNeighbors(ArrayList<Integer> m) {
-		
+	
 		ArrayList<District> neighbors = new ArrayList<District>();
 		for (District u : bg.getAllDistricts()){
 			for (int j : m){
@@ -544,48 +549,62 @@ public abstract class RedistrictingAlgorithm {
 				}
 			}
 		}
-		return neighbors;	
+		return neighbors;
 	}
 	private ArrayList<Block> chooseNeighborsToAdd(int basePop,
-			double upperBound, ArrayList<Block> blocks) {
-		// HashSet<Block> blocksToTake = new HashSet<Block>();
+	double upperBound, ArrayList<Block> blocks) {
+	// HashSet<Block> blocksToTake = new HashSet<Block>();
 		ArrayList<Block> returnList = new ArrayList<Block>();
 		int[] population = new int[blocks.size()];
 		int totalPop = basePop;
-
-		// populate the population array
+	
+	// populate the population array
 		for (int n = 0; n < blocks.size(); n++) {
 			population[n] = blocks.get(n).getPopulation();
 			totalPop += blocks.get(n).getPopulation();
 		}
-
+	
 		if (totalPop <= upperBound) {
-			// add all blocks
+	// add all blocks
 			return blocks;
 		} else {
 			Collections.sort(blocks);
 			int position = blocks.size() - 1;
 			totalPop = basePop;
 			totalPop += blocks.get(position).getPopulation();
-
+	
 			while (totalPop <= upperBound) {
 				returnList.add(blocks.get(position));
 				position--;
 				totalPop += blocks.get(position).getPopulation();
 			}
-
+	
 			return returnList;
 		}
 	}
 	
 	
-
+	
 	public BlockGraph getBlockGraph() {
 		return bg;
 	}
+	
+	protected class districtCompactnessComparator implements Comparator<District>{
 
+		public int compare(District d0, District d1) {
+			// TODO Auto-generated method stub
+			if(d0.getCompactness() > d1.getCompactness()){
+				return 1;
+			}
+			else if(d0.getCompactness() < d1.getCompactness()){
+				return -1;
+			}
+			return 0;
+		}
+		
+	}
 	protected class BlockDensityComparator implements Comparator<Block> {
-
+	
 		public int compare(Block o1, Block o2) {
 			if (o1.getDensity() > o2.getDensity()) {
 				return -1;
@@ -594,7 +613,8 @@ public abstract class RedistrictingAlgorithm {
 			}
 			return 0;
 		}
-
+	
 	}
 
 }
+

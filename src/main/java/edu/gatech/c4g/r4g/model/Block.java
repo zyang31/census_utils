@@ -26,6 +26,7 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Geometry;
 
 import edu.gatech.c4g.r4g.Redistrict;
 
@@ -41,11 +42,12 @@ public class Block implements Comparable<Block> {
 	private SimpleFeature feature;
 	private MultiPolygon polygon;
 	public HashSet<Block> neighbors;
-
+	public Geometry hull;
+	
 	public Block(SimpleFeature sf) {
 		feature = sf;
 		polygon = (MultiPolygon) sf.getDefaultGeometry();
-
+		this.hull = this.getPolygon();
 		// use only the integer part of the feature ID for compatibility with
 		// GAL files
 		String fId = sf.getID();

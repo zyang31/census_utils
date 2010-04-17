@@ -115,9 +115,10 @@ public abstract class Loader {
 					System.err.println("Error in GAL file at line " + line_num);
 					System.exit(1);
 				}
-
 				Block currentBlock = bg.getBlock(current_block_id);
-
+				/*Block currentBlock2 = bg.getBlock(1);
+				System.out.println("current_block_2:" + currentBlock2);*/
+				//System.out.println("current_block_id:" + current_block_id);
 				// now read neighbors ids
 				currentline = br.readLine();
 
@@ -140,8 +141,10 @@ public abstract class Loader {
 
 					// System.out.println("Adding " + neighbor_id +
 					// " to the neighbors of " + current_block_id);
-					
+					//System.out.println("neighbor_id:"+bg.getBlock(neighbor_id));
+					//System.out.println("currentBlock:"+currentBlock);
 					currentBlock.neighbors.add(bg.getBlock(neighbor_id));
+					//System.out.println("bwahahaha");
 					bg.getBlock(neighbor_id).neighbors.add(currentBlock);
 
 				}

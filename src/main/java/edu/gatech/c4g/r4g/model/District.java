@@ -36,31 +36,31 @@ public class District extends Graph {
 /**
 * District identifier
 */
-	private Geometry hull;
+	public Geometry hull;
 	private int districtNo;
 	public Hashtable<Integer, Block> flags = new Hashtable<Integer, Block>();
 	public District(int districtNo) {
 		blocks = new Hashtable<Integer, Block>();
 		this.districtNo = districtNo;
-		this.hull = hull;
+		this.hull = null;
 	}
- 
-/**
-* Returns this district's identifier
-*
-* @return
-*/
+	 
+	/**
+	* Returns this district's identifier
+	*
+	* @return
+	*/
 	public int getDistrictNo() {
 		return districtNo;
 	}
-	 
+	
 	public void addBlock(Block b) {
 		if (!blocks.containsKey(b.getId())) {
 			super.addBlock(b);
 			b.setDistNo(districtNo);
 		}
 	}
-	 
+	
 	/**
 	* Finds all the blocks on the border of this district, namely all the
 	* blocks that have one or more neighbors in another district.
@@ -75,12 +75,12 @@ public class District extends Graph {
 				Block current = i.next();
 				if (current.getDistNo() != b.getDistNo()) {
 					neighbors.put(current.getDistNo(), current);
+					}
 				}
 			}
-		}
 		return neighbors;
 	}
-	 
+	
 	/**
 	* Returns all the blocks bordering with the district with the input
 	* district identifier.
@@ -88,38 +88,31 @@ public class District extends Graph {
 	* @param DistNo
 	* @return
 	*/
-	/*public Hashtable<Integer, Block> getBorderingBlocks(District Dist) {
-		Hashtable<Integer, Block> neighbors = new Hashtable<Integer, Block>();
-		double compactness1 = hull.convexHull().getArea()/hull.getArea();
-		label:
-		for (Block b : blocks.values()) {
-			Iterator<Block> i = b.neighbors.iterator();
-			while (i.hasNext()) {
-				Block a = i.next();
-				hull = hull.union(a.getPolygon());
-				double compactness2 = hull.convexHull().getArea()/hull.getArea();
-				if ((a.getDistNo() == Dist.getDistrictNo()) && (isContiguous(a,Dist)) && !(compactness2 < .9*compactness1)) {
-					neighbors.put(a.getDistNo(), a);
-					break label;
-				}
-			}
-		}
-		return neighbors;
-	}*/
 	
-	 public Hashtable<Integer, Block> getBorderingBlocks(District Dist) {
+	
+	public Hashtable<Integer, Block> getBorderingBlocks(District Dist) {
 		Hashtable<Integer, Block> neighbors = new Hashtable<Integer, Block>();
 		label:
-		for (Block b : blocks.values()) {
-			Iterator<Block> i = b.neighbors.iterator();
-			while (i.hasNext()) {
-				Block a = i.next();
-				if ((a.getDistNo() == Dist.getDistrictNo()) && (isContiguous(a,Dist))) {
-					neighbors.put(a.getDistNo(), a);
-					break label;
+			for (Block b : blocks.values()) {
+				Iterator<Block> i = b.neighbors.iterator();
+				while (i.hasNext()) {
+					Block a = i.next();
+					double thisHull = this.getCompactness();
+					double distHull = Dist.getCompactness();
+					this.hull = this.hull.union(a.hull);
+					Dist.hull = Dist.hull.difference(a.hull);
+					if ((a.getDistNo() == Dist.getDistrictNo()) && (isContiguous(a,Dist))) {
+						if(this.getCompactness()>thisHull){
+							neighbors.put(a.getDistNo(), a);
+							break label;
+						}
+						else{
+							this.hull=this.hull.difference(a.hull);
+							Dist.hull = Dist.hull.union(a.hull);
+						}
+					}
 				}
 			}
-		}
 		return neighbors;
 	}
 	
@@ -128,20 +121,20 @@ public class District extends Graph {
 		for (Block b : blocks.values()) {
 			if (distPoly == null) {
 				distPoly = b.getPolygon();
-			} 
+			}
 			else {
 				distPoly = distPoly.union(b.getPolygon());
 			}
 		}
-	 
+	
 	// System.out.println("Compactness of " + districtNo + ": " +
 	// (1/(convexHull.getArea() - distPoly.getArea())));
-	 
+	
 		return distPoly;
 	
 	}
-	 
-	 
+	
+	
 	/**
 	* Returns an {@link ArrayList} containing the district identifiers of the
 	* neighboring districts.
@@ -166,7 +159,7 @@ public class District extends Graph {
 		}
 		return neighbors;
 	}
-	 
+	
 	/**
 	* Removes the input block from this district.
 	*/
@@ -174,7 +167,7 @@ public class District extends Graph {
 		super.removeBlock(b);
 		b.setDistNo(Block.UNASSIGNED);
 	}
-	 
+	
 	/**
 	* Checks if this district's population is within the required range.
 	*
@@ -250,21 +243,8 @@ public class District extends Graph {
 	* @return
 	*/
 	public double getCompactness() {
-		Geometry distPoly = null;
-		for (Block b : blocks.values()) {
-			if (distPoly == null) {
-				distPoly = b.getPolygon();
-			} 
-			else {
-				distPoly = distPoly.union(b.getPolygon());
-			}
-		}
-		Geometry convexHull = distPoly.convexHull();
-	 
-	// System.out.println("Compactness of " + districtNo + ": " +
-	// (1/(convexHull.getArea() - distPoly.getArea())));
-	 
-		return distPoly.getArea() / convexHull.getArea();
+	
+		return this.hull.getArea() / this.hull.convexHull().getArea();
 	}
- 
+	 
 }

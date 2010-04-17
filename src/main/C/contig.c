@@ -99,8 +99,8 @@ SHPObject **block_list = NULL;
 int block_count;
 //char sf_name[] = "/home/sumanth/Documents/eDemocracy/Files/Fultoncombinednd.shp";
 //char sf_name[] = "/home/joshua/FultonCoData/Fultoncombinednd.shp";
-char sf_name[] = "/home/zimu/census_utils/Fultoncounty/Fultoncombinednd.shp";
-//char sf_name[]="/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
+//char sf_name[] = "/home/altheacynara/Documents/fultonData/Fultoncombinednd.shp";
+char sf_name[]="/home/zimu/census_utils/Utah/tl_2008_49_tabblock00combinednd.shp";
 int **Sub_Graph_Head = NULL;
 int sub_graph_count = 0;
 int *visited = NULL, *centroid_list_SG;
@@ -552,8 +552,8 @@ int main(){
   generate_neighbor_table();
  
   sort_NTABLE();
-  //compute_Sub_Graphs();
-  //Join_Sub_Graphs();
+  compute_Sub_Graphs();
+  Join_Sub_Graphs();
  
   /* Use print_neighbor_table to print the neighbors of all the blocks */
   //print_neighbor_table();
