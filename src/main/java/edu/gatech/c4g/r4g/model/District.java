@@ -36,6 +36,7 @@ public class District extends Graph {
 /**
 * District identifier
 */
+	public int hullSize;
 	public Geometry hull;
 	private int districtNo;
 	public Hashtable<Integer, Block> flags = new Hashtable<Integer, Block>();
@@ -43,6 +44,7 @@ public class District extends Graph {
 		blocks = new Hashtable<Integer, Block>();
 		this.districtNo = districtNo;
 		this.hull = null;
+		hullSize = 0;
 	}
 	 
 	/**
